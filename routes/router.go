@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"JosefKuchar/iis-project/cmd/models"
 
@@ -75,7 +77,15 @@ func Router() chi.Router {
 
 	fs := http.FileServer(http.Dir("static"))
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	var files []string
+	filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+
+	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
