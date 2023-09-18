@@ -1,3 +1,4 @@
+{{ define "header" }}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +9,8 @@
     <title>Document</title>
   </head>
   <body>
-    <h1 class="text-red-500 font-bold">Test asdfasdf</h1>
-    <button class="btn" hx-post="/clicked" hx-swap="outerHTML">Click me</button>
+{{ end }}
+{{ define "footer" }}
   </body>
 </html>
+{{ end }}

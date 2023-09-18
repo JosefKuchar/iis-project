@@ -13,7 +13,6 @@ exclude_dir = [
   "vendor",
   "testdata",
   "node_modules",
-  "templates",
   "static",
   "css",
 ]

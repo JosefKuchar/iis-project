@@ -1,0 +1,38 @@
+- model: UserToEvent
+
+- model: CategoryToEvent
+
+- model: Role
+  rows:
+    - name: "Administrátor"
+    - name: "Moderátor"
+    - name: "Registrovaný uživatel"
+    - name: "Neregistrovaný uživatel"
+
+- model: User
+  rows:
+    - name: John Smith
+      role_id: 1
+
+- model: Event
+
+- model: Category
+  rows:
+    - name: Hudba
+    - name: Koncert
+      parent_id: 1
+    - name: Festival
+      parent_id: 1
+    - name: Vzdělání
+    - name: Přednáška
+      parent_id: 4
+    - name: "Open air"
+      parent_id: 2
+
+- model: Location
+
+- model: EntranceFee
+
+- model: Comment
+
+- model: Rating
