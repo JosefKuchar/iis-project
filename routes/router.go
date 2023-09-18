@@ -72,8 +72,6 @@ func Router() chi.Router {
 	)
 
 	ctx := context.Background()
-	_ = ctx
-	println(db)
 
 	fs := http.FileServer(http.Dir("static"))
 
