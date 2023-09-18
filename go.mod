@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.23.2 // indirect
+	github.com/go-chi/chi v1.5.5 // indirect
 	github.com/go-chi/chi/v5 v5.0.10 // indirect
 	github.com/go-faker/faker/v4 v4.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
