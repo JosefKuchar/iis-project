@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -26,29 +25,8 @@ type resources struct {
 
 func (rs resources) Routes() chi.Router {
 	r := chi.NewRouter()
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		// Fetch all users and print them.
-		var users []models.User
-		if err := rs.db.NewSelect().Model(&users).Scan(rs.ctx); err != nil {
-			panic(err)
-		}
-		for _, user := range users {
-			println(user.Name)
-		}
-
-		rs.tmpl.ExecuteTemplate(w, "main.html", users)
-	})
-
-	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
-		rs.tmpl.ExecuteTemplate(w, "login.html", nil)
-	})
-
-	r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
-		username := r.FormValue("email")
-		password := r.FormValue("password")
-		fmt.Println(username, password)
-	})
+	r.Mount("/login", rs.LoginRoutes())
+	r.Mount("/register", rs.RegisterRoutes())
 
 	return r
 }

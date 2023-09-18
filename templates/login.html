@@ -1,11 +1,11 @@
 {{ template "header" }}
+<form hx-post="/login">
 <div class="grid grid-cols-1">
-  <form hx-post="/login">
     <input type="text" name="email" class="input" />
 
     <input type="password" name="password" class="input" />
 
     <button class="btn-primary btn">Login</button>
-  </form>
-</div>
+  </div>
+</form>
 {{ template "footer"}}

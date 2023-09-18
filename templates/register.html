@@ -1,0 +1,48 @@
+{{ template "header" }}
+<form>
+  <div
+    class="grid grid-cols-1 m-5"
+    hx-post="/register/validate"
+    hx-trigger="change"
+    hx-target="#error-div"
+    hx-after-swap="checkErrorDiv()"
+    id="register-div"
+  >
+    <label>Email</label>
+    <input type="text" name="email" class="input" />
+
+    <label>Password</label>
+    <input type="password" name="password" class="input" />
+
+    <label>Repeat Password</label>
+    <input type="password" name="repeated_password" class="input" />
+
+    <button
+      class="btn-primary btn"
+      hx-post="/register"
+      id="register-button"
+      disabled="true"
+    >
+      Register
+    </button>
+    <div id="error-div"></div>
+  </div>
+</form>
+{{ template "footer"}}
+
+<script>
+  document
+    .getElementById("register-div")
+    .addEventListener("htmx:afterSwap", function () {
+      const errorDiv = document.getElementById("error-div");
+      const registerButton = document.getElementById("register-button");
+
+      if (errorDiv && errorDiv.textContent.trim() !== "") {
+        // If there's an error message, disable the button
+        registerButton.disabled = true;
+      } else {
+        // If there's no error message, enable the button
+        registerButton.disabled = false;
+      }
+    });
+</script>
