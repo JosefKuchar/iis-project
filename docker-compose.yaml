@@ -1,6 +1,6 @@
 services:
-  mysql:
-    image: mysql:latest
+  db:
+    image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: ""
       MYSQL_DATABASE: iis
