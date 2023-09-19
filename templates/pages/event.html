@@ -1,0 +1,5 @@
+{{ define "page-event" }} {{ template "header" }}
+<h1 class="text-3xl text-center m-10">{{ .Name }}</h1>
+<p>{{ .Description }}</p>
+{{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{ .Location.Name
+}} {{ template "footer" }} {{ end }}
