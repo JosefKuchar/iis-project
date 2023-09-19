@@ -81,7 +81,7 @@ func main() {
 		user := &models.User{
 			Name:     gofakeit.Name(),
 			Email:    gofakeit.Email(),
-			Password: gofakeit.Password(true, true, true, true, true, 10),
+			Password: "$2a$10$Ioo2eOK1UZSJiQ2oh.4Unuvl7MHtrQZLA8WEnEZDytacLXqDFoAXS", // "password"
 			RoleID:   int64(gofakeit.Number(1, 3)),
 		}
 		db.NewInsert().Model(user).Exec(ctx)

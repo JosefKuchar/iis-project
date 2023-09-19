@@ -9,6 +9,7 @@ import (
 	"JosefKuchar/iis-project/cmd/models"
 
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type TemplateData struct {
@@ -34,11 +35,15 @@ func (rs resources) RegisterRoutes() chi.Router {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		var user models.User
+		bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			panic(err)
+		}
 
-		// TODO: maybe hash it? kek
-		user.Email = email
-		user.Password = password
+		user := models.User{
+			Email:    email,
+			Password: string(bcryptPassword),
+		}
 
 		// TODO: check errors
 		rs.db.NewInsert().Model(&user).Exec(r.Context())

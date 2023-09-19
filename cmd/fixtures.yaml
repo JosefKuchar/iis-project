@@ -11,7 +11,9 @@
 
 - model: User
   rows:
-    - name: John Smith
+    - name: Franta Novák
+      email: franta@example.com
+      password: "$2a$10$Ioo2eOK1UZSJiQ2oh.4Unuvl7MHtrQZLA8WEnEZDytacLXqDFoAXS"
       role_id: 1
 
 - model: Event

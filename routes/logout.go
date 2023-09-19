@@ -17,7 +17,9 @@ func (rs resources) LogoutRoutes() chi.Router {
 			MaxAge: -1,
 		})
 
-		w.WriteHeader(http.StatusOK)
+		// Redirect to login
+		w.Header().Set("HX-Redirect", "/login")
+		rs.tmpl.ExecuteTemplate(w, "index.html", nil)
 	})
 
 	return r

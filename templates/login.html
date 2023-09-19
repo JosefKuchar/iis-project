@@ -1,6 +1,6 @@
 {{ template "header" }}
 <form hx-post="/login">
-<div class="grid grid-cols-1">
+  <div class="grid grid-cols-1">
     <input type="text" name="email" class="input" />
 
     <input type="password" name="password" class="input" />
@@ -8,4 +8,6 @@
     <button class="btn-primary btn">Login</button>
   </div>
 </form>
+<a href="/register">Register</a>
+
 {{ template "footer"}}
