@@ -1,5 +1,13 @@
 {{ define "page-events" }} {{ template "header" }}
 <h1 class="text-3xl text-center m-10">Události</h1>
+
+<div class="form-control w-full max-w-xs">
+  <label class="label">
+    <span class="label-text">Fulltext</span>
+  </label>
+  <input type="text" class="input input-bordered w-full max-w-xs" />
+</div>
+
 <div class="grid grid-cols-4 gap-10">
   {{ range . }}
   <a
@@ -10,15 +18,19 @@
       <img src="https://picsum.photos/seed/{{ .ID }}/500/200" />
     </figure>
     <div class="card-body">
-      <h2 class="card-title">{{ .Name }}</h2>
-      <p>{{ .Description }}</p>
-      {{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{
-      .Location.Name }}
-    </div>
-    <div class="flex">
-      {{ range .Categories }}
-      <div class="badge badge-primary m-2">{{ .Name }}</div>
-      {{ end }}
+      <h2 class="card-title">
+        <span class="text-xl text-secondary">#{{ .ID }}</span> {{ .Name }}
+      </h2>
+      <div class="flex items-center">
+        <i class="las la-map-marker-alt"></i>
+        <div class="ml-1">{{ .Location.Name }}</div>
+      </div>
+      {{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }}
+      <div class="flex">
+        {{ range .Categories }}
+        <div class="badge badge-primary mr-2 p-3">{{ .Name }}</div>
+        {{ end }}
+      </div>
     </div>
   </a>
   {{ end}}
