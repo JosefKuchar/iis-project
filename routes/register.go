@@ -78,7 +78,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 			data["Valid"] = ""
 		} else {
 			var user models.User
-			err := rs.db.NewSelect().Model(&user).Where("Email = ?", email).Scan(r.Context())
+			err := rs.db.NewSelect().Model(&user).Where("email = ?", email).Scan(r.Context())
 			if err == nil {
 				data["EmailError"] = "User already exists"
 				data["Valid"] = ""

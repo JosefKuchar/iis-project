@@ -22,7 +22,7 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		var event models.Event
-		err := rs.db.NewSelect().Model(&event).Where("Event.ID = ?", id).Relation("Location").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&event).Where("event.id = ?", id).Relation("Location").Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 		}
