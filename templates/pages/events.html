@@ -1,0 +1,6 @@
+{{ define "page-events" }} {{ template "header" }} {{ range . }}
+<div class="card">
+  {{ .Name }} {{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{
+  .Location.Name }}
+</div>
+{{ end}} {{ template "footer" }} {{ end }}

@@ -27,6 +27,7 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/login", rs.LoginRoutes())
 	r.Mount("/register", rs.RegisterRoutes())
 	r.Mount("/logout", rs.LogoutRoutes())
+	r.Mount("/events", rs.EventRoutes())
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Authenticator)
