@@ -1,0 +1,21 @@
+{{ define "page-admin-users" }} {{ template "header" }}
+<h1>Uživatelé</h1>
+<a href="/admin/users/new" class="btn btn-primary"
+  ><i class="las la-plus"></i>Nový uživatel</a
+>
+<table class="table table-zebra">
+  <tr>
+    <th>ID</th>
+    <th>Email</th>
+    <th>Role</th>
+  </tr>
+  {{ range . }}
+  <tr class="hover cursor-pointer">
+    <td>{{ .ID }}</td>
+    <td>{{ .Email }}</td>
+    <td>{{ .Role.Name }}</td>
+  </tr>
+  {{ end }}
+</table>
+
+{{ template "footer" }} {{ end }}

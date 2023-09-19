@@ -32,9 +32,7 @@ func (rs resources) Routes() chi.Router {
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Authenticator)
-		r.Get("/protected", func(w http.ResponseWriter, r *http.Request) {
-			rs.tmpl.ExecuteTemplate(w, "index.html", nil)
-		})
+		r.Mount("/admin/users", rs.AdminUsersRoutes())
 	})
 
 	return r
