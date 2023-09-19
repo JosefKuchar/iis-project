@@ -29,7 +29,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("HX-Redirect", "/login")	
+		w.Header().Set("HX-Redirect", "/login")
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
@@ -41,7 +41,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 		user.Password = password
 
 		// TODO: check errors
-		rs.db.NewInsert().Model(&user).Exec(rs.ctx)
+		rs.db.NewInsert().Model(&user).Exec(r.Context())
 
 		w.WriteHeader(http.StatusOK)
 	})
@@ -57,7 +57,6 @@ func (rs resources) RegisterRoutes() chi.Router {
 		password := r.FormValue("password")
 		repeated_password := r.FormValue("repeated_password")
 
-
 		fmt.Println(err)
 
 		var msg string
@@ -67,7 +66,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 			msg = "Invalid email"
 		} else {
 			var user models.User
-			err = rs.db.NewSelect().Model(&user).Where("Email = ?", email).Scan(rs.ctx)
+			err = rs.db.NewSelect().Model(&user).Where("Email = ?", email).Scan(r.Context())
 			if err == nil {
 				msg = "User already exists"
 			}

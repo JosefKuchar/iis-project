@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"database/sql"
 	"html/template"
 	"net/http"
@@ -19,7 +18,6 @@ import (
 
 type resources struct {
 	db   *bun.DB
-	ctx  context.Context
 	tmpl *template.Template
 }
 
@@ -32,11 +30,11 @@ func (rs resources) Routes() chi.Router {
 }
 
 func Router() chi.Router {
+	// Connect to database
 	sqldb, err := sql.Open("mysql", "root:@/iis")
 	if err != nil {
 		panic(err)
 	}
-
 	db := bun.NewDB(sqldb, mysqldialect.New())
 	db.RegisterModel(
 		(*models.UserToEvent)(nil),
@@ -51,27 +49,30 @@ func Router() chi.Router {
 		(*models.Rating)(nil),
 	)
 
-	ctx := context.Background()
-
+	// Serve static files
 	fs := http.FileServer(http.Dir("static"))
 
+	// Parse all tempaltes
 	var files []string
 	filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			files = append(files, path)
 		}
+		if err != nil {
+			return err
+		}
 		return nil
 	})
-
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
 
+	// Create router
 	r := chi.NewRouter()
+	resources := &resources{db: db, tmpl: tmpl}
 
-	resources := &resources{db: db, ctx: ctx, tmpl: tmpl}
-
+	// Set up routes
 	r.Use(middleware.Logger)
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Handle("/*", resources.Routes())
