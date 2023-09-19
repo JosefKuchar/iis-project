@@ -19,6 +19,16 @@ func (rs resources) EventRoutes() chi.Router {
 		rs.tmpl.ExecuteTemplate(w, "page-events", events)
 	})
 
+	r.Post("/search", func(w http.ResponseWriter, r *http.Request) {
+		var events []models.Event
+		slug := r.FormValue("slug")
+
+		// TODO: search in more fields not just in description
+		rs.db.NewSelect().Model(&events).Where("?TableAlias.description LIKE ?", "%"+slug+"%").Relation("Location").Relation("Categories").Scan(r.Context())
+
+		rs.tmpl.ExecuteTemplate(w, "event-list", events)
+	})
+
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]interface{})
 
