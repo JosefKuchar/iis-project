@@ -17,12 +17,12 @@ func (rs resources) LoginRoutes() chi.Router {
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		username := r.FormValue("email")
+		email := r.FormValue("email")
 		password := r.FormValue("password")
 
 		// Verify email and password
 		var user models.User
-		err := rs.db.NewSelect().Model(&user).Where("email = ?", username).Scan(r.Context())
+		err := rs.db.NewSelect().Model(&user).Where("email = ?", email).Relation("Role").Scan(r.Context())
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -37,7 +37,13 @@ func (rs resources) LoginRoutes() chi.Router {
 		}
 
 		// Generate token
-		_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"username": username})
+		_, tokenString, err := tokenAuth.Encode(map[string]interface{}{
+			"ID":     user.ID,
+			"Name":   user.Name,
+			"Email":  user.Email,
+			"RoleID": user.RoleID,
+			"Role":   user.Role,
+		})
 		if err != nil {
 			panic(err)
 		}

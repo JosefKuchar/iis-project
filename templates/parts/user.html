@@ -1,0 +1,5 @@
+{{ define "user" }}
+<div>{{ .Name }}, {{ .Role.Name }}</div>
+{{ end }} {{ define "user-not-logged-in"}}
+<a href="/login">Přihlásit se</a>
+{{ end }}

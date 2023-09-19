@@ -1,5 +1,6 @@
 {{ define "page-events" }} {{ template "header" }}
 <h1 class="text-3xl text-center m-10">Události</h1>
+<div hx-get="/user" hx-trigger="load"></div>
 
 <div class="form-control w-full max-w-xs">
   <label class="label">
