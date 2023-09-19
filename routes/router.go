@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
@@ -26,7 +27,22 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/login", rs.LoginRoutes())
 	r.Mount("/register", rs.RegisterRoutes())
 
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Authenticator)
+		r.Get("/protected", func(w http.ResponseWriter, r *http.Request) {
+			rs.tmpl.ExecuteTemplate(w, "index.html", nil)
+		})
+	})
+
 	return r
+}
+
+var tokenAuth *jwtauth.JWTAuth
+
+func init() {
+	// TODO: change secret
+	// Generate token
+	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 }
 
 func Router() chi.Router {
@@ -74,6 +90,7 @@ func Router() chi.Router {
 
 	// Set up routes
 	r.Use(middleware.Logger)
+	r.Use(jwtauth.Verifier(tokenAuth))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Handle("/*", resources.Routes())
 
