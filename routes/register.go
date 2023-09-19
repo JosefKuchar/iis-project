@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"fmt"
-	"html/template"
 	"net/http"
 	"net/mail"
 
@@ -26,7 +24,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		rs.tmpl.ExecuteTemplate(w, "register.html", nil)
+		rs.tmpl.ExecuteTemplate(w, "page-register", nil)
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
@@ -52,36 +50,42 @@ func (rs resources) RegisterRoutes() chi.Router {
 	})
 
 	r.Post("/validate", func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := template.New("error").Parse(`<div>{{.ErrorMessage}}</div>`)
-
-		if err != nil {
-			panic(err)
-		}
+		data := make(map[string]string)
+		data["Valid"] = "true"
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 		repeated_password := r.FormValue("repeated_password")
 
-		fmt.Println(err)
+		data["Email"] = email
+		data["Password"] = password
+		data["RepeatedPassword"] = repeated_password
 
-		var msg string
 		if password != repeated_password {
-			msg = "Passwords do not match"
-		} else if !validateEmail(email) {
-			msg = "Invalid email"
+			if len(repeated_password) != 0 {
+				data["RepeatedPasswordError"] = "Passwords do not match"
+			}
+			data["Valid"] = ""
+		}
+		if len(password) < 4 {
+			if len(password) != 0 {
+				data["PasswordError"] = "Password must be at least 4 characters long"
+			}
+			data["Valid"] = ""
+		}
+		if !validateEmail(email) {
+			data["EmailError"] = "Invalid email"
+			data["Valid"] = ""
 		} else {
 			var user models.User
-			err = rs.db.NewSelect().Model(&user).Where("Email = ?", email).Scan(r.Context())
+			err := rs.db.NewSelect().Model(&user).Where("Email = ?", email).Scan(r.Context())
 			if err == nil {
-				msg = "User already exists"
+				data["EmailError"] = "User already exists"
+				data["Valid"] = ""
 			}
 		}
 
-		data := TemplateData{
-			ErrorMessage: msg,
-		}
-
-		tmpl.Execute(w, data)
+		rs.tmpl.ExecuteTemplate(w, "page-register-form", data)
 	})
 
 	return r
