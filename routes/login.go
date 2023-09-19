@@ -52,6 +52,8 @@ func (rs resources) LoginRoutes() chi.Router {
 			Name:  "jwt",
 			Value: tokenString,
 		})
+
+		w.Header().Set("HX-Redirect", "/events")
 	})
 
 	return r
