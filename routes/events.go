@@ -24,7 +24,16 @@ func (rs resources) EventRoutes() chi.Router {
 
 		id := chi.URLParam(r, "id")
 		var event models.Event
-		err := rs.db.NewSelect().Model(&event).Where("event.id = ?", id).Relation("Location").Relation("Categories").Scan(r.Context())
+		err := rs.db.
+			NewSelect().
+			Model(&event).
+			Where("event.id = ?", id).
+			Relation("Location").
+			Relation("Categories").
+			Relation("Comments").
+			Relation("Comments.User").
+			Scan(r.Context())
+
 		if err != nil {
 			fmt.Println(err)
 		}
