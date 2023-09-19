@@ -12,9 +12,14 @@
     <div class="card-body">
       <h2 class="card-title">{{ .Name }}</h2>
       <p>{{ .Description }}</p>
+      {{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{
+      .Location.Name }}
     </div>
-    {{ .Name }} {{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{
-    .Location.Name }}
+    <div class="flex">
+      {{ range .Categories }}
+      <div class="badge badge-primary m-2">{{ .Name }}</div>
+      {{ end }}
+    </div>
   </a>
   {{ end}}
 </div>

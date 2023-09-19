@@ -14,7 +14,7 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		// Fetch all events
 		var events []models.Event
-		rs.db.NewSelect().Model(&events).Relation("Location").Scan(r.Context())
+		rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Scan(r.Context())
 
 		rs.tmpl.ExecuteTemplate(w, "page-events", events)
 	})
