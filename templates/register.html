@@ -8,35 +8,53 @@
   hx-swap="outerHTML"
   id="register-div"
 >
-  <label>Email</label>
-  <input
-    type="text"
-    name="email"
-    class="input"
-    id="email"
-    value="{{ .Email }}"
-  />
-  <div class="text-red-600">{{ .EmailError }}</div>
+  <div class="form-control my-2">
+    <label class="label">
+      <span class="label-text">Email</span>
+    </label>
+    <input
+      type="text"
+      name="email"
+      id="email"
+      class="input input-bordered"
+      value="{{ .Email }}"
+    />
+    <label class="label">
+      <div class="text-red-600">{{ .PasswordError }}</div>
+    </label>
+  </div>
 
-  <label>Password</label>
-  <input
-    type="password"
-    name="password"
-    class="input"
-    id="password"
-    value="{{ .Password }}"
-  />
-  <div class="text-red-600">{{ .PasswordError }}</div>
+  <div class="form-control my-2">
+    <label class="label">
+      <span class="label-text">Password</span>
+    </label>
+    <input
+      type="password"
+      name="password"
+      id="password"
+      class="input input-bordered"
+      value="{{ .Password }}"
+    />
+    <label class="label">
+      <div class="text-red-600">{{ .PasswordError }}</div>
+    </label>
+  </div>
 
-  <label>Repeat Password</label>
-  <input
-    type="password"
-    name="repeated_password"
-    id="repeated_password"
-    class="input"
-    value="{{ .RepeatedPassword }}"
-  />
-  <div class="text-red-600">{{ .RepeatedPasswordError }}</div>
+  <div class="form-control my-2">
+    <label class="label">
+      <span class="label-text">Repeat password</span>
+    </label>
+    <input
+      type="password"
+      name="repeated_password"
+      id="repeated_password"
+      class="input input-bordered"
+      value="{{ .RepeatedPassword }}"
+    />
+    <label class="label">
+      <div class="text-red-600">{{ .RepeatedPasswordError }}</div>
+    </label>
+  </div>
 
   <button
     class="btn-primary btn"
