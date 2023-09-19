@@ -1,5 +1,17 @@
 {{ define "page-event" }} {{ template "header" }}
-<h1 class="text-3xl text-center m-10">{{ .Name }}</h1>
-<p>{{ .Description }}</p>
-{{ .Start.Format "2. 1. 15:04" }} - {{ .End.Format "15:04" }} {{ .Location.Name
-}} {{ template "footer" }} {{ end }}
+<h1 class="text-3xl text-center m-10">{{ .Event.Name }}</h1>
+<p>{{ .Event.Description }}</p>
+{{ .Event.Start.Format "2. 1. 15:04" }} - {{ .Event.End.Format "15:04" }} {{
+.Event.Location.Name }}
+<div class="flex">
+  {{ range .Categories}}
+  <div class="badge badge-primary m-2 flex">
+    {{ range $i, $el := . }} {{ if $i }} <i class="las la-angle-right"></i> {{
+    end}}
+    <div>{{ $el.Name }}</div>
+    {{ end}}
+  </div>
+  {{ end}}
+</div>
+
+{{ template "footer" }} {{ end }}

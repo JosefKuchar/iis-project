@@ -20,29 +20,34 @@ func (rs resources) EventRoutes() chi.Router {
 	})
 
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		data := make(map[string]interface{})
+
 		id := chi.URLParam(r, "id")
 		var event models.Event
 		err := rs.db.NewSelect().Model(&event).Where("event.id = ?", id).Relation("Location").Relation("Categories").Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 		}
+		data["Event"] = event
 
-
+		var categories [][]models.Category
 		for _, category := range event.Categories {
-			var categories []models.Category
-			rs.db.NewRaw(
+			var tree []models.Category
+			err = rs.db.NewRaw(
 				`WITH RECURSIVE children as (
-					SELECT * FROM categories c WHERE c.id = ?
+					SELECT c.*, 0 AS depth FROM categories c WHERE c.id = ?
 					UNION ALL
-					SELECT c2.* FROM categories as c2, children as ch
-					WHERE c2.id = ch.parent_id 
+					SELECT c2.*, ch.depth + 1 FROM categories as c2, children as ch
+					WHERE c2.id = ch.parent_id
 				)
-				SELECT * FROM children
-				`, category.ID).Scan(r.Context(), &categories)
-			
-			fmt.Println(categories)
+				SELECT name, id, parent_id FROM children ORDER BY depth DESC
+				`, category.ID).Scan(r.Context(), &tree)
+			categories = append(categories, tree)
+			fmt.Println(tree)
+			fmt.Println(err)
 		}
-		rs.tmpl.ExecuteTemplate(w, "page-event", event)
+		data["Categories"] = categories
+		rs.tmpl.ExecuteTemplate(w, "page-event", data)
 	})
 
 	return r
