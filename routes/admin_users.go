@@ -4,12 +4,26 @@ import (
 	"JosefKuchar/iis-project/cmd/models"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func (rs resources) AdminUsersRoutes() chi.Router {
 	r := chi.NewRouter()
+
+	getTemplateData := func(rs resources, r *http.Request) map[string]interface{} {
+		data := make(map[string]interface{})
+		var roles []models.Role
+
+		err := rs.db.NewSelect().Model(&roles).Scan(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		data["Roles"] = roles
+		return data
+	}
 
 	// User list
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +45,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 
 	// Existing user detail
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		tmplData := make(map[string]interface{})
+		tmplData := getTemplateData(rs, r)
 		var user models.User
 
 		err := rs.db.NewSelect().Model(&user).Relation("Role").Where("user.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
@@ -56,13 +70,19 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 
 	// Form updater
 	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
-		tmplData := make(map[string]interface{})
+		tmplData := getTemplateData(rs, r)
 		data := make(map[string]interface{})
 		errors := make(map[string]string)
+
+		roleID, err := strconv.Atoi(r.FormValue("role_id"))
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		data["ID"] = chi.URLParam(r, "id")
 		data["Email"] = r.FormValue("email")
 		data["Name"] = r.FormValue("name")
+		data["RoleID"] = roleID
 
 		if data["Email"] == "" {
 			errors["Email"] = "Email cannot be empty"
@@ -75,7 +95,10 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		tmplData["Errors"] = errors
 		tmplData["Data"] = data
 
-		rs.tmpl.ExecuteTemplate(w, "page-admin-user-detail-form", tmplData)
+		err = rs.tmpl.ExecuteTemplate(w, "page-admin-user-detail-form", tmplData)
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
 
 	return r

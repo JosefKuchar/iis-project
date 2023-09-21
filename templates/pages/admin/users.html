@@ -10,7 +10,12 @@
     <th>Role</th>
   </tr>
   {{ range . }}
-  <tr class="hover cursor-pointer">
+  <tr
+    class="hover cursor-pointer"
+    hx-get="/admin/users/{{ .ID }}"
+    hx-target="body"
+    hx-push-url="true"
+  >
     <td>{{ .ID }}</td>
     <td>{{ .Email }}</td>
     <td>{{ .Role.Name }}</td>

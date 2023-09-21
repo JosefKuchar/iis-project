@@ -2,7 +2,7 @@
 "page-admin-user-detail-form" . }} {{ template "footer" }} {{ end }} {{ define
 "page-admin-user-detail-form" }}
 <form
-  hx-trigger="keyup change delay:300ms"
+  hx-trigger="keyup delay:300ms, change from:#role_id"
   hx-swap="morph"
   hx-post="/admin/users/{{ .Data.ID }}/form"
   id="user-detail-form"
@@ -15,6 +15,7 @@
       type="text"
       class="input input-bordered {{ if .Errors.Name }} input-error {{ end }}"
       name="name"
+      id="name"
       value="{{ .Data.Name }}"
     />
     <label class="label">
@@ -33,6 +34,37 @@
     />
     <label class="label">
       <div class="text-error">{{ .Errors.Email }}&nbsp;</div>
+    </label>
+  </div>
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">Role *</span>
+    </label>
+    <select
+      class="input input-bordered {{ if .Errors.Role }} input-error {{ end }}"
+      name="role_id"
+      id="role_id"
+    >
+      {{ range .Roles }}
+      <option
+        value="{{ .ID }}"
+        {{
+        if
+        eq
+        .ID
+        $.Data.RoleID
+        }}
+        selected
+        {{
+        end
+        }}
+      >
+        {{ .Name }}
+      </option>
+      {{ end }}
+    </select>
+    <label class="label">
+      <div class="text-error">{{ .Errors.Role }}&nbsp;</div>
     </label>
   </div>
 </form>
