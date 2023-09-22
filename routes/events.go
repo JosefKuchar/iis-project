@@ -7,7 +7,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/uptrace/bun"
 )
+
+func addTextSearch(q *bun.SelectQuery, text string) *bun.SelectQuery {
+	return q.Where("event.description LIKE ?", "%"+text+"%")
+}
+
+func addUserFilter(q *bun.SelectQuery, userId interface{}) *bun.SelectQuery {
+	return q.Join("JOIN user_to_event AS ute ON ute.event_id = event.id").
+		Where("ute.user_id = ?", userId)
+}
+
+func addCategoryFilter(q *bun.SelectQuery, categories []int64) *bun.SelectQuery {
+	return q.Join("JOIN category_to_event AS cte ON cte.event_id = event.id").
+		Where("cte.category_id IN (?)", bun.In(categories))
+}
 
 func (rs resources) EventRoutes() chi.Router {
 	r := chi.NewRouter()
@@ -21,30 +36,46 @@ func (rs resources) EventRoutes() chi.Router {
 	})
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: merge into 1 route so both filters can be applied together
-
 		var events []models.Event
 		slug := r.FormValue("slug")
 		checked := r.FormValue("myEvents")
+		category := r.FormValue("category")
 
 		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories")
 
 		if slug != "" {
-			q = q.Where("event.description LIKE ?", "%"+slug+"%")
+			q = addTextSearch(q, slug)
 		}
 
 		if checked != "" {
 			token, claims, _ := jwtauth.FromContext(r.Context())
 			if token != nil {
-				user_id := claims["ID"]
-				q = q.Join("JOIN user_to_event AS ute ON ute.event_id = event.id").
-					Where("ute.user_id = ?", user_id)
-			} 
+				q = addUserFilter(q, claims["ID"])
+			}
+		}
+
+		if category != "" {
+			var categories []models.Category
+
+			rs.db.NewRaw(
+				`WITH RECURSIVE cte as (
+					SELECT id, name, parent_id, id as top
+					FROM categories
+					WHERE name = ?
+					UNION ALL SELECT a.id, a.name, a.parent_id, b.top
+					FROM categories a INNER JOIN cte b ON a.parent_id=b.id)
+				SELECT id FROM cte`, category).Scan(r.Context(), &categories)
+
+			var ids []int64
+			for _, item := range categories {
+				ids = append(ids, item.ID)
+			}
+
+			q = addCategoryFilter(q, ids)
+
 		}
 
 		q.Scan(r.Context())
-
-		fmt.Println(events)
 
 		rs.tmpl.ExecuteTemplate(w, "event-list", events)
 	})

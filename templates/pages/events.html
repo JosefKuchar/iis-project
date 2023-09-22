@@ -3,6 +3,7 @@
 <div hx-get="/user" hx-trigger="load" class="my-5"></div>
 
 <div class="grid grid-cols-1">
+  <!--Text search-->
   <form hx-target="#eventList" hx-post="/events/filter">
     <div class="form-control w-full max-w-xs my-5">
       <label class="label">
@@ -16,6 +17,23 @@
       />
     </div>
 
+    <!--Categories -->
+    <div class="form-control w-full max-w-xs my-5">
+      <label class="label">
+        <span class="label-text">Select categories</span>
+      </label>
+      <select class="select select-bordered" id="category" name="category">
+        <option disabled selected>Pick a category</option>
+        <option>Hudba</option>
+        <option>Koncert</option>
+        <option>Festival</option>
+        <option>Vzdělání</option>
+        <option>Přednáška</option>
+        <option>Open air</option>
+      </select>
+    </div>
+
+    <!--My events-->
     <div class="form-control w-full max-w-xs my-5">
       <label class="label cursor-pointer">
         <span class="label-text">Show only my events</span>
@@ -25,6 +43,7 @@
           name="myEvents"
         />
       </label>
+
       <button class="btn btn-primary" type="submit">Filter</button>
     </div>
   </form>
