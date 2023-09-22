@@ -28,11 +28,19 @@ func (rs resources) EventRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		pageData := make(map[string]interface{})
+
 		// Fetch all events
 		var events []models.Event
 		rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Scan(r.Context())
 
-		rs.tmpl.ExecuteTemplate(w, "page-events", events)
+		var categories []models.Category
+		rs.db.NewSelect().Model(&categories).Scan(r.Context())
+
+		pageData["Events"] = events
+		pageData["Categories"] = categories
+
+		rs.tmpl.ExecuteTemplate(w, "page-events", pageData)
 	})
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {

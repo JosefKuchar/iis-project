@@ -24,12 +24,9 @@
       </label>
       <select class="select select-bordered" id="category" name="category">
         <option disabled selected>Pick a category</option>
-        <option>Hudba</option>
-        <option>Koncert</option>
-        <option>Festival</option>
-        <option>Vzdělání</option>
-        <option>Přednáška</option>
-        <option>Open air</option>
+        {{ range .Categories }}
+        <option>{{ .Name }}</option>
+        {{ end }}
       </select>
     </div>
 
@@ -49,7 +46,7 @@
   </form>
 </div>
 
-<div id="eventList" hx-target="this">{{ template "event-list" .}}</div>
+<div id="eventList" hx-target="this">{{ template "event-list" .Events}}</div>
 
 {{ template "footer" }} {{ end }} {{ define "event-list"}}
 <div class="grid grid-cols-4 gap-10">
