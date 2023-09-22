@@ -26,6 +26,7 @@ require (
 	github.com/uptrace/bun v1.1.16 // indirect
 	github.com/uptrace/bun/dbfixture v1.1.16 // indirect
 	github.com/uptrace/bun/dialect/mysqldialect v1.1.16 // indirect
+	github.com/uptrace/bun/extra/bundebug v1.1.16 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect

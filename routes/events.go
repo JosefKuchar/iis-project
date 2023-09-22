@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 )
 
 func (rs resources) EventRoutes() chi.Router {
@@ -19,46 +20,31 @@ func (rs resources) EventRoutes() chi.Router {
 		rs.tmpl.ExecuteTemplate(w, "page-events", events)
 	})
 
-	r.Post("/search", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {
 		// TODO: merge into 1 route so both filters can be applied together
 
 		var events []models.Event
 		slug := r.FormValue("slug")
-
-		// TODO: search in more fields not just in description
-		rs.db.NewSelect().Model(&events).Where("?TableAlias.description LIKE ?", "%"+slug+"%").Relation("Location").Relation("Categories").Scan(r.Context())
-
-		rs.tmpl.ExecuteTemplate(w, "event-list", events)
-	})
-
-	r.Post("/get_user", func(w http.ResponseWriter, r *http.Request) {
-
-		var events []models.Event
 		checked := r.FormValue("myEvents")
 
-		cookie, _ := r.Cookie("jwt")
+		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories")
 
-		tokenString := cookie.Value
-
-		token, err := tokenAuth.Decode(tokenString)
-
-		if err != nil || checked == "" {
-			rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Scan(r.Context())
-		} else {
-			mp, _ := token.AsMap(r.Context())
-
-			id := mp["ID"]
-
-			rs.db.NewSelect().
-				Model(&events).
-				Join("JOIN user_to_event AS ute ON ute.event_id = ?TableAlias.id").
-				Where("ute.user_id = ?", id).
-				Relation("Location").
-				Relation("Categories").
-				Scan(r.Context())
-
-			fmt.Println(len(events))
+		if slug != "" {
+			q = q.Where("event.description LIKE ?", "%"+slug+"%")
 		}
+
+		if checked != "" {
+			token, claims, _ := jwtauth.FromContext(r.Context())
+			if token != nil {
+				user_id := claims["ID"]
+				q = q.Join("JOIN user_to_event AS ute ON ute.event_id = event.id").
+					Where("ute.user_id = ?", user_id)
+			} 
+		}
+
+		q.Scan(r.Context())
+
+		fmt.Println(events)
 
 		rs.tmpl.ExecuteTemplate(w, "event-list", events)
 	})

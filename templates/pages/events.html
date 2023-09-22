@@ -3,33 +3,31 @@
 <div hx-get="/user" hx-trigger="load" class="my-5"></div>
 
 <div class="grid grid-cols-1">
-  <div class="form-control w-full max-w-xs my-5">
-    <label class="label">
-      <span class="label-text">Search</span>
-    </label>
-    <input
-      type="text"
-      class="input input-bordered w-full max-w-xs"
-      name="slug"
-      id="slug"
-      hx-trigger="keyup changed delay:500ms"
-      hx-post="/events/search"
-      hx-target="#eventList"
-    />
-  </div>
-
-  <div class="form-control w-full max-w-xs my-5">
-    <label class="label cursor-pointer">
-      <span class="label-text">Show only my events</span>
+  <form hx-target="#eventList" hx-post="/events/filter">
+    <div class="form-control w-full max-w-xs my-5">
+      <label class="label">
+        <span class="label-text">Search</span>
+      </label>
       <input
-        type="checkbox"
-        class="checkbox checkbox-primary"
-        name="myEvents"
-        hx-post="/events/get_user"
-        hx-target="#eventList"
+        type="text"
+        class="input input-bordered w-full max-w-xs"
+        name="slug"
+        id="slug"
       />
-    </label>
-  </div>
+    </div>
+
+    <div class="form-control w-full max-w-xs my-5">
+      <label class="label cursor-pointer">
+        <span class="label-text">Show only my events</span>
+        <input
+          type="checkbox"
+          class="checkbox checkbox-primary"
+          name="myEvents"
+        />
+      </label>
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+  </form>
 </div>
 
 <div id="eventList" hx-target="this">{{ template "event-list" .}}</div>
