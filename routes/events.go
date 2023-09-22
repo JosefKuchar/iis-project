@@ -37,6 +37,13 @@ func (rs resources) EventRoutes() chi.Router {
 		var categories []models.Category
 		rs.db.NewSelect().Model(&categories).Scan(r.Context())
 
+		token, _, _ := jwtauth.FromContext(r.Context())
+		if token != nil {
+			pageData["loggedIn"] = true
+		} else {
+			pageData["loggedIn"] = false
+		}
+
 		pageData["Events"] = events
 		pageData["Categories"] = categories
 
