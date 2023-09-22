@@ -52,9 +52,12 @@ func (rs resources) EventRoutes() chi.Router {
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {
 		var events []models.Event
+
+		r.ParseForm()
+
 		slug := r.FormValue("slug")
 		checked := r.FormValue("myEvents")
-		category := r.FormValue("category")
+		selectedCategories := r.Form["category"]
 
 		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories")
 
@@ -69,17 +72,18 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 		}
 
-		if category != "Pick a category" {
+		fmt.Println(selectedCategories)
+		if selectedCategories != nil {
 			var categories []models.Category
 
 			rs.db.NewRaw(
 				`WITH RECURSIVE cte as (
 					SELECT id, name, parent_id, id as top
 					FROM categories
-					WHERE name = ?
+					WHERE name IN (?)
 					UNION ALL SELECT a.id, a.name, a.parent_id, b.top
 					FROM categories a INNER JOIN cte b ON a.parent_id=b.id)
-				SELECT id FROM cte`, category).Scan(r.Context(), &categories)
+				SELECT id FROM cte`, bun.In(selectedCategories)).Scan(r.Context(), &categories)
 
 			var ids []int64
 			for _, item := range categories {
@@ -150,6 +154,15 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 		data["Categories"] = categories
 		rs.tmpl.ExecuteTemplate(w, "page-event", data)
+	})
+
+	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+
+		categories := r.Form["category"]
+
+		rs.tmpl.ExecuteTemplate(w, "selected-categories", categories)
+
 	})
 
 	return r

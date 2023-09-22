@@ -15,7 +15,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
-	"github.com/uptrace/bun/extra/bundebug"
 )
 
 type resources struct {
@@ -89,7 +88,7 @@ func Router() chi.Router {
 	// Create router
 	r := chi.NewRouter()
 
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	// db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
 	resources := &resources{db: db, tmpl: tmpl}
 
 	// Set up routes

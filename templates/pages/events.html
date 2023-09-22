@@ -22,12 +22,22 @@
       <label class="label">
         <span class="label-text">Select categories</span>
       </label>
-      <select class="select select-bordered" id="category" name="category">
-        <option disabled selected>Pick a category</option>
+      <select
+        class="select select-bordered"
+        id="category"
+        name="category"
+        multiple="true"
+        hx-post="/events/categories"
+        hx-target="#selectedCategories"
+      >
         {{ range .Categories }}
         <option>{{ .Name }}</option>
         {{ end }}
       </select>
+
+      <div class="flex flex-wrap mt-2" id="selectedCategories">
+        {{ template "selected-categories" .SelectedCategories }}
+      </div>
     </div>
 
     <!--My events-->
@@ -88,3 +98,7 @@
   {{ end}}
 </div>
 {{ end }}
+
+{{ define "selected-categories" }} {{ range . }} 
+  <div class="badge badge-primary mr-2 p-3">{{ . }}</div>
+{{ end }} {{ end }}
