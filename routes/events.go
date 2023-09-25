@@ -94,26 +94,11 @@ func (rs resources) EventRoutes() chi.Router {
 
 		}
 
-		q = q.Order("event.id ASC")
+		q = q.Order("event.id ASC").Group("event.id")
 
 		q.Scan(r.Context())
 
-		//FIXME: THIS IS DISGUSTING
-
-		visited := make(map[int64]bool)
-		var filtered []models.Event
-
-		for _, event := range events {
-			if visited[event.ID] {
-				continue
-			}
-
-			visited[event.ID] = true
-
-			filtered = append(filtered, event)
-		}
-
-		rs.tmpl.ExecuteTemplate(w, "event-list", filtered)
+		rs.tmpl.ExecuteTemplate(w, "event-list", events)
 	})
 
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
