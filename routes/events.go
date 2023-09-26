@@ -110,16 +110,17 @@ func (rs resources) EventRoutes() chi.Router {
 			fmt.Println(err)
 		}
 
+		data.IsAtendee = false
 		token, jwt, _ := jwtauth.FromContext(r.Context())
 		if token == nil {
 			data.UserId = -1
 		} else {
+			data.UserId = int(jwt["ID"].(float64))
+
 			var u2e models.UserToEvent
 			err = rs.db.NewSelect().Model(&u2e).Where("user_id = ? AND event_id = ?", jwt["ID"], id).Scan(r.Context())
 			if err == nil {
-				data.UserId = int(jwt["ID"].(float64))
-			} else {
-				data.UserId = -1
+				data.IsAtendee = true
 			}
 		}
 
@@ -175,6 +176,35 @@ func (rs resources) EventRoutes() chi.Router {
 		template.Comments(comments).Render(r.Context(), w)
 	})
 
+	r.With(validateAction).Post("/{id}/{userid}/{action}", func(w http.ResponseWriter, r *http.Request) {
+		eventId, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		userId, _ := strconv.Atoi(chi.URLParam(r, "userid"))
+		action := chi.URLParam(r, "action")
+
+		if action == "register" {
+			userToEvent := models.UserToEvent{
+				UserID:  int64(userId),
+				EventID: int64(eventId),
+			}
+			rs.db.NewInsert().Model(&userToEvent).Exec(r.Context())
+		} else {
+			rs.db.NewDelete().Model(&models.UserToEvent{}).Where("user_id = ? AND event_id = ?", userId, eventId).Exec(r.Context())
+		}
+
+		template.RegisterSection(action == "register", userId, eventId).Render(r.Context(), w)
+	})
+
 	return r
 
+}
+
+func validateAction(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		action := chi.URLParam(r, "action")
+		if action != "register" && action != "unregister" {
+			http.Error(w, "Invalid action", http.StatusBadRequest)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

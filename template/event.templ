@@ -10,6 +10,7 @@ type EventPageData struct {
 	Categories [][]models.Category
 	UserId int
 	Finished bool
+	IsAtendee bool
 }
 
 templ EventPage(data EventPageData) {
@@ -31,29 +32,25 @@ templ EventPage(data EventPageData) {
 		<p class="my-10">
 			{ data.Event.Description }
 		</p>
-		<p class="my-10">
-			if data.UserId != -1 {
-				<button class="btn btn-primary">Odhlásit se</button>
-			} else {
-				<button class="btn btn-primary">Přihlásit se</button>
-			}
+		<p class="my-10" id="registerSection">
+			@RegisterSection(data.IsAtendee, data.UserId, int(data.Event.ID))
 		</p>
-		<p>
-			if data.Finished && data.UserId != -1 {
-				<form class="form-control" hx-on::after-request="this.reset()">
-					<textarea class="textarea textarea-bordered h-24" placeholder="Write a comment here" name="comment" id="comment"></textarea>
-
-					<button class="btn btn-primary" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
-
-				</form>
-				<div id="comments">
-					@Comments(data.Event.Comments)
-				</div>
-			}
-		</p>
+		<div>
+			@CommentInput(data)
+		</div>
+		<div id="comments">
+			@Comments(data.Event.Comments)
+		</div>
 	}
 }
 
+templ RegisterSection(Atendee bool, userId int, eventId int) {
+	if Atendee {
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" }>Odhlásit se</button>
+	} else {
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" }>Přihlásit se</button>
+	}
+}
 
 templ Comments(comments []models.Comment) {
 	<ul>
@@ -68,4 +65,17 @@ templ Comments(comments []models.Comment) {
 			</li>
 		}
 	</ul>
+}
+
+templ CommentInput(data EventPageData) {
+		<p>
+			if data.Finished && data.UserId != -1 {
+				<form class="form-control" hx-on::after-request="this.reset()">
+					<textarea class="textarea textarea-bordered h-24" placeholder="Write a comment here" name="comment" id="comment"></textarea>
+
+					<button class="btn btn-primary" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
+
+				</form>
+			}
+		</p>
 }
