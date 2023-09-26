@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"JosefKuchar/iis-project/template"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/uptrace/bun"
@@ -28,26 +30,15 @@ func (rs resources) EventRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		pageData := make(map[string]interface{})
+		data := template.EventsPageData{}
 
-		// Fetch all events
-		var events []models.Event
-		rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Scan(r.Context())
-
-		var categories []models.Category
-		rs.db.NewSelect().Model(&categories).Scan(r.Context())
+		rs.db.NewSelect().Model(&data.Events).Relation("Location").Relation("Categories").Scan(r.Context())
+		rs.db.NewSelect().Model(&data.Categories).Scan(r.Context())
 
 		token, _, _ := jwtauth.FromContext(r.Context())
-		if token != nil {
-			pageData["loggedIn"] = true
-		} else {
-			pageData["loggedIn"] = false
-		}
+		data.LoggedIn = token != nil
 
-		pageData["Events"] = events
-		pageData["Categories"] = categories
-
-		rs.tmpl.ExecuteTemplate(w, "page-events", pageData)
+		template.EventsPage(data).Render(r.Context(), w)
 	})
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {
@@ -98,17 +89,15 @@ func (rs resources) EventRoutes() chi.Router {
 
 		q.Scan(r.Context())
 
-		rs.tmpl.ExecuteTemplate(w, "event-list", events)
+		template.Events(events).Render(r.Context(), w)
 	})
 
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		data := make(map[string]interface{})
-
+		data := template.EventPageData{}
 		id := chi.URLParam(r, "id")
-		var event models.Event
 		err := rs.db.
 			NewSelect().
-			Model(&event).
+			Model(&data.Event).
 			Where("event.id = ?", id).
 			Relation("Location").
 			Relation("Categories").
@@ -119,10 +108,8 @@ func (rs resources) EventRoutes() chi.Router {
 		if err != nil {
 			fmt.Println(err)
 		}
-		data["Event"] = event
 
-		var categories [][]models.Category
-		for _, category := range event.Categories {
+		for _, category := range data.Event.Categories {
 			var tree []models.Category
 			err = rs.db.NewRaw(
 				`WITH RECURSIVE children as (
@@ -133,21 +120,19 @@ func (rs resources) EventRoutes() chi.Router {
 				)
 				SELECT name, id, parent_id FROM children ORDER BY depth DESC
 				`, category.ID).Scan(r.Context(), &tree)
-			categories = append(categories, tree)
-			fmt.Println(tree)
-			fmt.Println(err)
+			data.Categories = append(data.Categories, tree)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-		data["Categories"] = categories
-		rs.tmpl.ExecuteTemplate(w, "page-event", data)
+
+		template.EventPage(data).Render(r.Context(), w)
 	})
 
 	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 
-		categories := r.Form["category"]
-
-		rs.tmpl.ExecuteTemplate(w, "selected-categories", categories)
-
+		// template.Categories(r.Form["category"].([]models.Category)).Render(r.Context(), w)
 	})
 
 	return r

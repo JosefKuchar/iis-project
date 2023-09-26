@@ -3,6 +3,7 @@ module JosefKuchar/iis-project
 go 1.21.1
 
 require (
+	github.com/a-h/templ v0.2.334 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.23.2 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect

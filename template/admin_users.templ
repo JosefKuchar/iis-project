@@ -1,0 +1,111 @@
+package template
+
+import (
+	"JosefKuchar/iis-project/cmd/models"
+    "strconv"
+)
+
+type AdminUsersPageData struct {
+	Users []models.User
+}
+
+templ AdminUsersPage(data AdminUsersPageData) {
+    @Index(true) {
+        <h1>Uživatelé</h1>
+        <a href="/admin/users/new" class="btn btn-primary"><i class="las la-plus"></i>Nový uživatel</a>
+        <table class="table table-zebra">
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+            for _, user := range data.Users {
+                <tr
+                    class="hover cursor-pointer"
+                    hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
+                    hx-target="body"
+                    hx-push-url="true"
+                >
+                    <td>{ strconv.Itoa(int(user.ID)) }</td>
+                    <td>{ user.Email }</td>
+                    if user.Role == nil {
+                        <td>Neznámá</td>
+                    } else {
+                        <td>{ user.Role.Name }</td>
+                    }
+                </tr>
+            }
+        </table>
+    }
+}
+
+type AdminUserPageData struct {
+	User models.User
+    Roles []models.Role
+    Errors map[string]string
+}
+
+templ AdminUserPage(data AdminUserPageData, renderIndex bool) {
+    @Index(renderIndex) {
+        <form
+            hx-trigger="keyup delay:300ms, change from:#role_id"
+            hx-swap="morph"
+            hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) + "/form" }
+            id="user-detail-form"
+        >
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Jméno *</span>
+                </label>
+                <input
+                    type="text"
+                    class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
+                    name="name"
+                    id="name"
+                    value={ data.User.Name }
+                />
+                <label class="label">
+                    <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
+                </label>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Email *</span>
+                </label>
+                <input
+                    type="text"
+                    class={"input input-bordered", templ.KV("input-error", data.Errors["Email"] != "") }
+                    name="email"
+                    value={ data.User.Email }
+                />
+                <label class="label">
+                <div class="text-error">{ data.Errors["Email"] }&nbsp;</div>
+                </label>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Role *</span>
+                </label>
+                <select
+                    class={"input input-bordered", templ.KV("input-error", data.Errors["Role"] != "") }
+                    name="role_id"
+                    id="role_id"
+                >
+                for _, role := range data.Roles {
+                    <option
+                        value={ strconv.Itoa(int(role.ID)) }
+                        if role.ID == data.User.RoleID {
+                            selected="selected"
+                        }
+                    >
+                        { role.Name }
+                    </option>
+                }
+                </select>
+                <label class="label">
+                <div class="text-error">{ data.Errors["Role"] }&nbsp;</div>
+                </label>
+            </div>
+        </form>
+    }
+}

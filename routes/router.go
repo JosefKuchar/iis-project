@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"JosefKuchar/iis-project/cmd/models"
 
@@ -69,27 +67,11 @@ func Router() chi.Router {
 	// Serve static files
 	fs := http.FileServer(http.Dir("static"))
 
-	// Parse all tempaltes
-	var files []string
-	filepath.Walk("templates", func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	tmpl, err := template.ParseFiles(files...)
-	if err != nil {
-		panic(err)
-	}
-
 	// Create router
 	r := chi.NewRouter()
 
 	// db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
-	resources := &resources{db: db, tmpl: tmpl}
+	resources := &resources{db: db}
 
 	// Set up routes
 	r.Use(middleware.Logger)

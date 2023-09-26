@@ -1,0 +1,53 @@
+package template
+
+type RegisterPageData struct {
+    Email                string
+    EmailError           string
+    Password             string
+    PasswordError        string
+    RepeatedPassword     string
+    RepeatedPasswordError string
+    Valid                bool
+}
+
+templ RegisterPage(data RegisterPageData) {
+	@Index(true) {
+        <form hx-post="/register/validate" hx-trigger="keyup change delay:300ms" hx-swap="morph" id="register-div">
+			<div class="grid grid-cols-1 m-5">
+				<div class="form-control my-2">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input type="text" name="email" id="email" class="input input-bordered" value={ data.Email }/>
+                    <label class="label">
+                        <div class="text-red-600">{ data.EmailError }</div>
+                    </label>
+                </div>
+				<div class="form-control my-2">
+                    <label class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <input type="password" name="password" id="password" class="input input-bordered" value={ data.Password }/>
+                    <label class="label">
+                        <div class="text-red-600">{ data.PasswordError }</div>
+                    </label>
+                </div>
+				<div class="form-control my-2">
+                    <label class="label">
+                        <span class="label-text">Repeat password</span>
+                    </label>
+                    <input type="password" name="repeated_password" id="repeated_password" class="input input-bordered" value={ data.RepeatedPassword }/>
+                    <label class="label">
+                        <div class="text-red-600">{ data.RepeatedPasswordError }</div>
+                    </label>
+                </div>
+				<button class="btn-primary btn" hx-post="/register" id="register-button"
+					if data.Valid {
+						disabled="true"
+					}
+				>Register</button>
+			</div>
+		</form>
+	}
+}
+

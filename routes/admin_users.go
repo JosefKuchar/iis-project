@@ -2,6 +2,7 @@ package routes
 
 import (
 	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/template"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,30 +13,18 @@ import (
 func (rs resources) AdminUsersRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	getTemplateData := func(rs resources, r *http.Request) map[string]interface{} {
-		data := make(map[string]interface{})
-		var roles []models.Role
-
-		err := rs.db.NewSelect().Model(&roles).Scan(r.Context())
-		if err != nil {
-			panic(err)
-		}
-
-		data["Roles"] = roles
-		return data
-	}
-
 	// User list
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		var users []models.User
-		rs.db.NewSelect().Model(&users).Relation("Role").Scan(r.Context())
-
-		rs.tmpl.ExecuteTemplate(w, "page-admin-users", users)
+		data := template.AdminUsersPageData{}
+		rs.db.NewSelect().Model(&data.Users).Relation("Role").Scan(r.Context())
+		template.AdminUsersPage(data).Render(r.Context(), w)
 	})
 
 	// New user detail
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
-		rs.tmpl.ExecuteTemplate(w, "page-admin-user-detail", nil)
+		data := template.AdminUserPageData{}
+		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
+		template.AdminUserPage(data, true).Render(r.Context(), w)
 	})
 
 	// Create new user
@@ -45,17 +34,16 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 
 	// Existing user detail
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		tmplData := getTemplateData(rs, r)
-		var user models.User
+		data := template.AdminUserPageData{}
 
-		err := rs.db.NewSelect().Model(&user).Relation("Role").Where("user.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
+		err := rs.db.NewSelect().Model(&data.User).Relation("Role").Where("user.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		tmplData["Data"] = user
-		rs.tmpl.ExecuteTemplate(w, "page-admin-user-detail", tmplData)
+		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
+		template.AdminUserPage(data, true).Render(r.Context(), w)
 	})
 
 	// Delete existing user
@@ -70,34 +58,38 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 
 	// Form updater
 	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
-		tmplData := getTemplateData(rs, r)
-		data := make(map[string]interface{})
-		errors := make(map[string]string)
+		data := template.AdminUserPageData{}
+		data.Errors = make(map[string]string)
+		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
 
 		roleID, err := strconv.Atoi(r.FormValue("role_id"))
 		if err != nil {
 			fmt.Println(err)
 		}
-
-		data["ID"] = chi.URLParam(r, "id")
-		data["Email"] = r.FormValue("email")
-		data["Name"] = r.FormValue("name")
-		data["RoleID"] = roleID
-
-		if data["Email"] == "" {
-			errors["Email"] = "Email cannot be empty"
-		}
-
-		if data["Name"] == "" {
-			errors["Name"] = "Name cannot be empty"
-		}
-
-		tmplData["Errors"] = errors
-		tmplData["Data"] = data
-
-		err = rs.tmpl.ExecuteTemplate(w, "page-admin-user-detail-form", tmplData)
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
 			fmt.Println(err)
+		}
+
+		data.User.ID = int64(id)
+		data.User.Email = r.FormValue("email")
+		data.User.Name = r.FormValue("name")
+		data.User.RoleID = int64(roleID)
+
+		if data.User.Email == "" {
+			data.Errors["Email"] = "Email cannot be empty"
+		}
+
+		if data.User.Name == "" {
+			data.Errors["Name"] = "Name cannot be empty"
+		}
+
+		fmt.Println(data)
+
+		err = template.AdminUserPage(data, false).Render(r.Context(), w)
+		if err != nil {
+			fmt.Println(err)
+
 		}
 	})
 

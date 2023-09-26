@@ -2,6 +2,7 @@ package routes
 
 import (
 	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/template"
 	"fmt"
 	"net/http"
 
@@ -13,7 +14,7 @@ func (rs resources) LoginRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		rs.tmpl.ExecuteTemplate(w, "login.html", nil)
+		template.LoginPage().Render(r.Context(), w)
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {

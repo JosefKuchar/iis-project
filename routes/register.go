@@ -5,6 +5,7 @@ import (
 	"net/mail"
 
 	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/template"
 
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -24,7 +25,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		rs.tmpl.ExecuteTemplate(w, "page-register", nil)
+		template.RegisterPage(template.RegisterPageData{}).Render(r.Context(), w)
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
@@ -50,42 +51,38 @@ func (rs resources) RegisterRoutes() chi.Router {
 	})
 
 	r.Post("/validate", func(w http.ResponseWriter, r *http.Request) {
-		data := make(map[string]interface{})
-		data["Valid"] = true
+		data := template.RegisterPageData{}
+		data.Valid = true
 
-		email := r.FormValue("email")
-		password := r.FormValue("password")
-		repeated_password := r.FormValue("repeated_password")
+		data.Email = r.FormValue("email")
+		data.Password = r.FormValue("password")
+		data.RepeatedPassword = r.FormValue("repeated_password")
 
-		data["Email"] = email
-		data["Password"] = password
-		data["RepeatedPassword"] = repeated_password
-
-		if password != repeated_password {
-			if len(repeated_password) != 0 {
-				data["RepeatedPasswordError"] = "Passwords do not match"
+		if data.Password != data.RepeatedPassword {
+			if len(data.RepeatedPassword) != 0 {
+				data.RepeatedPassword = "Passwords do not match"
 			}
-			data["Valid"] = false
+			data.Valid = false
 		}
-		if len(password) < 4 {
-			if len(password) != 0 {
-				data["PasswordError"] = "Password must be at least 4 characters long"
+		if len(data.Password) < 4 {
+			if len(data.Password) != 0 {
+				data.PasswordError = "Password must be at least 4 characters long"
 			}
-			data["Valid"] = false
+			data.Valid = false
 		}
-		if !validateEmail(email) {
-			data["EmailError"] = "Invalid email"
-			data["Valid"] = false
+		if !validateEmail(data.Email) {
+			data.EmailError = "Invalid email"
+			data.Valid = false
 		} else {
 			var user models.User
-			err := rs.db.NewSelect().Model(&user).Where("email = ?", email).Scan(r.Context())
+			err := rs.db.NewSelect().Model(&user).Where("email = ?", data.Email).Scan(r.Context())
 			if err == nil {
-				data["EmailError"] = "User already exists"
-				data["Valid"] = ""
+				data.EmailError = "User already exists"
+				data.Valid = false
 			}
 		}
 
-		rs.tmpl.ExecuteTemplate(w, "page-register-form", data)
+		template.RegisterPage(data).Render(r.Context(), w)
 	})
 
 	return r

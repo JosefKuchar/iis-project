@@ -1,0 +1,30 @@
+package template
+
+import (
+	"JosefKuchar/iis-project/cmd/models"
+)
+
+type EventPageData struct {
+	Event models.Event
+	Categories [][]models.Category
+}
+
+templ EventPage(data EventPageData) {
+	@Index(true) {
+		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
+		<div class="flex">
+			for _, categories := range data.Categories {
+				<div class="badge badge-primary m-2">
+					<div class="flex breadcrumbs">
+					<ul>
+						for _, category := range categories {
+							<li><a href="#" class="hover:underline">{ category.Name }</a></li>
+						}
+					</ul>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+

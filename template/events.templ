@@ -1,0 +1,84 @@
+package template
+
+import (
+	"JosefKuchar/iis-project/cmd/models"
+    "strconv"
+)
+
+type EventsPageData struct {
+    Categories []models.Category
+    SelectedCategories []models.Category
+    Events []models.Event
+    LoggedIn bool
+}
+
+templ EventsPage(data EventsPageData) {
+    @Index(true) {
+        <h1 class="text-3xl text-center m-10">Události</h1>
+        <div hx-get="/user" hx-trigger="load" class="my-5"></div>
+        <div class="grid grid-cols-1">
+            <form hx-target="#eventList" hx-post="/events/filter">
+                <div class="form-control w-full max-w-xs my-5">
+                    <label class="label"><span class="label-text">Search</span></label>
+                    <input type="text" class="input input-bordered w-full max-w-xs" name="slug" id="slug"/></div>
+                <div class="form-control w-full max-w-xs my-5">
+                    <label class="label"><span class="label-text">Select categories</span></label>
+                    <select class="select select-bordered" id="category" name="category" multiple="true" hx-post="/events/categories" hx-target="#selectedCategories">
+                        for _, category := range data.Categories {
+                            <option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
+                        }
+                    </select>
+                    <div class="flex flex-wrap mt-2" id="selectedCategories">
+                        @Categories(data.SelectedCategories)
+                    </div>
+                </div>
+                <div class="form-control w-full max-w-xs my-5">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Show only my events</span>
+                        if data.LoggedIn {
+                            <input type="checkbox" class="checkbox checkbox-primary" name="myEvents"/>
+                        }  else {
+                            <div class="lg:tooltip" data-tip="Log in to filter your events">
+                                <input type="checkbox" class="checkbox checkbox-primary" name="myEvents" disabled="true"/>
+                            </div>
+                        }
+                    </label>
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+        <div id="eventList">
+            @Events(data.Events)
+        </div>
+    }
+}
+
+templ Categories(categories []models.Category) {
+    for _, category := range categories {
+        <div class="badge badge-primary mr-2 p-3">{ category.Name }</div>
+    }
+}
+
+templ Events(events []models.Event) {
+    <div class="grid grid-cols-4 gap-10">
+        for _, event := range events {
+            <a href={ templ.URL("/events/" + strconv.Itoa(int(event.ID))) } class="card bg-base-200 hover:opacity-80 hover:cursor-pointer" >
+                <figure>
+                <img src={"https://picsum.photos/seed/" + strconv.Itoa(int(event.ID)) + "/500/200"} />
+                </figure>
+                <div class="card-body">
+                <h2 class="card-title">
+                    <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }</span> { event.Name }
+                </h2>
+                <div class="flex items-center">
+                    <i class="las la-map-marker-alt"></i>
+                    <div class="ml-1">{ event.Location.Name }</div>
+                </div>
+                <div class="flex">
+                    @Categories(event.Categories)
+                </div>
+                </div>
+            </a>
+        }
+    </div>
+}

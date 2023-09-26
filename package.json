@@ -7,8 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "rebuild-db": "go run cmd/db.go",
     "css": "tailwindcss -i ./css/style.css -o ./static/style.css --watch=always",
+    "templ": "templ generate -watch",
     "air": "air",
-    "start": "run-p css air"
+    "start": "run-p css air templ"
   },
   "repository": {
     "type": "git",
