@@ -2,11 +2,14 @@
 <h1 class="text-3xl text-center m-10">{{ .Event.Name }}</h1>
 <div class="flex">
   {{ range .Categories}}
-  <div class="badge badge-primary m-2 flex">
-    {{ range $i, $el := . }} {{ if $i }} <i class="las la-angle-right"></i> {{
-    end}}
-    <a href="#" class="hover:underline">{{ $el.Name }}</a>
-    {{ end}}
+  <div class="badge badge-primary m-2">
+    <div class="flex breadcrumbs">
+      <ul>
+        {{ range . }}
+        <li><a href="#" class="hover:underline">{{ .Name }}</a></li>
+        {{ end}}
+      </ul>
+    </div>
   </div>
   {{ end}}
 </div>
