@@ -4,6 +4,7 @@ import (
 	"JosefKuchar/iis-project/cmd/models"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"JosefKuchar/iis-project/template"
 
@@ -111,11 +112,15 @@ func (rs resources) EventRoutes() chi.Router {
 
 		token, jwt, _ := jwtauth.FromContext(r.Context())
 		if token == nil {
-			data.IsAtendee = false
+			data.UserId = -1
 		} else {
 			var u2e models.UserToEvent
 			err = rs.db.NewSelect().Model(&u2e).Where("user_id = ? AND event_id = ?", jwt["ID"], id).Scan(r.Context())
-			data.IsAtendee = err == nil
+			if err == nil {
+				data.UserId = int(jwt["ID"].(float64))
+			} else {
+				data.UserId = -1
+			}
 		}
 
 		data.Finished = true
@@ -150,5 +155,26 @@ func (rs resources) EventRoutes() chi.Router {
 		template.Categories(categories).Render(r.Context(), w)
 	})
 
+	r.Post("/{id}/{userid}/comment", func(w http.ResponseWriter, r *http.Request) {
+		commentText := r.FormValue("comment")
+		eventId, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		userId, _ := strconv.Atoi(chi.URLParam(r, "userid"))
+
+		comment := models.Comment{
+			Text:    commentText,
+			EventID: int64(eventId),
+			UserID:  int64(userId),
+		}
+
+		rs.db.NewInsert().Model(&comment).Exec(r.Context())
+
+		var comments []models.Comment
+
+		rs.db.NewSelect().Model(&comments).Where("event_id = ?", eventId).Relation("User").Scan(r.Context())
+
+		template.Comments(comments).Render(r.Context(), w)
+	})
+
 	return r
+
 }

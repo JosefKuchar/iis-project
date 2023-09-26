@@ -2,12 +2,13 @@ package template
 
 import (
 	"JosefKuchar/iis-project/cmd/models"
+	"strconv"
 )
 
 type EventPageData struct {
 	Event models.Event
 	Categories [][]models.Category
-	IsAtendee bool
+	UserId int
 	Finished bool
 }
 
@@ -31,15 +32,23 @@ templ EventPage(data EventPageData) {
 			{ data.Event.Description }
 		</p>
 		<p class="my-10">
-			if data.IsAtendee {
+			if data.UserId != -1 {
 				<button class="btn btn-primary">Odhlásit se</button>
 			} else {
 				<button class="btn btn-primary">Přihlásit se</button>
 			}
 		</p>
 		<p>
-			if data.Finished {
-				@Comments(data.Event.Comments)
+			if data.Finished && data.UserId != -1 {
+				<form class="form-control" hx-on::after-request="this.reset()">
+					<textarea class="textarea textarea-bordered h-24" placeholder="Write a comment here" name="comment" id="comment"></textarea>
+
+					<button class="btn btn-primary" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
+
+				</form>
+				<div id="comments">
+					@Comments(data.Event.Comments)
+				</div>
 			}
 		</p>
 	}
