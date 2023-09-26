@@ -7,6 +7,8 @@ import (
 type EventPageData struct {
 	Event models.Event
 	Categories [][]models.Category
+	IsAtendee bool
+	Finished bool
 }
 
 templ EventPage(data EventPageData) {
@@ -25,6 +27,36 @@ templ EventPage(data EventPageData) {
 				</div>
 			}
 		</div>
+		<p class="my-10">
+			{ data.Event.Description }
+		</p>
+		<p class="my-10">
+			if data.IsAtendee {
+				<button class="btn btn-primary">Odhlásit se</button>
+			} else {
+				<button class="btn btn-primary">Přihlásit se</button>
+			}
+		</p>
+		<p>
+			if data.Finished {
+				@Comments(data.Event.Comments)
+			}
+		</p>
 	}
 }
 
+
+templ Comments(comments []models.Comment) {
+	<ul>
+		for _, comment := range comments {
+			<li class="flex my-5">
+				<div class="avatar placeholder">
+					<div class="bg-neutral-focus text-neutral-content rounded-full w-16">
+						<span class="text-xl">{comment.User.Email[:2]}</span>
+					</div>
+				</div> 
+				<div class="mx-5"> { comment.Text } </div>
+			</li>
+		}
+	</ul>
+}

@@ -109,6 +109,18 @@ func (rs resources) EventRoutes() chi.Router {
 			fmt.Println(err)
 		}
 
+		token, jwt, _ := jwtauth.FromContext(r.Context())
+		if token == nil {
+			data.IsAtendee = false
+		} else {
+			var u2e models.UserToEvent
+			err = rs.db.NewSelect().Model(&u2e).Where("user_id = ? AND event_id = ?", jwt["ID"], id).Scan(r.Context())
+			data.IsAtendee = err == nil
+		}
+
+		data.Finished = true
+		fmt.Println(data.Event.Comments)
+
 		for _, category := range data.Event.Categories {
 			var tree []models.Category
 			err = rs.db.NewRaw(
