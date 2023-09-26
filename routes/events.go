@@ -71,7 +71,7 @@ func (rs resources) EventRoutes() chi.Router {
 				`WITH RECURSIVE cte as (
 					SELECT id, name, parent_id, id as top
 					FROM categories
-					WHERE name IN (?)
+					WHERE id IN (?)
 					UNION ALL SELECT a.id, a.name, a.parent_id, b.top
 					FROM categories a INNER JOIN cte b ON a.parent_id=b.id)
 				SELECT id FROM cte`, bun.In(selectedCategories)).Scan(r.Context(), &categories)
@@ -130,9 +130,12 @@ func (rs resources) EventRoutes() chi.Router {
 	})
 
 	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {
+		var categories []models.Category
 		r.ParseForm()
 
-		// template.Categories(r.Form["category"].([]models.Category)).Render(r.Context(), w)
+		rs.db.NewSelect().Model(&categories).Where("id IN (?)", bun.In(r.Form["category"])).Scan(r.Context())
+
+		template.Categories(categories).Render(r.Context(), w)
 	})
 
 	return r
