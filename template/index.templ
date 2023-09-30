@@ -12,9 +12,16 @@ templ Index() {
 			<script src="https://unpkg.com/idiomorph/dist/idiomorph-ext.min.js"></script>
 			<title>Document</title>
 		</head>
-		<body hx-boost="true" hx-ext="morph" class="container mx-auto px-10">
+		<body hx-boost="true" hx-ext="morph">
 			{ children... }
 		</body>
 	</html>
 }
 
+templ IndexContainer() {
+	@Index() {
+		<div class="container mx-auto px-10">
+			{ children... }
+		</div>
+	}
+}

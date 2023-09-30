@@ -11,8 +11,7 @@ type AdminUsersPageData struct {
 
 templ AdminUsersPage(data AdminUsersPageData) {
     @AdminIndex() {
-        <h1>Uživatelé</h1>
-        <a href="/admin/users/new" class="btn btn-primary"><i class="las la-plus"></i>Nový uživatel</a>
+        @AdminListHeader("Uživatelé", "/admin/users/new", "Nový uživatel")
         <table class="table table-zebra">
             <tr>
                 <th>ID</th>

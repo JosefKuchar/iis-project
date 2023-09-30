@@ -2,40 +2,58 @@ package template
 
 templ AdminIndex() {
     @Index() {
-        <div class="navbar bg-base-200 sticky">
-            <ul class="menu menu-horizontal">
-                <li>
-                    <a href="/admin/users">
-                        <i class="las la-users"></i>
-                        Uživatelé
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/events">
-                        <i class="las la-calendar"></i>
-                        Události
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/locations">
-                        <i class="las la-map"></i>
-                        Místa
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/categories">
-                        <i class="las la-tags"></i>
-                        Kategorie
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/comments">
-                        <i class="las la-comment"></i>
-                        Komentáře
-                    </a>
-                </li>
-            </ul>
+        <div class="navbar bg-base-300 sticky top-0 mb-10 z-10">
+            <div class="navbar-start text-xl">
+                APP
+            </div>
+            <div class="navbar-center">
+                <ul class="menu menu-horizontal">
+                    <li>
+                        <a href="/admin/users">
+                            <i class="las la-users"></i>
+                            Uživatelé
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/events">
+                            <i class="las la-calendar"></i>
+                            Události
+                            <span class="badge badge-sm badge-warning">Nové</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/locations">
+                            <i class="las la-map"></i>
+                            Místa
+                            <span class="badge badge-sm badge-warning">Nové</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/categories">
+                            <i class="las la-tags"></i>
+                            Kategorie
+                            <span class="badge badge-sm badge-warning">Nové</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/comments">
+                            <i class="las la-comment"></i>
+                            Komentáře
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-end"></div>
         </div>
-        { children... }
+        <div class="container mx-auto px-10">
+            { children... }
+        </div>
     }
+}
+
+templ AdminListHeader(name string, newUrl string, newItemName string) {
+    <div class="flex items-center justify-between mb-5">
+        <h1 class="text-2xl">{ name }</h1>
+        <a href={ templ.URL(newUrl) } class="btn btn-primary"><i class="las la-plus"></i>{ newItemName }</a>
+    </div>
 }
