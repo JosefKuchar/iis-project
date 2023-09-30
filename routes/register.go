@@ -60,7 +60,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 
 		if data.Password != data.RepeatedPassword {
 			if len(data.RepeatedPassword) != 0 {
-				data.RepeatedPassword = "Passwords do not match"
+				data.RepeatedPasswordError = "Passwords do not match"
 			}
 			data.Valid = false
 		}
