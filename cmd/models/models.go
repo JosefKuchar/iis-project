@@ -46,10 +46,11 @@ type Role struct {
 type Category struct {
 	bun.BaseModel `bun:"table:categories"`
 
-	ID       int64     `bun:",pk,autoincrement"`
-	Name     string    `bun:",notnull"`
-	ParentID int64     `bun:",nullzero"`
-	Parent   *Category `bun:"rel:belongs-to"`
+	ID         int64      `bun:",pk,autoincrement"`
+	Name       string     `bun:",notnull"`
+	ParentID   int64      `bun:",nullzero"`
+	Parent     *Category  `bun:"rel:belongs-to"`
+	Categories []Category `bun:"rel:has-many"`
 }
 
 type Location struct {

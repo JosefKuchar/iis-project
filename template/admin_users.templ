@@ -10,9 +10,8 @@ type AdminUsersPageData struct {
 }
 
 templ AdminUsersPage(data AdminUsersPageData) {
-    @Index() {
-        <h1>Uživatelé</h1>
-        <a href="/admin/users/new" class="btn btn-primary"><i class="las la-plus"></i>Nový uživatel</a>
+    @AdminIndex() {
+        @AdminListHeader("Uživatelé", "/admin/users/new", "Nový uživatel")
         <table class="table table-zebra">
             <tr>
                 <th>ID</th>
@@ -47,7 +46,7 @@ type AdminUserPageData struct {
 }
 
 templ AdminUserPage(data AdminUserPageData) {
-    @Index() {
+    @AdminIndex() {
         if data.New {
             <h1>Nový uživatel</h1>
         } else {

@@ -1,7 +1,7 @@
 package template
 
 templ LoginPage() {
-    @Index() {
+    @IndexContainer() {
         <form hx-post="/login">
             <div class="grid grid-cols-1 m-5">
                 <div class="form-control my-2"><label class="label"><span class="label-text">Email</span></label> <input type="text" name="email" id="email" class="input input-bordered"/></div>

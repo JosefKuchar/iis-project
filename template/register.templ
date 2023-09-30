@@ -11,7 +11,7 @@ type RegisterPageData struct {
 }
 
 templ RegisterPage(data RegisterPageData) {
-	@Index() {
+	@IndexContainer() {
         <form hx-post="/register/validate" hx-trigger="keyup change delay:300ms" hx-swap="morph" id="register-div">
 			<div class="grid grid-cols-1 m-5">
 				<div class="form-control my-2">
@@ -42,7 +42,7 @@ templ RegisterPage(data RegisterPageData) {
                     </label>
                 </div>
 				<button class="btn-primary btn" hx-post="/register" id="register-button"
-					if data.Valid {
+					if !data.Valid {
 						disabled="true"
 					}
 				>Register</button>

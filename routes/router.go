@@ -30,8 +30,12 @@ func (rs resources) Routes() chi.Router {
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Authenticator)
-		r.Mount("/admin/users", rs.AdminUsersRoutes())
 		r.Mount("/create-event", rs.CreateEventRoutes())
+		r.Mount("/admin/users", rs.AdminUsersRoutes())
+		r.Mount("/admin/events", rs.AdminEventsRoutes())
+		r.Mount("/admin/categories", rs.AdminCategoriesRoutes())
+		r.Mount("/admin/comments", rs.AdminCommentsRoutes())
+		r.Mount("/admin/locations", rs.AdminLocationsRoutes())
 	})
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
