@@ -13,51 +13,7 @@ import (
 func (rs resources) AdminUsersRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	// User list
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		data := template.AdminUsersPageData{}
-		rs.db.NewSelect().Model(&data.Users).Relation("Role").Scan(r.Context())
-		template.AdminUsersPage(data).Render(r.Context(), w)
-	})
-
-	// New user detail
-	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
-		data := template.AdminUserPageData{}
-		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
-		template.AdminUserPage(data, true).Render(r.Context(), w)
-	})
-
-	// Create new user
-	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
-		// TODO
-	})
-
-	// Existing user detail
-	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		data := template.AdminUserPageData{}
-
-		err := rs.db.NewSelect().Model(&data.User).Relation("Role").Where("user.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, http.StatusText(404), 404)
-			return
-		}
-		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
-		template.AdminUserPage(data, true).Render(r.Context(), w)
-	})
-
-	// Delete existing user
-	r.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		_, err := rs.db.NewDelete().Model(&models.User{}).Where("id = ?", chi.URLParam(r, "id")).Exec(r.Context())
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, http.StatusText(404), 404)
-			return
-		}
-	})
-
-	// Form updater
-	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
+	parseForm := func(r *http.Request) template.AdminUserPageData {
 		data := template.AdminUserPageData{}
 		data.Errors = make(map[string]string)
 		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
@@ -75,6 +31,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data.User.Email = r.FormValue("email")
 		data.User.Name = r.FormValue("name")
 		data.User.RoleID = int64(roleID)
+		data.New = r.FormValue("new") == "true"
 
 		if data.User.Email == "" {
 			data.Errors["Email"] = "Email cannot be empty"
@@ -84,12 +41,72 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
 
-		fmt.Println(data)
+		return data
+	}
 
-		err = template.AdminUserPage(data, false).Render(r.Context(), w)
+	// User list
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		data := template.AdminUsersPageData{}
+		rs.db.NewSelect().Model(&data.Users).Relation("Role").Scan(r.Context())
+		template.AdminUsersPage(data).Render(r.Context(), w)
+	})
+
+	// New user detail
+	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
+		data := template.AdminUserPageData{}
+		data.New = true
+		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
+		template.AdminUserPage(data).Render(r.Context(), w)
+	})
+
+	// Create new user
+	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
+		data := parseForm(r)
+
+		// TODO: Check errors
+		// Create new user
+		rs.db.NewInsert().Model(&data.User).Exec(r.Context())
+		w.Header().Set("HX-Redirect", "/admin/users")
+	})
+
+	r.Post("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		data := parseForm(r)
+
+		rs.db.NewUpdate().Model(&data.User).Where("id = ?", data.User.ID).Exec(r.Context())
+		w.Header().Set("HX-Redirect", "/admin/users")
+	})
+
+	// Existing user detail
+	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		data := template.AdminUserPageData{}
+		data.New = false
+		err := rs.db.NewSelect().Model(&data.User).Relation("Role").Where("user.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+		rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
+		template.AdminUserPage(data).Render(r.Context(), w)
+	})
 
+	// Delete existing user
+	r.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		_, err := rs.db.NewDelete().Model(&models.User{}).Where("id = ?", chi.URLParam(r, "id")).Exec(r.Context())
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+	})
+
+	// Form updater
+	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
+		data := parseForm(r)
+
+		err := template.AdminUserPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			fmt.Println(err)
 		}
 	})
 

@@ -14,7 +14,7 @@ type EventPageData struct {
 }
 
 templ EventPage(data EventPageData) {
-	@Index(true) {
+	@Index() {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
 		<div class="flex">
 			for _, categories := range data.Categories {
@@ -60,7 +60,7 @@ templ Comments(comments []models.Comment) {
 					<div class="bg-neutral-focus text-neutral-content rounded-full w-16">
 						<span class="text-xl">{comment.User.Email[:2]}</span>
 					</div>
-				</div> 
+				</div>
 				<div class="mx-5"> { comment.Text } </div>
 			</li>
 		}
