@@ -1,7 +1,46 @@
 package template
 
-templ AdminCategoriesPage() {
+import "JosefKuchar/iis-project/cmd/models"
+import "strconv"
+
+type AdminCategoriesPageData struct {
+	Categories []models.Category
+}
+
+
+templ AdminCategoriesPage(data AdminCategoriesPageData) {
     @AdminIndex() {
         <h1>Kategorie</h1>
+        <table class="table table-zebra">
+            <tr>
+                <th>ID</th>
+                <th>Název</th>
+                <th>Rodičovské kategorie</th>
+            </tr>
+            for _, category := range data.Categories {
+                <tr
+                    class="hover cursor-pointer"
+                    hx-get={"/admin/categories/" + strconv.Itoa(int(category.ID))}
+                    hx-target="body"
+                    hx-push-url="true"
+                >
+                    <td>{ strconv.Itoa(int(category.ID)) }</td>
+                    <td>{ category.Name }</td>
+                    <td class="breadcrumbs">
+                        if len(category.Categories) != 0 {
+                            <ul>
+                                for _, parent := range category.Categories {
+                                    <li>
+                                        <a href={ templ.URL("/admin/categories/" + strconv.Itoa(int(parent.ID))) }>{ parent.Name }</a>
+                                    </li>
+                                }
+                            </ul>
+                        } else {
+                            <span class="text-neutral">Žádné</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
     }
 }
