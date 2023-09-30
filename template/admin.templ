@@ -1,0 +1,41 @@
+package template
+
+templ AdminIndex() {
+    @Index() {
+        <div class="navbar bg-base-200 sticky">
+            <ul class="menu menu-horizontal">
+                <li>
+                    <a href="/admin/users">
+                        <i class="las la-users"></i>
+                        Uživatelé
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/events">
+                        <i class="las la-calendar"></i>
+                        Události
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/locations">
+                        <i class="las la-map"></i>
+                        Místa
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories">
+                        <i class="las la-tags"></i>
+                        Kategorie
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/comments">
+                        <i class="las la-comment"></i>
+                        Komentáře
+                    </a>
+                </li>
+            </ul>
+        </div>
+        { children... }
+    }
+}
