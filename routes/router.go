@@ -33,6 +33,11 @@ func (rs resources) Routes() chi.Router {
 		r.Mount("/admin/users", rs.AdminUsersRoutes())
 	})
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		// Redirect to events
+		http.Redirect(w, r, "/events", http.StatusMovedPermanently)
+	})
+
 	return r
 }
 
