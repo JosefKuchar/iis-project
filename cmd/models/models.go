@@ -51,6 +51,7 @@ type Category struct {
 	ParentID   int64      `bun:",nullzero"`
 	Parent     *Category  `bun:"rel:belongs-to"`
 	Categories []Category `bun:"rel:has-many"`
+	Approved   bool       `bun:",notnull"`
 }
 
 type Location struct {

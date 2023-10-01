@@ -31,6 +31,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data.Category.ID = int64(id)
 		data.Category.Name = r.FormValue("name")
 		data.Category.ParentID = int64(parentID)
+		data.Category.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
 		if data.Category.Name == "" {

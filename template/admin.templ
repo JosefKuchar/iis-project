@@ -62,7 +62,7 @@ templ AdminListHeader(name string, newUrl string, newItemName string) {
 }
 
 templ AdminPagination(totalCount int, page int, endpoint string) {
-    <div class="join">
+    <div class="join mt-2">
         for i := 0; i < totalCount; i += settings.PAGE_SIZE {
             <button
                 class={"join-item btn", templ.KV("btn-active", i / settings.PAGE_SIZE + 1 == page)}

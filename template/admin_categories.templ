@@ -24,6 +24,7 @@ templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
                 <th>ID</th>
                 <th>Název</th>
                 <th>Rodičovské kategorie</th>
+                <th>Schváleno</th>
             </tr>
             for _, category := range data.Categories {
                 <tr
@@ -51,6 +52,13 @@ templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
                             </ul>
                         } else {
                             <span class="text-neutral">Žádné</span>
+                        }
+                    </td>
+                    <td>
+                        if category.Approved {
+                            <span class="badge">Ano</span>
+                        } else {
+                            <span class="badge badge-warning">Ne</span>
                         }
                     </td>
                 </tr>
@@ -91,9 +99,9 @@ templ AdminCategoryPage(data AdminCategoryPageData) {
 
 templ AdminCategoryPageForm(data AdminCategoryPageData) {
     <form
-        hx-trigger="keyup delay:300ms, change from:#role_id"
+        hx-trigger="keyup delay:300ms, change from:#approved"
         hx-swap="morph"
-        hx-post={ "/admin/category/" + strconv.Itoa(int(data.Category.ID)) + "/form" }
+        hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) + "/form" }
         id="category-detail-form"
     >
         <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
@@ -126,6 +134,20 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
             </select>
             <label class="label">
             <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label cursor-pointer">
+                <span class="label-text">Schváleno</span>
+                <input
+                    type="checkbox"
+                    class="toggle"
+                    id="approved"
+                    name="approved"
+                    if data.Category.Approved {
+                        checked="checked"
+                    }
+                />
             </label>
         </div>
         if data.New {
