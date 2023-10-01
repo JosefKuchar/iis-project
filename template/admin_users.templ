@@ -63,6 +63,11 @@ templ AdminUserPage(data AdminUserPageData) {
             <h1>Uživatel { data.User.Name }</h1>
         }
         @AdminUserPageForm(data)
+        <script>
+            $(document).ready(function() {
+                $('#role_id').select2();
+            });
+        </script>
     }
 }
 
@@ -103,12 +108,11 @@ templ AdminUserPageForm(data AdminUserPageData) {
             <div class="text-error">{ data.Errors["Email"] }&nbsp;</div>
             </label>
         </div>
-        <div class="form-control">
+        <div class="form-control" id="role_id_form_control" hx-preserve>
             <label class="label">
                 <span class="label-text">Role *</span>
             </label>
             <select
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Role"] != "") }
                 name="role_id"
                 id="role_id"
             >

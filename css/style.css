@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.select2-hidden-accessible {
+    display: none;
+}
+
+.select2-selection {
+    @apply select select-bordered w-full;
+}
+
+.select2-selection__rendered {
+    font-size: 1rem;
+    line-height: 3rem;
+}
+
+.select2-search__field {
+    @apply input input-bordered w-full;
+}
+
+.select2-dropdown {
+    @apply block mt-2 card bg-base-200 p-2;
+}
+
+.select2-results__options {
+    @apply mt-2;
+}
+
+.select2-results__option {
+    @apply cursor-pointer p-2 rounded;
+}
+
+.select2-results__option--selected {
+    @apply bg-neutral-focus;
+}
+
+.select2-results__option--highlighted {
+    @apply bg-neutral;
+}
+
+.select2-results__option {
+    @apply w-full;
+}
+
+.select2-search {
+    @apply bg-base-100;
+}
