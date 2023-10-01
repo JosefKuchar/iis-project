@@ -1,5 +1,8 @@
 package template
 
+import "strconv"
+import "JosefKuchar/iis-project/settings"
+
 templ AdminIndex() {
     @Index() {
         <div class="navbar bg-base-300 sticky top-0 mb-10 z-10">
@@ -55,5 +58,18 @@ templ AdminListHeader(name string, newUrl string, newItemName string) {
     <div class="flex items-center justify-between mb-5">
         <h1 class="text-2xl">{ name }</h1>
         <a href={ templ.URL(newUrl) } class="btn btn-primary"><i class="las la-plus"></i>{ newItemName }</a>
+    </div>
+}
+
+templ AdminPagination(totalCount int, endpoint string) {
+    <div class="join">
+        for i := 0; i < totalCount; i += settings.PAGE_SIZE {
+            <button
+                class="join-item btn"
+                hx-push-url={endpoint + "?page=" + strconv.Itoa(i / settings.PAGE_SIZE + 1)}
+                hx-post={endpoint + "?page=" + strconv.Itoa(i / settings.PAGE_SIZE + 1)}
+                hx-target="#table"
+            >{ strconv.Itoa(i / settings.PAGE_SIZE + 1) }</button>
+        }
     </div>
 }

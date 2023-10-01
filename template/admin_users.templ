@@ -7,35 +7,41 @@ import (
 
 type AdminUsersPageData struct {
 	Users []models.User
+    TotalCount int
 }
 
 templ AdminUsersPage(data AdminUsersPageData) {
     @AdminIndex() {
         @AdminListHeader("Uživatelé", "/admin/users/new", "Nový uživatel")
-        <table class="table table-zebra">
-            <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Role</th>
-            </tr>
-            for _, user := range data.Users {
-                <tr
-                    class="hover cursor-pointer"
-                    hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
-                    hx-target="body"
-                    hx-push-url="true"
-                >
-                    <td>{ strconv.Itoa(int(user.ID)) }</td>
-                    <td>{ user.Email }</td>
-                    if user.Role == nil {
-                        <td>Neznámá</td>
-                    } else {
-                        <td>{ user.Role.Name }</td>
-                    }
-                </tr>
-            }
-        </table>
+        @AdminUsersPageTable(data)
+        @AdminPagination(data.TotalCount, "/admin/users")
     }
+}
+
+templ AdminUsersPageTable(data AdminUsersPageData) {
+    <table class="table table-zebra" id="table">
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Role</th>
+        </tr>
+        for _, user := range data.Users {
+            <tr
+                class="hover cursor-pointer"
+                hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
+                hx-target="body"
+                hx-push-url="true"
+            >
+                <td>{ strconv.Itoa(int(user.ID)) }</td>
+                <td>{ user.Email }</td>
+                if user.Role == nil {
+                    <td>Neznámá</td>
+                } else {
+                    <td>{ user.Role.Name }</td>
+                }
+            </tr>
+        }
+    </table>
 }
 
 type AdminUserPageData struct {

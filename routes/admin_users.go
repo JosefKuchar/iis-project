@@ -2,6 +2,7 @@ package routes
 
 import (
 	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
 	"fmt"
 	"net/http"
@@ -44,11 +45,38 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		return data
 	}
 
+	getListData := func(r *http.Request) (template.AdminUsersPageData, error) {
+		offset, err := getOffset(r)
+		if err != nil {
+			return template.AdminUsersPageData{}, err
+		}
+		data := template.AdminUsersPageData{}
+		count, _ := rs.db.
+			NewSelect().
+			Model(&data.Users).
+			Relation("Role").
+			Limit(settings.PAGE_SIZE).
+			Offset(offset).
+			ScanAndCount(r.Context())
+		data.TotalCount = count
+		return data, nil
+	}
+
 	// User list
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		data := template.AdminUsersPageData{}
-		rs.db.NewSelect().Model(&data.Users).Relation("Role").Scan(r.Context())
+		data, err := getListData(r)
+		if err != nil {
+			fmt.Println(err)
+		}
 		template.AdminUsersPage(data).Render(r.Context(), w)
+	})
+
+	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		data, err := getListData(r)
+		if err != nil {
+			fmt.Println(err)
+		}
+		template.AdminUsersPageTable(data).Render(r.Context(), w)
 	})
 
 	// New user detail
