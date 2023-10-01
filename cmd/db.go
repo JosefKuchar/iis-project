@@ -77,7 +77,7 @@ func main() {
 		}
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		user := &models.User{
 			Name:     gofakeit.Name(),
 			Email:    gofakeit.Email(),

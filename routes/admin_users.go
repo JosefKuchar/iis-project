@@ -46,7 +46,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 	}
 
 	getListData := func(r *http.Request) (template.AdminUsersPageData, error) {
-		offset, err := getOffset(r)
+		page, offset, err := getPageOffset(r)
 		if err != nil {
 			return template.AdminUsersPageData{}, err
 		}
@@ -59,6 +59,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			Offset(offset).
 			ScanAndCount(r.Context())
 		data.TotalCount = count
+		data.Page = page
 		return data, nil
 	}
 

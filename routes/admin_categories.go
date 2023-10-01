@@ -12,7 +12,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	getListData := func(r *http.Request) (template.AdminCategoriesPageData, error) {
-		offset, err := getOffset(r)
+		page, offset, err := getPageOffset(r)
 		if err != nil {
 			return template.AdminCategoriesPageData{}, err
 		}
@@ -39,6 +39,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			`, category.ID).Scan(r.Context(), &data.Categories[index].Categories)
 		}
 		data.TotalCount = count
+		data.Page = page
 		return data, nil
 	}
 

@@ -61,11 +61,11 @@ templ AdminListHeader(name string, newUrl string, newItemName string) {
     </div>
 }
 
-templ AdminPagination(totalCount int, endpoint string) {
+templ AdminPagination(totalCount int, page int, endpoint string) {
     <div class="join">
         for i := 0; i < totalCount; i += settings.PAGE_SIZE {
             <button
-                class="join-item btn"
+                class={"join-item btn", templ.KV("btn-active", i / settings.PAGE_SIZE + 1 == page)}
                 hx-push-url={endpoint + "?page=" + strconv.Itoa(i / settings.PAGE_SIZE + 1)}
                 hx-post={endpoint + "?page=" + strconv.Itoa(i / settings.PAGE_SIZE + 1)}
                 hx-target="#table"
