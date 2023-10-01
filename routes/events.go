@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"JosefKuchar/iis-project/template"
 
@@ -124,7 +125,7 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 		}
 
-		data.Finished = true
+		data.Finished = data.Event.End.Before(time.Now())
 		fmt.Println(data.Event.Comments)
 
 		for _, category := range data.Event.Categories {
