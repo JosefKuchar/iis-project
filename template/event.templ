@@ -33,7 +33,7 @@ templ EventPage(data EventPageData) {
 			{ data.Event.Description }
 		</p>
 		<p class="my-10" id="registerSection">
-			@RegisterSection(data.IsAtendee, data.UserId, int(data.Event.ID))
+			@RegisterSection(data.IsAtendee, data.UserId, data.Finished, int(data.Event.ID))
 		</p>
 		<div>
 			@CommentInput(data)
@@ -44,11 +44,15 @@ templ EventPage(data EventPageData) {
 	}
 }
 
-templ RegisterSection(Atendee bool, userId int, eventId int) {
+templ RegisterSection(Atendee bool, userId int, finished bool, eventId int) {
 	if Atendee {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" } hx-swap="outerHTML">Odhlásit se</button>
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" } hx-swap="outerHTML" if finished {
+			disabled="true"
+		}>Odhlásit se</button>
 	} else {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" } hx-swap="outerHTML">Přihlásit se</button>
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" } hx-swap="outerHTML" if finished {
+			disabled="true"
+		}>Přihlásit se</button>
 	}
 }
 

@@ -126,7 +126,7 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 
 		data.Finished = data.Event.End.Before(time.Now())
-		fmt.Println(data.Event.Comments)
+		fmt.Println(data.Finished)
 
 		for _, category := range data.Event.Categories {
 			var tree []models.Category
@@ -192,7 +192,7 @@ func (rs resources) EventRoutes() chi.Router {
 			rs.db.NewDelete().Model(&models.UserToEvent{}).Where("user_id = ? AND event_id = ?", userId, eventId).Exec(r.Context())
 		}
 
-		template.RegisterSection(action == "register", userId, eventId).Render(r.Context(), w)
+		template.RegisterSection(action == "register", userId, false, eventId).Render(r.Context(), w)
 	})
 
 	return r
