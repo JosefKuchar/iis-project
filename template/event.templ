@@ -46,9 +46,9 @@ templ EventPage(data EventPageData) {
 
 templ RegisterSection(Atendee bool, userId int, eventId int) {
 	if Atendee {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" }>Odhlásit se</button>
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" } hx-swap="outerHTML">Odhlásit se</button>
 	} else {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" }>Přihlásit se</button>
+		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" } hx-swap="outerHTML">Přihlásit se</button>
 	}
 }
 
