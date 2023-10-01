@@ -18,3 +18,12 @@ func getPageOffset(r *http.Request) (int, int, error) {
 	offset := (pageInt - 1) * settings.PAGE_SIZE
 	return pageInt, offset, nil
 }
+
+type Select2Result struct {
+	ID   int64  `json:"id"`
+	Text string `json:"text"`
+}
+
+type Select2Results struct {
+	Results []Select2Result `json:"results"`
+}

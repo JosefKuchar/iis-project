@@ -46,3 +46,7 @@
 .select2-search {
     @apply bg-base-100;
 }
+
+.select2-selection__clear {
+    @apply order-10 ml-auto;
+}
