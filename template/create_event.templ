@@ -1,0 +1,147 @@
+package template
+
+import (
+	"JosefKuchar/iis-project/cmd/models"
+  "strconv"
+)
+
+type CreateEventData struct {
+  Categories []models.Category
+  Locations []models.Location
+}
+
+templ CreateEvent(data CreateEventData) {
+	@Index() {
+		<div id="create_event">
+			<div class="mt-10 flex flex-col items-center space-y-4">
+				<h1 class="text-center text-3xl font-semibold">Create Event</h1>
+				<form hx-post="/create-event" hx-target="#create_event" class="max-w-xl w-full flex flex-col gap-4">
+					<div>
+						<p class="text-sm text-stone-500">1. Event details</p>
+						<progress class="progress w-full" value="25" max="100"></progress>
+					</div>
+					<div class="form-control">
+						<label class="label"><span class="label-text">Name</span></label>
+						<input type="text" name="name" required id="name" class="input input-bordered text-sm"/>
+					</div>
+					<div class="form-control">
+						<label class="label label-text">Description</label>
+						<textarea class="textarea textarea-bordered h-24" required name="description" id="description"></textarea>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div class="form-control">
+							<label class="label label-text">From</label>
+							<input type="datetime-local" required class="input input-bordered" name="from" id="from"/>
+						</div>
+						<div class="form-control">
+							<label class="label label-text">To</label>
+							<input type="datetime-local" required class="input input-bordered" name="to" id="to"/>
+						</div>
+					</div>
+					<button class="btn btn-primary">Continue</button>
+				</form>
+			</div>
+		</div>
+	}
+}
+
+type CreateEventLocationData struct {
+  EventID string
+  Locations []models.Location
+}
+
+templ CreateEventLocation(data CreateEventLocationData) {
+	<div class="mt-10 flex flex-col items-center space-y-4">
+		<h1 class="text-center text-3xl font-semibold">Create Event</h1>
+		<form hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/location" } class="max-w-xl w-full flex flex-col gap-4">
+			<div>
+				<p class="text-sm text-stone-500">2. Location</p>
+				<progress class="progress w-full" value="50" max="100"></progress>
+			</div>
+			<div class="form-control">
+				<label for="location" class="label label-text">Select Location</label>
+				<select class="select select-bordered" name="location" id="location">
+					<option value="0">Select location</option>
+					for _, location := range data.Locations {
+						<option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
+					}
+				</select>
+			</div>
+			<button class="btn btn-primary">Continue</button>
+		</form>
+	</div>
+}
+
+type CreateEventCategoryData struct {
+  EventID string
+  Categories []models.Category
+}
+
+templ CreateEventCategory(data CreateEventCategoryData) {
+	<div class="mt-10 flex flex-col items-center space-y-4">
+		<h1 class="text-center text-3xl font-semibold">Create Event</h1>
+		<form hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/category" } class="max-w-xl w-full flex flex-col gap-4">
+			<div>
+				<p class="text-sm text-stone-500">3. Category</p>
+				<progress class="progress w-full" value="75" max="100"></progress>
+			</div>
+			<div class="form-control">
+				<label for="category" class="label label-text">Select category</label>
+				<select class="select select-bordered" name="category" id="category" multiple>
+					for _, category := range data.Categories {
+						<option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
+					}
+				</select>
+			</div>
+			<button class="btn btn-primary">Continue</button>
+		</form>
+	</div>
+}
+
+type CreateEventFeesData struct {
+  EventID string
+  EntranceFees []models.EntranceFee
+}
+
+templ CreateEventFees(data CreateEventFeesData) {
+	<div class="mt-10 flex flex-col items-center space-y-4">
+		<h1 class="text-center text-3xl font-semibold">Create Event</h1>
+		<div class="max-w-xl w-full flex flex-col gap-4">
+			<div>
+				<p class="text-sm text-stone-500">4. Entrance Fee</p>
+				<progress class="progress w-full" value="100" max="100"></progress>
+			</div>
+			<div id="create_fees">
+				@EventFeesForm(data)
+			</div>
+		</div>
+	</div>
+}
+
+templ EventFeesForm(data CreateEventFeesData) {
+	<div class="flex flex-col gap-4">
+		for _, entranceFee := range data.EntranceFees {
+			<div class="p-4 rounded-xl border border-stone-200 flex justify-between items-center">
+        <div class="text-sm font-semibold">
+				  { entranceFee.Name }
+        </div>
+        <div class="text-sm">
+          { strconv.Itoa(int(entranceFee.Price)) + " CZK" }
+        </div>
+			</div>
+		}
+	</div>
+	<form class="flex gap-4 items-end" hx-post={ "/create-event/" + data.EventID + "/fees" } hx-target="#create_fees" hx-on::after-request="this.reset()">
+		<div class="form-control flex-1">
+			<label class="label label-text">Name</label>
+			<input type="text" required class="input input-bordered" name="name" id="name"/>
+		</div>
+		<div class="form-control flex-1">
+			<label class="label label-text">Price</label>
+			<input type="number" required class="input input-bordered" name="price" id="price"/>
+		</div>
+		<button class="btn btn-secondary">Add</button>
+	</form>
+	<button class="btn btn-primary mt-4 w-full" hx-post="/create-event/finish" disabled?={ len(data.EntranceFees) == 0 }>Finish</button>
+}
+

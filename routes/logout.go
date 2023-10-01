@@ -19,7 +19,10 @@ func (rs resources) LogoutRoutes() chi.Router {
 
 		// Redirect to login
 		w.Header().Set("HX-Redirect", "/login")
-		rs.tmpl.ExecuteTemplate(w, "index.html", nil)
+		err := rs.tmpl.ExecuteTemplate(w, "index.html", nil)
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	return r
