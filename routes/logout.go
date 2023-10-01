@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"JosefKuchar/iis-project/template"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -19,10 +20,7 @@ func (rs resources) LogoutRoutes() chi.Router {
 
 		// Redirect to login
 		w.Header().Set("HX-Redirect", "/login")
-		err := rs.tmpl.ExecuteTemplate(w, "index.html", nil)
-		if err != nil {
-			panic(err)
-		}
+		template.Index().Render(r.Context(), w)
 	})
 
 	return r
