@@ -45,8 +45,9 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		return data
 	}
 
-	getListData := func(r *http.Request) (template.AdminUsersPageData, error) {
+	getListData := func(w *http.ResponseWriter, r *http.Request) (template.AdminUsersPageData, error) {
 		page, offset, err := getPageOffset(r)
+		query := r.FormValue("query")
 		if err != nil {
 			return template.AdminUsersPageData{}, err
 		}
@@ -55,17 +56,22 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			NewSelect().
 			Model(&data.Users).
 			Relation("Role").
+			Where("user.name LIKE ?", "%"+query+"%").
+			WhereOr("user.email LIKE ?", "%"+query+"%").
+			WhereOr("user.id LIKE ?", "%"+query+"%").
 			Limit(settings.PAGE_SIZE).
 			Offset(offset).
 			ScanAndCount(r.Context())
 		data.TotalCount = count
 		data.Page = page
+		data.Query = query
+		(*w).Header().Set("HX-Push-Url", "/admin/users?page="+strconv.Itoa(page)+"&query="+query)
 		return data, nil
 	}
 
 	// User list
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := getListData(r)
+		data, err := getListData(&w, r)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -73,7 +79,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := getListData(r)
+		data, err := getListData(&w, r)
 		if err != nil {
 			fmt.Println(err)
 		}

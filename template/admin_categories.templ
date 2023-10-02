@@ -7,65 +7,77 @@ type AdminCategoriesPageData struct {
 	Categories []models.Category
     TotalCount int
     Page int
+    Query string
 }
 
 
 templ AdminCategoriesPage(data AdminCategoriesPageData) {
-    @AdminIndex() {
-        @AdminListHeader("Kategorie", "/admin/categories/new", "Nová kategorie")
+    @AdminIndex("Kategorie") {
         @AdminCategoriesPageTable(data)
     }
 }
 
 templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
-    <div id="table" hx-swap="morph">
-        <table class="table table-zebra">
-            <tr>
-                <th>ID</th>
-                <th>Název</th>
-                <th>Rodičovské kategorie</th>
-                <th>Schváleno</th>
-            </tr>
-            for _, category := range data.Categories {
-                <tr
-                    class="table-tr hover cursor-pointer"
-                    hx-get={"/admin/categories/" + strconv.Itoa(int(category.ID))}
-                    hx-target="body"
-                    hx-push-url="true"
-                    hx-swap="outerHTML"
-                >
-                    <td>{ strconv.Itoa(int(category.ID)) }</td>
-                    <td>{ category.Name }</td>
-                    <td class="breadcrumbs">
-                        if len(category.Categories) > 1 {
-                            <ul>
-                                for i, parent := range category.Categories {
-                                    if i != len(category.Categories) - 1 {
-                                        <li>
-                                            <a
-                                                href={ templ.URL("/admin/categories/" + strconv.Itoa(int(parent.ID))) }
-                                                hx-trigger="click consume"
-                                            >{ parent.Name }</a>
-                                        </li>
-                                    }
-                                }
-                            </ul>
-                        } else {
-                            <span class="text-neutral">Žádné</span>
-                        }
-                    </td>
-                    <td>
-                        if category.Approved {
-                            <span class="badge">Ano</span>
-                        } else {
-                            <span class="badge badge-warning">Ne</span>
-                        }
-                    </td>
+    <form id="table" hx-swap="morph">
+        @AdminTableDecorator("Kategorie", "/admin/categories", "Nová kategorie", data.Query, data.TotalCount, data.Page) {
+            <table class="table table-zebra">
+                <tr>
+                    <th>ID</th>
+                    <th>Název</th>
+                    <th>Rodičovské kategorie</th>
+                    <th>Schváleno</th>
                 </tr>
-            }
-        </table>
-        @AdminPagination(data.TotalCount, data.Page, "/admin/categories")
-    </div>
+                for _, category := range data.Categories {
+                    <tr
+                        class="table-tr hover cursor-pointer"
+                        hx-get={"/admin/categories/" + strconv.Itoa(int(category.ID))}
+                        hx-target="body"
+                        hx-push-url="true"
+                        hx-swap="outerHTML"
+                    >
+                        <td>{ strconv.Itoa(int(category.ID)) }</td>
+                        <td>{ category.Name }</td>
+                        <td class="breadcrumbs">
+                            if len(category.Categories) > 1 {
+                                <ul>
+                                    for i, parent := range category.Categories {
+                                        if i != len(category.Categories) - 1 {
+                                            <li>
+                                                <a
+                                                    href={ templ.URL("/admin/categories/" + strconv.Itoa(int(parent.ID))) }
+                                                    hx-trigger="click consume"
+                                                >{ parent.Name }</a>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            } else {
+                                <span class="text-neutral">Žádné</span>
+                            }
+                        </td>
+                        <td>
+                            <form>
+                                <input type="hidden" name="page" value={ strconv.Itoa(data.Page) } />
+                                <input
+                                    type="checkbox"
+                                    class="toggle"
+                                    if category.Approved {
+                                        checked="checked"
+                                    }
+                                    name="approved"
+                                    hx-trigger="click consume delay:100ms"
+                                    hx-target="#table"
+                                    hx-post={ "/admin/categories/" + strconv.Itoa(int(category.ID)) + "/approve" }
+                                    hx-push-url="false"
+                                    hx-swap="morph"
+                                />
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+    </form>
 }
 
 type AdminCategoryPageData struct {
@@ -75,7 +87,7 @@ type AdminCategoryPageData struct {
 }
 
 templ AdminCategoryPage(data AdminCategoryPageData) {
-    @AdminIndex() {
+    @AdminIndex("Detail kategorie") {
         if data.New {
             <h1>Nový kategorie</h1>
         } else {

@@ -13,7 +13,7 @@ type EventsPageData struct {
 }
 
 templ EventsPage(data EventsPageData) {
-    @IndexContainer() {
+    @IndexContainer("Události") {
         <h1 class="text-3xl text-center m-10">Události</h1>
         <div hx-get="/user" hx-trigger="load" class="my-5"></div>
         <div class="grid grid-cols-1">

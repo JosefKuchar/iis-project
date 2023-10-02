@@ -1,6 +1,6 @@
 package template
 
-templ Index() {
+templ Index(title string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -12,7 +12,7 @@ templ Index() {
 			<script src="https://unpkg.com/idiomorph/dist/idiomorph-ext.min.js"></script>
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 			<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-			<title>Document</title>
+			<title>{ title }</title>
 		</head>
 		<body hx-boost="true" hx-ext="morph">
 			{ children... }
@@ -20,8 +20,8 @@ templ Index() {
 	</html>
 }
 
-templ IndexContainer() {
-	@Index() {
+templ IndexContainer(title string) {
+	@Index(title) {
 		<div class="container mx-auto px-10">
 			{ children... }
 		</div>

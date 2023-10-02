@@ -9,43 +9,44 @@ type AdminUsersPageData struct {
 	Users []models.User
     TotalCount int
     Page int
+    Query string
 }
 
 templ AdminUsersPage(data AdminUsersPageData) {
-    @AdminIndex() {
-        @AdminListHeader("Uživatelé", "/admin/users/new", "Nový uživatel")
+    @AdminIndex("Uživatelé") {
         @AdminUsersPageTable(data)
     }
 }
 
 templ AdminUsersPageTable(data AdminUsersPageData) {
-    <div id="table" hx-swap="morph">
-        <table class="table table-zebra">
-            <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Role</th>
-            </tr>
-            for _, user := range data.Users {
-                <tr
-                    class="hover cursor-pointer"
-                    hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
-                    hx-target="body"
-                    hx-push-url="true"
-                    hx-swap="outerHTML"
-                >
-                    <td>{ strconv.Itoa(int(user.ID)) }</td>
-                    <td>{ user.Email }</td>
-                    if user.Role == nil {
-                        <td>Neznámá</td>
-                    } else {
-                        <td>{ user.Role.Name }</td>
-                    }
+    <form id="table" hx-swap="morph">
+        @AdminTableDecorator("Uživatelé", "/admin/users", "Nový uživatel", data.Query, data.TotalCount, data.Page) {
+            <table class="table table-zebra">
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Role</th>
                 </tr>
-            }
-        </table>
-        @AdminPagination(data.TotalCount, data.Page, "/admin/users")
-    </div>
+                for _, user := range data.Users {
+                    <tr
+                        class="hover cursor-pointer"
+                        hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
+                        hx-target="body"
+                        hx-push-url="true"
+                        hx-swap="outerHTML"
+                    >
+                        <td>{ strconv.Itoa(int(user.ID)) }</td>
+                        <td>{ user.Email }</td>
+                        if user.Role == nil {
+                            <td>Neznámá</td>
+                        } else {
+                            <td>{ user.Role.Name }</td>
+                        }
+                    </tr>
+                }
+            </table>
+        }
+    </form>
 }
 
 type AdminUserPageData struct {
@@ -56,7 +57,7 @@ type AdminUserPageData struct {
 }
 
 templ AdminUserPage(data AdminUserPageData) {
-    @AdminIndex() {
+    @AdminIndex("Detail uživatele") {
         if data.New {
             <h1>Nový uživatel</h1>
         } else {

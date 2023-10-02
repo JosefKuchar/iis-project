@@ -14,7 +14,7 @@ type EventPageData struct {
 }
 
 templ EventPage(data EventPageData) {
-	@IndexContainer() {
+	@IndexContainer("Detail události") {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
 		<div class="flex">
 			for _, categories := range data.Categories {

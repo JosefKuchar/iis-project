@@ -11,7 +11,7 @@ type CreateEventData struct {
 }
 
 templ CreateEvent(data CreateEventData) {
-	@Index() {
+	@Index("Nová událost") {
 		<div id="create_event">
 			<div class="mt-10 flex flex-col items-center space-y-4">
 				<h1 class="text-center text-3xl font-semibold">Create Event</h1>

@@ -41,8 +41,9 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		return data
 	}
 
-	getListData := func(r *http.Request) (template.AdminCategoriesPageData, error) {
+	getListData := func(w *http.ResponseWriter, r *http.Request) (template.AdminCategoriesPageData, error) {
 		page, offset, err := getPageOffset(r)
+		query := r.FormValue("query")
 		if err != nil {
 			return template.AdminCategoriesPageData{}, err
 		}
@@ -50,6 +51,8 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		count, err := rs.db.
 			NewSelect().
 			Model(&data.Categories).
+			Where("name LIKE ?", "%"+query+"%").
+			WhereOr("id LIKE ?", "%"+query+"%").
 			Limit(settings.PAGE_SIZE).
 			Offset(offset).
 			ScanAndCount(r.Context())
@@ -70,11 +73,13 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		}
 		data.TotalCount = count
 		data.Page = page
+		data.Query = query
+		(*w).Header().Set("HX-Push-Url", "/admin/categories?page="+strconv.Itoa(page)+"&query="+query)
 		return data, nil
 	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := getListData(r)
+		data, err := getListData(&w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -82,7 +87,28 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := getListData(r)
+		data, err := getListData(&w, r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+	})
+
+	r.Post("/{id}/approve", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			fmt.Println(err)
+		}
+		approved := r.FormValue("approved") == "on"
+		_, err = rs.db.
+			NewUpdate().
+			Model(&models.Category{ID: int64(id), Approved: approved}).
+			Column("approved").
+			Where("id = ?", id).Exec(r.Context())
+		if err != nil {
+			fmt.Println(err)
+		}
+		data, err := getListData(&w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

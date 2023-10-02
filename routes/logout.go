@@ -20,7 +20,7 @@ func (rs resources) LogoutRoutes() chi.Router {
 
 		// Redirect to login
 		w.Header().Set("HX-Redirect", "/login")
-		template.Index().Render(r.Context(), w)
+		template.Index("Odhlásit se").Render(r.Context(), w)
 	})
 
 	return r
