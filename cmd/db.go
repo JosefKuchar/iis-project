@@ -43,6 +43,7 @@ func main() {
 		location := &models.Location{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.LoremIpsumSentence(20),
+			Approved:    true,
 		}
 		db.NewInsert().Model(location).Exec(ctx)
 	}

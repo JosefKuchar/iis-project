@@ -68,7 +68,13 @@ templ AdminTableDecorator(name string, endpoint string, newItemName string, quer
                 hx-post={endpoint}
                 hx-trigger="keyup changed delay:200ms"
             />
-            <a href={ templ.URL(endpoint + "/new") } class="btn btn-primary"><i class="las la-plus"></i>{ newItemName }</a>
+            <a
+                href={ templ.URL(endpoint + "/new") }
+                hx-target="body"
+                hx-push-url="true"
+                hx-swap="outerHTML"
+                class="btn btn-primary"
+            ><i class="las la-plus"></i>{ newItemName }</a>
         </div>
     </div>
     { children... }

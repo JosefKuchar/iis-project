@@ -34,6 +34,7 @@ templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
                         hx-target="body"
                         hx-push-url="true"
                         hx-swap="outerHTML"
+                        id={ "category-" + strconv.Itoa(int(category.ID)) }
                     >
                         <td>{ strconv.Itoa(int(category.ID)) }</td>
                         <td>{ category.Name }</td>
@@ -89,7 +90,7 @@ type AdminCategoryPageData struct {
 templ AdminCategoryPage(data AdminCategoryPageData) {
     @AdminIndex("Detail kategorie") {
         if data.New {
-            <h1>Nový kategorie</h1>
+            <h1>Nová kategorie</h1>
         } else {
             <h1>Kategorie { data.Category.Name }</h1>
         }

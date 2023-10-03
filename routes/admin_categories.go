@@ -53,6 +53,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			Model(&data.Categories).
 			Where("name LIKE ?", "%"+query+"%").
 			WhereOr("id LIKE ?", "%"+query+"%").
+			Order("approved ASC").
 			Limit(settings.PAGE_SIZE).
 			Offset(offset).
 			ScanAndCount(r.Context())

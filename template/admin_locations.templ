@@ -1,7 +1,125 @@
 package template
 
-templ AdminLocationsPage() {
+import "JosefKuchar/iis-project/cmd/models"
+import "strconv"
+
+type AdminLocationsPageData struct {
+	Locations []models.Location
+    TotalCount int
+    Page int
+    Query string
+}
+
+
+templ AdminLocationsPage(data AdminLocationsPageData) {
     @AdminIndex("Místa") {
-        <h1>Místa</h1>
+        @AdminLocationsPageTable(data)
     }
+}
+
+templ AdminLocationsPageTable(data AdminLocationsPageData) {
+    <form id="table" hx-swap="morph">
+        @AdminTableDecorator("Místa", "/admin/locations", "Nové místo", data.Query, data.TotalCount, data.Page) {
+            <table class="table table-zebra">
+                <tr>
+                    <th>ID</th>
+                    <th>Název</th>
+                    <th>Schváleno</th>
+                </tr>
+                for _, location := range data.Locations {
+                    <tr
+                        class="table-tr hover cursor-pointer"
+                        hx-get={"/admin/locations/" + strconv.Itoa(int(location.ID))}
+                        hx-target="body"
+                        hx-push-url="true"
+                        hx-swap="outerHTML"
+                        id={ "location-" + strconv.Itoa(int(location.ID)) }
+                    >
+                        <td>{ strconv.Itoa(int(location.ID)) }</td>
+                        <td>{ location.Name }</td>
+                        <td>
+                            <form>
+                                <input type="hidden" name="page" value={ strconv.Itoa(data.Page) } />
+                                <input
+                                    type="checkbox"
+                                    class="toggle"
+                                    if location.Approved {
+                                        checked="checked"
+                                    }
+                                    name="approved"
+                                    hx-trigger="click consume delay:100ms"
+                                    hx-target="#table"
+                                    hx-post={ "/admin/locations/" + strconv.Itoa(int(location.ID)) + "/approve" }
+                                    hx-push-url="false"
+                                    hx-swap="morph"
+                                />
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+    </form>
+}
+
+type AdminLocationPageData struct {
+	Location models.Location
+    Errors map[string]string
+    New bool
+}
+
+templ AdminLocationPage(data AdminLocationPageData) {
+    @AdminIndex("Detail kategorie") {
+        if data.New {
+            <h1>Nové místo</h1>
+        } else {
+            <h1>Místo { data.Location.Name }</h1>
+        }
+        @AdminLocationPageForm(data)
+    }
+}
+
+templ AdminLocationPageForm(data AdminLocationPageData) {
+    <form
+        hx-trigger="keyup delay:300ms, change from:#approved"
+        hx-swap="morph"
+        hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) + "/form" }
+        id="location-detail-form"
+    >
+        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Název *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
+                name="name"
+                id="name"
+                value={ data.Location.Name }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label cursor-pointer">
+                <span class="label-text">Schváleno</span>
+                <input
+                    type="checkbox"
+                    class="toggle"
+                    id="approved"
+                    name="approved"
+                    if data.Location.Approved {
+                        checked="checked"
+                    }
+                />
+            </label>
+        </div>
+        if data.New {
+            <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new">Vytvořit místo</button>
+        } else {
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }>Uložit</button>
+        }
+    </form>
 }
