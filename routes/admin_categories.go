@@ -5,7 +5,6 @@ import (
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,17 +14,18 @@ import (
 func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	parseForm := func(r *http.Request) template.AdminCategoryPageData {
+	parseForm := func(r *http.Request) (template.AdminCategoryPageData, error) {
 		data := template.AdminCategoryPageData{}
 		data.Errors = make(map[string]string)
 
 		parentID, err := strconv.Atoi(r.FormValue("parent_id"))
 		if err != nil {
-			fmt.Println(err)
+			return data, err
 		}
+
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			fmt.Println(err)
+			return data, err
 		}
 
 		data.Category.ID = int64(id)
@@ -38,15 +38,17 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
 
-		return data
+		return data, nil
 	}
 
 	getListData := func(w *http.ResponseWriter, r *http.Request) (template.AdminCategoriesPageData, error) {
 		page, offset, err := getPageOffset(r)
-		query := r.FormValue("query")
 		if err != nil {
 			return template.AdminCategoriesPageData{}, err
 		}
+
+		query := r.FormValue("query")
+
 		data := template.AdminCategoriesPageData{}
 		count, err := rs.db.
 			NewSelect().
@@ -72,34 +74,50 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 				SELECT name, id, parent_id FROM children ORDER BY depth DESC
 			`, category.ID).Scan(r.Context(), &data.Categories[index].Categories)
 		}
+
 		data.TotalCount = count
 		data.Page = page
 		data.Query = query
+
 		(*w).Header().Set("HX-Push-Url", "/admin/categories?page="+strconv.Itoa(page)+"&query="+query)
+
 		return data, nil
 	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
+
 		template.AdminCategoriesPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
-		template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+
+		err = template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	r.Post("/{id}/approve", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, http.StatusText(404), 404)
+			return
 		}
+
 		approved := r.FormValue("approved") == "on"
 		_, err = rs.db.
 			NewUpdate().
@@ -107,36 +125,64 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			Column("approved").
 			Where("id = ?", id).Exec(r.Context())
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, err.Error(), 404)
+			return
 		}
+
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
-		template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+
+		err = template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// New category detail
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminCategoryPageData{}
 		data.New = true
-		template.AdminCategoryPage(data).Render(r.Context(), w)
+
+		err := template.AdminCategoryPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// Create new category
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
 
 		// TODO: Check errors
-		// Create new category
-		rs.db.NewInsert().Model(&data.Category).Exec(r.Context())
+		_, err = rs.db.NewInsert().Model(&data.Category).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
 		w.Header().Set("HX-Redirect", "/admin/categories")
 	})
 
 	r.Post("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		rs.db.NewUpdate().Model(&data.Category).Where("id = ?", data.Category.ID).Exec(r.Context())
+		_, err = rs.db.NewUpdate().Model(&data.Category).Where("id = ?", data.Category.ID).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
 		w.Header().Set("HX-Redirect", "/admin/categories")
 	})
 
@@ -144,31 +190,42 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminCategoryPageData{}
 		data.New = false
+
 		err := rs.db.NewSelect().Model(&data.Category).Relation("Parent").Where("category.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
 		if err != nil {
-			fmt.Println(err)
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		template.AdminCategoryPage(data).Render(r.Context(), w)
+
+		err = template.AdminCategoryPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// Form updater
 	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
-
-		err := template.AdminCategoryPageForm(data).Render(r.Context(), w)
+		data, err := parseForm(r)
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = template.AdminCategoryPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
 		}
 	})
 
 	r.Get("/select2", func(w http.ResponseWriter, r *http.Request) {
-		var categories []models.Category
-		rs.db.NewSelect().Model(&categories).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
-
-		// Return JSON response using json package
 		w.Header().Set("Content-Type", "application/json")
+
+		var categories []models.Category
+		err := rs.db.NewSelect().Model(&categories).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
 		var results Select2Results
 		for _, category := range categories {
@@ -177,7 +234,11 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 				Text: category.Name,
 			})
 		}
-		json.NewEncoder(w).Encode(results)
+
+		err = json.NewEncoder(w).Encode(results)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	return r

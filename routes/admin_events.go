@@ -11,7 +11,10 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		template.AdminEventsPage().Render(r.Context(), w)
+		err := template.AdminEventsPage().Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	return r

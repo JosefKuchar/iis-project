@@ -4,7 +4,6 @@ import (
 	"JosefKuchar/iis-project/cmd/models"
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,13 +13,13 @@ import (
 func (rs resources) AdminLocationsRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	parseForm := func(r *http.Request) template.AdminLocationPageData {
+	parseForm := func(r *http.Request) (template.AdminLocationPageData, error) {
 		data := template.AdminLocationPageData{}
 		data.Errors = make(map[string]string)
 
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			fmt.Println(err)
+			return data, err
 		}
 
 		data.Location.ID = int64(id)
@@ -32,15 +31,17 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
 
-		return data
+		return data, nil
 	}
 
 	getListData := func(w *http.ResponseWriter, r *http.Request) (template.AdminLocationsPageData, error) {
 		page, offset, err := getPageOffset(r)
-		query := r.FormValue("query")
 		if err != nil {
 			return template.AdminLocationsPageData{}, err
 		}
+
+		query := r.FormValue("query")
+
 		data := template.AdminLocationsPageData{}
 		count, err := rs.db.
 			NewSelect().
@@ -58,68 +59,112 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data.TotalCount = count
 		data.Page = page
 		data.Query = query
+
 		(*w).Header().Set("HX-Push-Url", "/admin/locations?page="+strconv.Itoa(page)+"&query="+query)
+
 		return data, nil
 	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
-		template.AdminLocationsPage(data).Render(r.Context(), w)
+
+		err = template.AdminLocationsPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
-		template.AdminLocationsPageTable(data).Render(r.Context(), w)
+
+		err = template.AdminLocationsPageTable(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	r.Post("/{id}/approve", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, err.Error(), 404)
+			return
 		}
+
 		approved := r.FormValue("approved") == "on"
+
 		_, err = rs.db.
 			NewUpdate().
 			Model(&models.Location{ID: int64(id), Approved: approved}).
 			Column("approved").
 			Where("id = ?", id).Exec(r.Context())
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, err.Error(), 404)
+			return
 		}
+
 		data, err := getListData(&w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), 500)
+			return
 		}
-		template.AdminLocationsPageTable(data).Render(r.Context(), w)
+
+		err = template.AdminLocationsPageTable(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// New location detail
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminLocationPageData{}
 		data.New = true
-		template.AdminLocationPage(data).Render(r.Context(), w)
+
+		err := template.AdminLocationPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// Create new location
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
 		// TODO: Check errors
 		// Create new location
-		rs.db.NewInsert().Model(&data.Location).Exec(r.Context())
+		_, err = rs.db.NewInsert().Model(&data.Location).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
 		w.Header().Set("HX-Redirect", "/admin/locations")
 	})
 
 	r.Post("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		rs.db.NewUpdate().Model(&data.Location).Where("id = ?", data.Location.ID).Exec(r.Context())
+		_, err = rs.db.NewUpdate().Model(&data.Location).Where("id = ?", data.Location.ID).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
 		w.Header().Set("HX-Redirect", "/admin/locations")
 	})
 
@@ -127,22 +172,30 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminLocationPageData{}
 		data.New = false
+
 		err := rs.db.NewSelect().Model(&data.Location).Where("location.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
 		if err != nil {
-			fmt.Println(err)
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		template.AdminLocationPage(data).Render(r.Context(), w)
+
+		err = template.AdminLocationPage(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	// Form updater
 	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
-		data := parseForm(r)
-
-		err := template.AdminLocationPageForm(data).Render(r.Context(), w)
+		data, err := parseForm(r)
 		if err != nil {
-			fmt.Println(err)
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = template.AdminLocationPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
 		}
 	})
 

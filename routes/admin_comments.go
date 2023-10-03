@@ -11,7 +11,10 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		template.AdminCommentsPage().Render(r.Context(), w)
+		err := template.AdminCommentsPage().Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	return r
