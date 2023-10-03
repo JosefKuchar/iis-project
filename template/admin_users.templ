@@ -132,8 +132,14 @@ templ AdminUserPageForm(data AdminUserPageData) {
         </div>
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/users/new">Vytvořit uživatele</button>
+            <a href="/admin/users" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }>Uložit</button>
+            <button
+                class="btn"
+                hx-delete={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }
+                hx-confirm="Opravdu chcete smazat uživatele?"
+            >Smazat</button>
         }
 
     </form>

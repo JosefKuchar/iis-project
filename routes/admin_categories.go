@@ -23,7 +23,12 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			return data, err
 		}
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		idString := chi.URLParam(r, "id")
+		if idString == "" {
+			idString = "0"
+		}
+
+		id, err := strconv.Atoi(idString)
 		if err != nil {
 			return data, err
 		}
@@ -203,7 +208,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		}
 	})
 
-	r.Post("/{id}/delete_table", func(w http.ResponseWriter, r *http.Request) {
+	r.Delete("/{id}/table", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
 			http.Error(w, http.StatusText(404), 404)
@@ -226,6 +231,22 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
+	})
+
+	r.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+
+		_, err = rs.db.NewDelete().Model(&models.Category{ID: int64(id)}).Where("id = ?", id).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		w.Header().Set("HX-Redirect", "/admin/categories")
 	})
 
 	// Form updater

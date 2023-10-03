@@ -108,7 +108,7 @@ templ AdminTableDeleteButton(endpoint string, id int64) {
     <button
         class="btn btn-outline btn-sm tooltip"
         data-tip="Smazat"
-        hx-post={ endpoint + "/" + strconv.Itoa(int(id)) + "/delete_table" }
+        hx-delete={ endpoint + "/" + strconv.Itoa(int(id)) + "/table" }
         hx-trigger="click consume"
         hx-target="#table"
         hx-swap="morph"

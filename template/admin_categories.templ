@@ -147,8 +147,14 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
         </div>
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new">Vytvořit kategorii</button>
+            <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }>Uložit</button>
+            <button
+                class="btn"
+                hx-delete={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }
+                hx-confirm="Opravdu chcete smazat kategorii?"
+            >Smazat</button>
         }
     </form>
 }
