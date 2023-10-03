@@ -203,6 +203,31 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		}
 	})
 
+	r.Post("/{id}/delete_table", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+			return
+		}
+
+		_, err = rs.db.NewDelete().Model(&models.Category{ID: int64(id)}).Where("id = ?", id).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		data, err := getListData(&w, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = template.AdminCategoriesPageTable(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
 	// Form updater
 	r.Post("/{id}/form", func(w http.ResponseWriter, r *http.Request) {
 		data, err := parseForm(r)

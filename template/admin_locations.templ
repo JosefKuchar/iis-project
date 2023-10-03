@@ -25,37 +25,19 @@ templ AdminLocationsPageTable(data AdminLocationsPageData) {
                     <th>ID</th>
                     <th>Název</th>
                     <th>Schváleno</th>
+                    <th>Akce</th>
                 </tr>
                 for _, location := range data.Locations {
-                    <tr
-                        class="table-tr hover cursor-pointer"
-                        hx-get={"/admin/locations/" + strconv.Itoa(int(location.ID))}
-                        hx-target="body"
-                        hx-push-url="true"
-                        hx-swap="outerHTML"
-                        id={ "location-" + strconv.Itoa(int(location.ID)) }
-                    >
+                    @AdminTableRow("/admin/locations", location.ID) {
                         <td>{ strconv.Itoa(int(location.ID)) }</td>
                         <td>{ location.Name }</td>
                         <td>
-                            <form>
-                                <input type="hidden" name="page" value={ strconv.Itoa(data.Page) } />
-                                <input
-                                    type="checkbox"
-                                    class="toggle"
-                                    if location.Approved {
-                                        checked="checked"
-                                    }
-                                    name="approved"
-                                    hx-trigger="click consume delay:100ms"
-                                    hx-target="#table"
-                                    hx-post={ "/admin/locations/" + strconv.Itoa(int(location.ID)) + "/approve" }
-                                    hx-push-url="false"
-                                    hx-swap="morph"
-                                />
-                            </form>
+                            @AdminTableApproveButton("/admin/locations", location.ID, location.Approved)
                         </td>
-                    </tr>
+                        <td>
+                            @AdminTableDeleteButton("/admin/locations", location.ID)
+                        </td>
+                    }
                 }
             </table>
         }

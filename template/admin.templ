@@ -88,4 +88,51 @@ templ AdminTableDecorator(name string, endpoint string, newItemName string, quer
             >{ strconv.Itoa(i / settings.PAGE_SIZE + 1) }</button>
         }
     </div>
+    <input type="hidden" name="page" value={ strconv.Itoa(page) } />
+}
+
+templ AdminTableRow(endpoint string, id int64) {
+    <tr
+        class="table-tr hover cursor-pointer"
+        hx-get={endpoint + "/" + strconv.Itoa(int(id))}
+        hx-target="body"
+        hx-push-url="true"
+        hx-swap="outerHTML"
+        id={ "category-" + strconv.Itoa(int(id)) }
+    >
+        { children... }
+    </tr>
+}
+
+templ AdminTableDeleteButton(endpoint string, id int64) {
+    <button
+        class="btn btn-outline btn-sm tooltip"
+        data-tip="Smazat"
+        hx-post={ endpoint + "/" + strconv.Itoa(int(id)) + "/delete_table" }
+        hx-trigger="click consume"
+        hx-target="#table"
+        hx-swap="morph"
+        hx-push-url="false"
+        hx-confirm="Opravdu chcete smazat položku?"
+    >
+        <i class="las la-trash text-xl"></i>
+    </button>
+}
+
+templ AdminTableApproveButton(endpoint string, id int64, approved bool) {
+    <form>
+        <input
+            type="checkbox"
+            class="toggle"
+            if approved {
+                checked="checked"
+            }
+            name="approved"
+            hx-trigger="click consume delay:100ms"
+            hx-target="#table"
+            hx-post={ endpoint + "/" + strconv.Itoa(int(id)) + "/approve" }
+            hx-push-url="false"
+            hx-swap="morph"
+        />
+    </form>
 }

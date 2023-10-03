@@ -26,15 +26,10 @@ templ AdminUsersPageTable(data AdminUsersPageData) {
                     <th>ID</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Akce</th>
                 </tr>
                 for _, user := range data.Users {
-                    <tr
-                        class="hover cursor-pointer"
-                        hx-get={"/admin/users/" + strconv.Itoa(int(user.ID))}
-                        hx-target="body"
-                        hx-push-url="true"
-                        hx-swap="outerHTML"
-                    >
+                    @AdminTableRow("/admin/users", user.ID) {
                         <td>{ strconv.Itoa(int(user.ID)) }</td>
                         <td>{ user.Email }</td>
                         if user.Role == nil {
@@ -42,7 +37,10 @@ templ AdminUsersPageTable(data AdminUsersPageData) {
                         } else {
                             <td>{ user.Role.Name }</td>
                         }
-                    </tr>
+                        <td>
+                            @AdminTableDeleteButton("/admin/users", user.ID)
+                        </td>
+                    }
                 }
             </table>
         }
