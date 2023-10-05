@@ -2,22 +2,22 @@ package routes
 
 import (
 	"database/sql"
-	"html/template"
 	"net/http"
 
 	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/settings"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
 )
 
 type resources struct {
-	db   *bun.DB
-	tmpl *template.Template
+	db *bun.DB
 }
 
 func (rs resources) Routes() chi.Router {
@@ -29,13 +29,24 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/user", rs.UserRoutes())
 
 	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Authenticator)
-		r.Mount("/create-event", rs.CreateEventRoutes())
-		r.Mount("/admin/users", rs.AdminUsersRoutes())
-		r.Mount("/admin/events", rs.AdminEventsRoutes())
-		r.Mount("/admin/categories", rs.AdminCategoriesRoutes())
-		r.Mount("/admin/comments", rs.AdminCommentsRoutes())
-		r.Mount("/admin/locations", rs.AdminLocationsRoutes())
+		// All logged in users
+		r.Group(func(r chi.Router) {
+			r.Use(UserAuthenticator)
+			r.Mount("/create-event", rs.CreateEventRoutes())
+		})
+		// Moderators and admins
+		r.Group(func(r chi.Router) {
+			r.Use(ModeratorAuthenticator)
+			r.Mount("/admin/events", rs.AdminEventsRoutes())
+			r.Mount("/admin/categories", rs.AdminCategoriesRoutes())
+			r.Mount("/admin/comments", rs.AdminCommentsRoutes())
+			r.Mount("/admin/locations", rs.AdminLocationsRoutes())
+		})
+		// Admins only
+		r.Group(func(r chi.Router) {
+			r.Use(AdminAuthenticator)
+			r.Mount("/admin/users", rs.AdminUsersRoutes())
+		})
 	})
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -90,4 +101,75 @@ func Router() chi.Router {
 	r.Handle("/*", resources.Routes())
 
 	return r
+}
+
+// https://github.com/go-chi/jwtauth/blob/master/jwtauth.go
+
+func UserAuthenticator(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, _, err := jwtauth.FromContext(r.Context())
+
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		if token == nil || jwt.Validate(token) != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Token is authenticated, pass it through
+		next.ServeHTTP(w, r)
+	})
+}
+
+func ModeratorAuthenticator(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, claims, err := jwtauth.FromContext(r.Context())
+
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		if token == nil || jwt.Validate(token) != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Check if user is moderator or admin
+		if int(claims["RoleID"].(float64)) != settings.ROLE_MODERATOR && int(claims["RoleID"].(float64)) != settings.ROLE_ADMIN {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Token is authenticated, pass it through
+		next.ServeHTTP(w, r)
+	})
+}
+
+func AdminAuthenticator(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, claims, err := jwtauth.FromContext(r.Context())
+
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		if token == nil || jwt.Validate(token) != nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Check if user is admin
+		if int(claims["RoleID"].(float64)) != settings.ROLE_ADMIN {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Token is authenticated, pass it through
+		next.ServeHTTP(w, r)
+	})
 }
