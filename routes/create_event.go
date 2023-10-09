@@ -191,5 +191,42 @@ func (rs resources) CreateEventRoutes() chi.Router {
 		w.Header().Set("HX-Redirect", "/events")
 	})
 
+	r.Post("/{eventID}/new-category", func(w http.ResponseWriter, r *http.Request) {
+		eventID := chi.URLParam(r, "eventID")
+		categoryName := r.FormValue("name")
+		parentID := r.FormValue("category")
+
+		parentInt, err := strconv.ParseInt(parentID, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+
+		category := models.Category{
+			Name:     categoryName,
+			ParentID: parentInt,
+			Approved: false,
+		}
+
+		_, err = rs.db.NewInsert().Model(&category).Exec(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		data := template.CreateEventCategoryData{
+			EventID:    eventID,
+			Categories: []models.Category{},
+		}
+
+		err = rs.db.NewSelect().Model(&data.Categories).Scan(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		err = template.CreateEventCategory(data).Render(r.Context(), w)
+		if err != nil {
+			panic(err)
+		}
+	})
+
 	return r
 }

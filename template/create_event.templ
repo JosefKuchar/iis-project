@@ -67,7 +67,7 @@ templ CreateEventLocation(data CreateEventLocationData) {
 					}
 				</select>
 			</div>
-			<button class="btn btn-primary">Continue</button>
+			<button type="submit" class="btn btn-primary">Continue</button>
 		</form>
 	</div>
 }
@@ -78,9 +78,9 @@ type CreateEventCategoryData struct {
 }
 
 templ CreateEventCategory(data CreateEventCategoryData) {
-	<div class="mt-10 flex flex-col items-center space-y-4">
+	<div class="mt-10 flex flex-col items-center space-y-4 max-w-xl mx-auto">
 		<h1 class="text-center text-3xl font-semibold">Create Event</h1>
-		<form hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/category" } class="max-w-xl w-full flex flex-col gap-4">
+		<form id="select_category_form" hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/category" } class="max-w-xl w-full flex flex-col gap-4">
 			<div>
 				<p class="text-sm text-stone-500">3. Category</p>
 				<progress class="progress w-full" value="75" max="100"></progress>
@@ -93,9 +93,39 @@ templ CreateEventCategory(data CreateEventCategoryData) {
 					}
 				</select>
 			</div>
-			<button class="btn btn-primary">Continue</button>
 		</form>
+		<div class="flex items-center justify-between w-full">
+			<button class="btn btn-secondary" onclick="create_category.showModal()">Suggest category</button>
+			<button type="submit" form="select_category_form" class="btn btn-primary">Continue</button>
+		</div>
 	</div>
+	<dialog id="create_category" class="modal">
+		<div class="modal-box">
+			<h3 class="font-bold text-lg">Suggest a category</h3>
+			<form action="POST" hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/new-category" }>
+				<div class="grid grid-cols-2 gap-4">
+					<div class="form-control flex-1">
+						<label class="label label-text">Name</label>
+						<input required class="input input-bordered" required name="name" id="new_category_name"	/>
+					</div>
+					<div class="form-control flex-1">
+						<label class="label label-text">Parent</label>
+						<select class="select select-bordered" required name="category" id="new_category_parent">
+							for _, category := range data.Categories {
+								<option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
+							}
+						</select>
+					</div>
+				</div>
+				<div class="flex w-full mt-6 justify-end">
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>Close</button>
+		</form>
+	</dialog>
 }
 
 type CreateEventFeesData struct {
@@ -122,12 +152,12 @@ templ EventFeesForm(data CreateEventFeesData) {
 	<div class="flex flex-col gap-4">
 		for _, entranceFee := range data.EntranceFees {
 			<div class="p-4 rounded-xl border border-stone-200 flex justify-between items-center">
-        <div class="text-sm font-semibold">
-				  { entranceFee.Name }
-        </div>
-        <div class="text-sm">
-          { strconv.Itoa(int(entranceFee.Price)) + " CZK" }
-        </div>
+				<div class="text-sm font-semibold">
+					{ entranceFee.Name }
+				</div>
+				<div class="text-sm">
+					{ strconv.Itoa(int(entranceFee.Price)) + " CZK" }
+				</div>
 			</div>
 		}
 	</div>
