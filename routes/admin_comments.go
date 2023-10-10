@@ -50,8 +50,10 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 		count, err := rs.db.
 			NewSelect().
 			Model(&data.Comments).
+			Relation("User").
+			Relation("Event").
 			Where("text LIKE ?", "%"+query+"%").
-			WhereOr("id LIKE ?", "%"+query+"%").
+			WhereOr("comment.id LIKE ?", "%"+query+"%").
 			Limit(settings.PAGE_SIZE).
 			Offset(offset).
 			ScanAndCount(r.Context())

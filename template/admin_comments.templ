@@ -1,6 +1,7 @@
 package template
 
 import "JosefKuchar/iis-project/cmd/models"
+import "JosefKuchar/iis-project/utils"
 import "strconv"
 
 type AdminCommentsPageData struct {
@@ -24,12 +25,28 @@ templ AdminCommentsPageTable(data AdminCommentsPageData) {
                 <tr>
                     <th>ID</th>
                     <th>Název</th>
+                    <th>Autor</th>
+                    <th>Událost</th>
                     <th>Akce</th>
                 </tr>
                 for _, comment := range data.Comments {
                     @AdminTableRow("/admin/comments", comment.ID) {
                         <td>{ strconv.Itoa(int(comment.ID)) }</td>
-                        <td>{ comment.Text }</td>
+                        <td>{ utils.TruncateText(comment.Text, 50) }</td>
+                        <td>
+                            <a
+                                href={ templ.URL("/admin/users/" + strconv.Itoa(int(comment.UserID))) }
+                                hx-trigger="click consume"
+                                class="link link-hover"
+                            >{ comment.User.Name }</a>
+                        </td>
+                        <td>
+                            <a
+                                href={ templ.URL("/admin/events/" + strconv.Itoa(int(comment.EventID))) }
+                                hx-trigger="click consume"
+                                class="link link-hover"
+                            >{ comment.Event.Name }</a>
+                        </td>
                         <td>
                             @AdminTableDeleteButton("/admin/comments", comment.ID)
                         </td>
