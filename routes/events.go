@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/models"
 	"fmt"
 	"net/http"
 	"strconv"

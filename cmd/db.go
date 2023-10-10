@@ -1,7 +1,7 @@
 package main
 
 import (
-	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/models"
 	"context"
 	"database/sql"
 	"os"

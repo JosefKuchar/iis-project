@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/mail"
 
-	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/template"
 
 	"github.com/go-chi/chi/v5"

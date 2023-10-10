@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
 	"encoding/json"

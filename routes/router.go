@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	"JosefKuchar/iis-project/cmd/models"
+	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
 
 	"github.com/go-chi/chi/middleware"
