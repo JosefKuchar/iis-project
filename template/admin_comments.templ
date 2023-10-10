@@ -1,7 +1,95 @@
 package template
 
-templ AdminCommentsPage() {
+import "JosefKuchar/iis-project/cmd/models"
+import "strconv"
+
+type AdminCommentsPageData struct {
+	Comments []models.Comment
+    TotalCount int
+    Page int
+    Query string
+}
+
+
+templ AdminCommentsPage(data AdminCommentsPageData) {
     @AdminIndex("Komentáře") {
-        <h1>Komentáře</h1>
+        @AdminCommentsPageTable(data)
     }
+}
+
+templ AdminCommentsPageTable(data AdminCommentsPageData) {
+    <form id="table" hx-swap="morph">
+        @AdminTableDecorator("Komentáře", "/admin/comments", "Nový komentář", data.Query, data.TotalCount, data.Page) {
+            <table class="table table-zebra">
+                <tr>
+                    <th>ID</th>
+                    <th>Název</th>
+                    <th>Akce</th>
+                </tr>
+                for _, comment := range data.Comments {
+                    @AdminTableRow("/admin/comments", comment.ID) {
+                        <td>{ strconv.Itoa(int(comment.ID)) }</td>
+                        <td>{ comment.Text }</td>
+                        <td>
+                            @AdminTableDeleteButton("/admin/comments", comment.ID)
+                        </td>
+                    }
+                }
+            </table>
+        }
+    </form>
+}
+
+type AdminCommentPageData struct {
+	Comment models.Comment
+    Errors map[string]string
+    New bool
+}
+
+templ AdminCommentPage(data AdminCommentPageData) {
+    @AdminIndex("Detail komentáře") {
+        if data.New {
+            <h1>Nová komentář</h1>
+        } else {
+            <h1>Komentář { data.Comment.Text }</h1>
+        }
+        @AdminCommentPageForm(data)
+    }
+}
+
+templ AdminCommentPageForm(data AdminCommentPageData) {
+    <form
+        hx-trigger="keyup delay:300ms, change from:#approved"
+        hx-swap="morph"
+        hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) + "/form" }
+        id="comment-detail-form"
+    >
+        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Název *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["Text"] != "") }
+                name="text"
+                id="text"
+                value={ data.Comment.Text }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["Text"] }&nbsp;</div>
+            </label>
+        </div>
+        if data.New {
+            <button class="btn btn-primary" type="submit" hx-post="/admin/comments/new">Vytvořit komentář</button>
+            <a href="/admin/comments" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+        } else {
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }>Uložit</button>
+            <button
+                class="btn"
+                hx-delete={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }
+                hx-confirm="Opravdu chcete smazat komentář?"
+            >Smazat</button>
+        }
+    </form>
 }
