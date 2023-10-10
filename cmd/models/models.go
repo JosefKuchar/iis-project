@@ -78,6 +78,7 @@ type Event struct {
 	Comments     []Comment     `bun:"rel:has-many"`
 	Ratings      []Rating      `bun:"rel:has-many"`
 	Categories   []Category    `bun:"m2m:category_to_event,join:Event=Category"`
+	Approved     bool          `bun:",notnull"`
 }
 
 type EntranceFee struct {

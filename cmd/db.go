@@ -57,6 +57,7 @@ func main() {
 			Start:       start,
 			End:         start.Add(time.Hour * time.Duration(gofakeit.Number(1, 10))),
 			LocationID:  int64(gofakeit.Number(1, 10)),
+			Approved:    true,
 		}
 		db.NewInsert().Model(event).Exec(ctx)
 

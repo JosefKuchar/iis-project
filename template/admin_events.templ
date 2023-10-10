@@ -1,7 +1,113 @@
 package template
 
-templ AdminEventsPage() {
+import "JosefKuchar/iis-project/cmd/models"
+import "strconv"
+
+type AdminEventsPageData struct {
+	Events []models.Event
+    TotalCount int
+    Page int
+    Query string
+}
+
+
+templ AdminEventsPage(data AdminEventsPageData) {
     @AdminIndex("Události") {
-        <h1>Události</h1>
+        @AdminEventsPageTable(data)
     }
+}
+
+templ AdminEventsPageTable(data AdminEventsPageData) {
+    <form id="table" hx-swap="morph">
+        @AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page) {
+            <table class="table table-zebra">
+                <tr>
+                    <th>ID</th>
+                    <th>Název</th>
+                    <th>Schváleno</th>
+                    <th>Akce</th>
+                </tr>
+                for _, event := range data.Events {
+                    @AdminTableRow("/admin/events", event.ID) {
+                        <td>{ strconv.Itoa(int(event.ID)) }</td>
+                        <td>{ event.Name }</td>
+                        <td>
+                            @AdminTableApproveButton("/admin/events", event.ID, event.Approved)
+                        </td>
+                        <td>
+                            @AdminTableDeleteButton("/admin/events", event.ID)
+                        </td>
+                    }
+                }
+            </table>
+        }
+    </form>
+}
+
+type AdminEventPageData struct {
+	Event models.Event
+    Errors map[string]string
+    New bool
+}
+
+templ AdminEventPage(data AdminEventPageData) {
+    @AdminIndex("Detail událost") {
+        if data.New {
+            <h1>Nová událost</h1>
+        } else {
+            <h1>Událost { data.Event.Name }</h1>
+        }
+        @AdminEventPageForm(data)
+    }
+}
+
+templ AdminEventPageForm(data AdminEventPageData) {
+    <form
+        hx-trigger="keyup delay:300ms, change from:#approved"
+        hx-swap="morph"
+        hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form" }
+        id="event-detail-form"
+    >
+        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Název *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
+                name="name"
+                id="name"
+                value={ data.Event.Name }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label cursor-pointer">
+                <span class="label-text">Schváleno</span>
+                <input
+                    type="checkbox"
+                    class="toggle"
+                    id="approved"
+                    name="approved"
+                    if data.Event.Approved {
+                        checked="checked"
+                    }
+                />
+            </label>
+        </div>
+        if data.New {
+            <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
+            <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+        } else {
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
+            <button
+                class="btn"
+                hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
+                hx-confirm="Opravdu chcete smazat událost?"
+            >Smazat</button>
+        }
+    </form>
 }
