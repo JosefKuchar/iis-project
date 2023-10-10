@@ -29,7 +29,6 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 
 		data.Comment.ID = int64(id)
 		data.Comment.Text = r.FormValue("text")
-		data.New = r.FormValue("new") == "true"
 
 		if data.Comment.Text == "" {
 			data.Errors["Text"] = "Text cannot be empty"
@@ -98,36 +97,6 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 		}
 	})
 
-	// New comment detail
-	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
-		data := template.AdminCommentPageData{}
-		data.New = true
-
-		err := template.AdminCommentPage(data).Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
-	})
-
-	// Create new comment
-	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
-		data, err := parseForm(r)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		// TODO: Check errors
-		// Create new comment
-		_, err = rs.db.NewInsert().Model(&data.Comment).Exec(r.Context())
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		w.Header().Set("HX-Redirect", "/admin/comments")
-	})
-
 	r.Post("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data, err := parseForm(r)
 		if err != nil {
@@ -147,7 +116,6 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 	// Existing comment detail
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminCommentPageData{}
-		data.New = false
 
 		err := rs.db.NewSelect().Model(&data.Comment).Where("comment.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
 		if err != nil {

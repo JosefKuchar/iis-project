@@ -65,11 +65,7 @@ type AdminCommentPageData struct {
 
 templ AdminCommentPage(data AdminCommentPageData) {
     @AdminIndex("Detail komentáře") {
-        if data.New {
-            <h1>Nová komentář</h1>
-        } else {
-            <h1>Komentář { data.Comment.Text }</h1>
-        }
+        <h1>Komentář</h1>
         @AdminCommentPageForm(data)
     }
 }
@@ -81,32 +77,12 @@ templ AdminCommentPageForm(data AdminCommentPageData) {
         hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) + "/form" }
         id="comment-detail-form"
     >
-        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Název *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Text"] != "") }
-                name="text"
-                id="text"
-                value={ data.Comment.Text }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Text"] }&nbsp;</div>
-            </label>
-        </div>
-        if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/comments/new">Vytvořit komentář</button>
-            <a href="/admin/comments" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
-        } else {
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }>Uložit</button>
-            <button
-                class="btn"
-                hx-delete={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }
-                hx-confirm="Opravdu chcete smazat komentář?"
-            >Smazat</button>
-        }
+        @AdminTextarea(data.Comment.Text, data.Errors["Text"], "text", "Text *")
+        <button class="btn btn-primary" type="submit" hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }>Uložit</button>
+        <button
+            class="btn"
+            hx-delete={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }
+            hx-confirm="Opravdu chcete smazat komentář?"
+        >Smazat</button>
     </form>
 }

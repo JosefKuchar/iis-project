@@ -136,3 +136,22 @@ templ AdminTableApproveButton(endpoint string, id int64, approved bool) {
         />
     </form>
 }
+
+templ AdminTextarea(value string, validation string, name string, title string) {
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <textarea
+            class={"textarea textarea-bordered", templ.KV("input-error", validation != "") }
+            name={ name }
+            id={ name }
+            rows="8"
+        >
+            { value }
+        </textarea>
+        <label class="label">
+            <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
