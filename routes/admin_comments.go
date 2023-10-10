@@ -54,6 +54,8 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 			Relation("Event").
 			Where("text LIKE ?", "%"+query+"%").
 			WhereOr("comment.id LIKE ?", "%"+query+"%").
+			WhereOr("user.name LIKE ?", "%"+query+"%").
+			WhereOr("event.name LIKE ?", "%"+query+"%").
 			Limit(settings.PAGE_SIZE).
 			Offset(offset).
 			ScanAndCount(r.Context())
