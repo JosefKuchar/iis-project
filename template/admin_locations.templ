@@ -85,6 +85,51 @@ templ AdminLocationPageForm(data AdminLocationPageData) {
             </label>
         </div>
         <div class="form-control">
+            <label class="label">
+                <span class="label-text">Ulica *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["Street"] != "") }
+                name="street"
+                id="street"
+                value={ data.Location.Street }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["Street"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">PSC *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["Zip"] != "") }
+                name="zip"
+                id="zip"
+                value={ data.Location.Zip }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["Zip"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Mesto *</span>
+            </label>
+            <input
+                type="text"
+                class={"input input-bordered", templ.KV("input-error", data.Errors["City"] != "") }
+                name="city"
+                id="city"
+                value={ data.Location.City }
+            />
+            <label class="label">
+                <div class="text-error">{ data.Errors["City"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control">
             <label class="label cursor-pointer">
                 <span class="label-text">Schváleno</span>
                 <input

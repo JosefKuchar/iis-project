@@ -29,11 +29,26 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 
 		data.Location.ID = int64(id)
 		data.Location.Name = r.FormValue("name")
+		data.Location.Street = r.FormValue("street")
+		data.Location.Zip = r.FormValue("zip")
+		data.Location.City = r.FormValue("city")
 		data.Location.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
 		if data.Location.Name == "" {
 			data.Errors["Name"] = "Name cannot be empty"
+		}
+
+		if data.Location.Street == "" {
+			data.Errors["Street"] = "Street cannot be empty"
+		}
+
+		if data.Location.Zip == "" {
+			data.Errors["Zip"] = "Zip cannot be empty"
+		}
+
+		if data.Location.City == "" {
+			data.Errors["City"] = "City cannot be empty"
 		}
 
 		return data, nil

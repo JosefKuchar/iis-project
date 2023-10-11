@@ -51,9 +51,9 @@ type CreateEventLocationData struct {
 }
 
 templ CreateEventLocation(data CreateEventLocationData) {
-	<div class="mt-10 flex flex-col items-center space-y-4">
+	<div class="mt-10 flex flex-col items-center space-y-4 max-w-xl mx-auto">
 		<h1 class="text-center text-3xl font-semibold">Create Event</h1>
-		<form hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/location" } class="max-w-xl w-full flex flex-col gap-4">
+		<form hx-target="#create_event" id="select_location_form" hx-post={ "/create-event/" + data.EventID + "/location" } class="max-w-xl w-full flex flex-col gap-4">
 			<div>
 				<p class="text-sm text-stone-500">2. Location</p>
 				<progress class="progress w-full" value="50" max="100"></progress>
@@ -67,9 +67,43 @@ templ CreateEventLocation(data CreateEventLocationData) {
 					}
 				</select>
 			</div>
-			<button type="submit" class="btn btn-primary">Continue</button>
 		</form>
+		<div class="flex items-center justify-between w-full">
+			<button class="btn btn-secondary" onclick="create_location.showModal()">Suggest location</button>
+			<button type="submit" form="select_location_form" class="btn btn-primary">Continue</button>
+		</div>
 	</div>
+	<dialog id="create_location" class="modal">
+		<div class="modal-box">
+			<h3 class="font-bold text-lg">Suggest a location</h3>
+			<form action="POST" hx-target="#create_event" hx-post={ "/create-event/" + data.EventID + "/new-location" }>
+				<div class="grid grid-cols-2 gap-4">
+					<div class="form-control flex-1 col-span-2">
+						<label class="label label-text">Name</label>
+						<input required class="input input-bordered" required name="name" id="new_location_name"	/>
+					</div>
+					<div class="form-control flex-1 col-span-2">
+						<label class="label label-text">Street</label>
+						<input required class="input input-bordered" required name="street" id="new_location_street"	/>
+					</div>
+					<div class="form-control flex-1">
+						<label class="label label-text">Zip</label>
+						<input required class="input input-bordered" required name="zip" id="new_location_zip"	/>
+					</div>
+					<div class="form-control flex-1">
+						<label class="label label-text">City</label>
+						<input required class="input input-bordered" required name="city" id="new_location_city"	/>
+					</div>
+				</div>
+				<div class="flex w-full mt-6 justify-end">
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>Close</button>
+		</form>
+	</dialog>
 }
 
 type CreateEventCategoryData struct {

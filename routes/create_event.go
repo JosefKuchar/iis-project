@@ -228,5 +228,42 @@ func (rs resources) CreateEventRoutes() chi.Router {
 		}
 	})
 
+	r.Post("/{eventID}/new-location", func(w http.ResponseWriter, r *http.Request) {
+		eventID := chi.URLParam(r, "eventID")
+		name := r.FormValue("name")
+		street := r.FormValue("street")
+		zip := r.FormValue("zip")
+		city := r.FormValue("city")
+
+		location := models.Location{
+			Name:     name,
+			Street:   street,
+			Zip:      zip,
+			City:     city,
+			Approved: false,
+		}
+
+		_, err := rs.db.NewInsert().Model(&location).Exec(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		locations := []models.Location{}
+		err = rs.db.NewSelect().Model(&locations).Scan(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		data := template.CreateEventLocationData{
+			EventID:   eventID,
+			Locations: locations,
+		}
+
+		err = template.CreateEventLocation(data).Render(r.Context(), w)
+		if err != nil {
+			panic(err)
+		}
+	})
+
 	return r
 }

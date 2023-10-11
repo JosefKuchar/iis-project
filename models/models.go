@@ -57,10 +57,12 @@ type Category struct {
 type Location struct {
 	bun.BaseModel `bun:"table:locations"`
 
-	ID          int64  `bun:",pk,autoincrement"`
-	Name        string `bun:",notnull"`
-	Description string `bun:","`
-	Approved    bool   `bun:",notnull"`
+	ID       int64  `bun:",pk,autoincrement"`
+	Name     string `bun:",notnull"`
+	Street   string `bun:",notnull"`
+	Zip      string `bun:",notnull"`
+	City     string `bun:",notnull"`
+	Approved bool   `bun:",notnull"`
 }
 
 type Event struct {

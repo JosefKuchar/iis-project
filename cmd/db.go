@@ -41,9 +41,11 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		location := &models.Location{
-			Name:        gofakeit.Name(),
-			Description: gofakeit.LoremIpsumSentence(20),
-			Approved:    true,
+			Name:     gofakeit.Name(),
+			Street:   gofakeit.Street(),
+			Zip:      gofakeit.Zip(),
+			City:     gofakeit.City(),
+			Approved: true,
 		}
 		db.NewInsert().Model(location).Exec(ctx)
 	}
