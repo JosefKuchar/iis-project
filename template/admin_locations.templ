@@ -53,9 +53,13 @@ type AdminLocationPageData struct {
 templ AdminLocationPage(data AdminLocationPageData) {
     @AdminIndex("Detail kategorie") {
         if data.New {
-            <h1>Nové místo</h1>
+            @AdminDetailHeader() {
+                Nové místo
+            }
         } else {
-            <h1>Místo { data.Location.Name }</h1>
+            @AdminDetailHeader() {
+                Místo { data.Location.Name }
+            }
         }
         @AdminLocationPageForm(data)
     }

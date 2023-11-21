@@ -57,9 +57,13 @@ type AdminUserPageData struct {
 templ AdminUserPage(data AdminUserPageData) {
     @AdminIndex("Detail uživatele") {
         if data.New {
-            <h1>Nový uživatel</h1>
+            @AdminDetailHeader() {
+                "Nový uživatel"
+            }
         } else {
-            <h1>Uživatel { data.User.Name }</h1>
+            @AdminDetailHeader() {
+                Uživatel { data.User.Name }
+            }
         }
         @AdminUserPageForm(data)
         <script>

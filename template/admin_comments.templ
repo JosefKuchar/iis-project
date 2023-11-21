@@ -65,7 +65,9 @@ type AdminCommentPageData struct {
 
 templ AdminCommentPage(data AdminCommentPageData) {
     @AdminIndex("Detail komentáře") {
-        <h1>Komentář</h1>
+        @AdminDetailHeader() {
+            Komentář
+        }
         @AdminCommentPageForm(data)
     }
 }

@@ -72,9 +72,13 @@ type AdminCategoryPageData struct {
 templ AdminCategoryPage(data AdminCategoryPageData) {
     @AdminIndex("Detail kategorie") {
         if data.New {
-            <h1>Nová kategorie</h1>
+            @AdminDetailHeader() {
+                Nová kategorie
+            }
         } else {
-            <h1>Kategorie { data.Category.Name }</h1>
+            @AdminDetailHeader() {
+                Kategorie { data.Category.Name }
+            }
         }
         @AdminCategoryPageForm(data)
         <script>

@@ -53,9 +53,13 @@ type AdminEventPageData struct {
 templ AdminEventPage(data AdminEventPageData) {
     @AdminIndex("Detail událost") {
         if data.New {
-            <h1>Nová událost</h1>
+            @AdminDetailHeader() {
+                Nová událost
+            }
         } else {
-            <h1>Událost { data.Event.Name }</h1>
+            @AdminDetailHeader() {
+                Událost { data.Event.Name }
+            }
         }
         @AdminEventPageForm(data)
     }
