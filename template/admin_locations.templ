@@ -13,11 +13,11 @@ type AdminLocationsPageData struct {
 
 templ AdminLocationsPage(data AdminLocationsPageData, appbar AppbarData) {
     @Appbar("Místa", appbar) {
-        @AdminLocationsPageTable(data)
+        @AdminLocationsPageTable(data, appbar)
     }
 }
 
-templ AdminLocationsPageTable(data AdminLocationsPageData) {
+templ AdminLocationsPageTable(data AdminLocationsPageData, appbar AppbarData) {
     <form id="table" hx-swap="morph">
         @AdminTableDecorator("Místa", "/admin/locations", "Nové místo", data.Query, data.TotalCount, data.Page) {
             <table class="table table-zebra">
@@ -42,6 +42,7 @@ templ AdminLocationsPageTable(data AdminLocationsPageData) {
             </table>
         }
     </form>
+    @AppbarStandalone(appbar, true)
 }
 
 type AdminLocationPageData struct {

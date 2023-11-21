@@ -13,11 +13,11 @@ type AdminCategoriesPageData struct {
 
 templ AdminCategoriesPage(data AdminCategoriesPageData, appbar AppbarData) {
     @Appbar("Kategorie", appbar) {
-        @AdminCategoriesPageTable(data)
+        @AdminCategoriesPageTable(data, appbar)
     }
 }
 
-templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
+templ AdminCategoriesPageTable(data AdminCategoriesPageData, appbar AppbarData) {
     <form id="table" hx-swap="morph">
         @AdminTableDecorator("Kategorie", "/admin/categories", "Nová kategorie", data.Query, data.TotalCount, data.Page) {
             <table class="table table-zebra">
@@ -61,6 +61,7 @@ templ AdminCategoriesPageTable(data AdminCategoriesPageData) {
             </table>
         }
     </form>
+    @AppbarStandalone(appbar, true)
 }
 
 type AdminCategoryPageData struct {

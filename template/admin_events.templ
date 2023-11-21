@@ -13,11 +13,11 @@ type AdminEventsPageData struct {
 
 templ AdminEventsPage(data AdminEventsPageData, appbar AppbarData) {
     @Appbar("Události", appbar) {
-        @AdminEventsPageTable(data)
+        @AdminEventsPageTable(data, appbar)
     }
 }
 
-templ AdminEventsPageTable(data AdminEventsPageData) {
+templ AdminEventsPageTable(data AdminEventsPageData, appbar AppbarData) {
     <form id="table" hx-swap="morph">
         @AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page) {
             <table class="table table-zebra">
@@ -42,6 +42,7 @@ templ AdminEventsPageTable(data AdminEventsPageData) {
             </table>
         }
     </form>
+    @AppbarStandalone(appbar, true)
 }
 
 type AdminEventPageData struct {
