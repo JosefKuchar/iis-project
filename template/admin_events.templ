@@ -65,6 +65,22 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
             }
         }
         @AdminEventPageForm(data)
+        <script>
+            $(document).ready(function() {
+                $('#categories').select2({
+                    ajax: {
+                        url: '/admin/categories/select2',
+                        dataType: 'json'
+                    },
+                    allowClear: true,
+                    placeholder: 'Žádná'
+                });
+                // Stop propagation of keyup event from textarea so it doesn't interfere with htmx
+                $('.select2-search__field').on('keyup', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        </script>
     }
 }
 
@@ -89,6 +105,20 @@ templ AdminEventPageForm(data AdminEventPageData) {
             />
             <label class="label">
                 <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control" id="categories_form_control" hx-preserve>
+            <label class="label">
+                <span class="label-text">Kategorie</span>
+            </label>
+            <select
+                name="categories[]"
+                id="categories"
+                multiple="multiple"
+            >
+            </select>
+            <label class="label">
+            <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
             </label>
         </div>
         <div class="form-control">
