@@ -12,8 +12,8 @@ type AdminCommentsPageData struct {
 }
 
 
-templ AdminCommentsPage(data AdminCommentsPageData) {
-    @AdminIndex("Komentáře") {
+templ AdminCommentsPage(data AdminCommentsPageData, appbar AppbarData) {
+    @Appbar("Komentáře", appbar) {
         @AdminCommentsPageTable(data)
     }
 }
@@ -63,8 +63,8 @@ type AdminCommentPageData struct {
     New bool
 }
 
-templ AdminCommentPage(data AdminCommentPageData) {
-    @AdminIndex("Detail komentáře") {
+templ AdminCommentPage(data AdminCommentPageData, appbar AppbarData) {
+    @Appbar("Detail komentáře", appbar) {
         @AdminDetailHeader() {
             Komentář
         }

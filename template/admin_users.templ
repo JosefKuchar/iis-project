@@ -12,8 +12,8 @@ type AdminUsersPageData struct {
     Query string
 }
 
-templ AdminUsersPage(data AdminUsersPageData) {
-    @AdminIndex("Uživatelé") {
+templ AdminUsersPage(data AdminUsersPageData, appbar AppbarData) {
+    @Appbar("Uživatelé", appbar) {
         @AdminUsersPageTable(data)
     }
 }
@@ -54,8 +54,8 @@ type AdminUserPageData struct {
     New bool
 }
 
-templ AdminUserPage(data AdminUserPageData) {
-    @AdminIndex("Detail uživatele") {
+templ AdminUserPage(data AdminUserPageData, appbar AppbarData) {
+    @Appbar("Detail uživatele", appbar) {
         if data.New {
             @AdminDetailHeader() {
                 "Nový uživatel"

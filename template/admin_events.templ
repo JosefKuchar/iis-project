@@ -11,8 +11,8 @@ type AdminEventsPageData struct {
 }
 
 
-templ AdminEventsPage(data AdminEventsPageData) {
-    @AdminIndex("Události") {
+templ AdminEventsPage(data AdminEventsPageData, appbar AppbarData) {
+    @Appbar("Události", appbar) {
         @AdminEventsPageTable(data)
     }
 }
@@ -50,8 +50,8 @@ type AdminEventPageData struct {
     New bool
 }
 
-templ AdminEventPage(data AdminEventPageData) {
-    @AdminIndex("Detail událost") {
+templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
+    @Appbar("Detail událost", appbar) {
         if data.New {
             @AdminDetailHeader() {
                 Nová událost

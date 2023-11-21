@@ -11,8 +11,8 @@ type AdminCategoriesPageData struct {
 }
 
 
-templ AdminCategoriesPage(data AdminCategoriesPageData) {
-    @AdminIndex("Kategorie") {
+templ AdminCategoriesPage(data AdminCategoriesPageData, appbar AppbarData) {
+    @Appbar("Kategorie", appbar) {
         @AdminCategoriesPageTable(data)
     }
 }
@@ -69,8 +69,8 @@ type AdminCategoryPageData struct {
     New bool
 }
 
-templ AdminCategoryPage(data AdminCategoryPageData) {
-    @AdminIndex("Detail kategorie") {
+templ AdminCategoryPage(data AdminCategoryPageData, appbar AppbarData) {
+    @Appbar("Detail kategorie", appbar) {
         if data.New {
             @AdminDetailHeader() {
                 Nová kategorie

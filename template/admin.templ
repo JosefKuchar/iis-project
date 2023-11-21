@@ -3,57 +3,6 @@ package template
 import "strconv"
 import "JosefKuchar/iis-project/settings"
 
-templ AdminIndex(title string) {
-    @Index(title) {
-        <div class="navbar bg-base-300 sticky top-0 mb-10 z-10">
-            <div class="navbar-start text-xl">
-                APP
-            </div>
-            <div class="navbar-center">
-                <ul class="menu menu-horizontal">
-                    <li>
-                        <a href="/admin/users">
-                            <i class="las la-users"></i>
-                            Uživatelé
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/events">
-                            <i class="las la-calendar"></i>
-                            Události
-                            <span class="badge badge-sm badge-warning">Nové</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/locations">
-                            <i class="las la-map"></i>
-                            Místa
-                            <span class="badge badge-sm badge-warning">Nové</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/categories">
-                            <i class="las la-tags"></i>
-                            Kategorie
-                            <span class="badge badge-sm badge-warning">Nové</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/comments">
-                            <i class="las la-comment"></i>
-                            Komentáře
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="navbar-end"></div>
-        </div>
-        <div class="container mx-auto px-10">
-            { children... }
-        </div>
-    }
-}
-
 templ AdminTableDecorator(name string, endpoint string, newItemName string, query string, totalCount int, page int) {
     <div class="flex items-center justify-between mb-5">
         <h1 class="text-2xl">{ name }</h1>

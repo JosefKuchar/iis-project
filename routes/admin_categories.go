@@ -95,8 +95,13 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		template.AdminCategoriesPage(data).Render(r.Context(), w)
+		template.AdminCategoriesPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -151,8 +156,13 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data := template.AdminCategoryPageData{}
 		data.New = true
 		data.Category.Approved = true
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err := template.AdminCategoryPage(data).Render(r.Context(), w)
+		err = template.AdminCategoryPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -202,8 +212,13 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminCategoryPage(data).Render(r.Context(), w)
+		err = template.AdminCategoryPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

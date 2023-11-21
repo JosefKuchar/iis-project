@@ -93,8 +93,13 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminUsersPage(data).Render(r.Context(), w)
+		err = template.AdminUsersPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -122,8 +127,13 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminUserPage(data).Render(r.Context(), w)
+		err = template.AdminUserPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -178,8 +188,13 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminUserPage(data).Render(r.Context(), w)
+		err = template.AdminUserPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

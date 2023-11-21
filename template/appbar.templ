@@ -1,0 +1,77 @@
+package template
+
+import (
+	"JosefKuchar/iis-project/models"
+	"strconv"
+)
+
+type AppbarData struct {
+	User models.User
+    NewEvents int
+    NewLocations int
+    NewCategories int
+}
+
+
+templ Appbar(title string, data AppbarData) {
+    @Index(title) {
+        <div class="navbar bg-base-300 sticky top-0 mb-10 z-10">
+            <div class="navbar-start text-xl">
+                APP
+            </div>
+            <div class="navbar-center">
+                <ul class="menu menu-horizontal">
+                    <li>
+                        <a href="/admin/users">
+                            <i class="las la-users"></i>
+                            Uživatelé
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/events">
+                            <i class="las la-calendar"></i>
+                            Události
+                            if data.NewEvents > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewEvents)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/locations">
+                            <i class="las la-map"></i>
+                            Místa
+                            if data.NewLocations > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewLocations)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/categories">
+                            <i class="las la-tags"></i>
+                            Kategorie
+                            if data.NewCategories > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewCategories)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/comments">
+                            <i class="las la-comment"></i>
+                            Komentáře
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="navbar-end"></div>
+        </div>
+        <div class="container mx-auto px-10">
+            { children... }
+        </div>
+    }
+}

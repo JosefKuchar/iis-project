@@ -77,8 +77,13 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminCommentsPage(data).Render(r.Context(), w)
+		err = template.AdminCommentsPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -122,8 +127,13 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminCommentPage(data).Render(r.Context(), w)
+		err = template.AdminCommentPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

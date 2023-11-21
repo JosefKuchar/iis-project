@@ -91,8 +91,13 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminLocationsPage(data).Render(r.Context(), w)
+		err = template.AdminLocationsPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -147,8 +152,13 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data := template.AdminLocationPageData{}
 		data.New = true
 		data.Location.Approved = true
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err := template.AdminLocationPage(data).Render(r.Context(), w)
+		err = template.AdminLocationPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -199,8 +209,13 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminLocationPage(data).Render(r.Context(), w)
+		err = template.AdminLocationPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

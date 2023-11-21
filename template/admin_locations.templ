@@ -11,8 +11,8 @@ type AdminLocationsPageData struct {
 }
 
 
-templ AdminLocationsPage(data AdminLocationsPageData) {
-    @AdminIndex("Místa") {
+templ AdminLocationsPage(data AdminLocationsPageData, appbar AppbarData) {
+    @Appbar("Místa", appbar) {
         @AdminLocationsPageTable(data)
     }
 }
@@ -50,8 +50,8 @@ type AdminLocationPageData struct {
     New bool
 }
 
-templ AdminLocationPage(data AdminLocationPageData) {
-    @AdminIndex("Detail kategorie") {
+templ AdminLocationPage(data AdminLocationPageData, appbar AppbarData) {
+    @Appbar("Detail kategorie", appbar) {
         if data.New {
             @AdminDetailHeader() {
                 Nové místo

@@ -76,8 +76,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminEventsPage(data).Render(r.Context(), w)
+		err = template.AdminEventsPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -132,8 +137,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		data := template.AdminEventPageData{}
 		data.New = true
 		data.Event.Approved = true
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err := template.AdminEventPage(data).Render(r.Context(), w)
+		err = template.AdminEventPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -184,8 +194,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
-		err = template.AdminEventPage(data).Render(r.Context(), w)
+		err = template.AdminEventPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
