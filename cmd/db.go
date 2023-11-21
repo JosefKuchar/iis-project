@@ -33,11 +33,17 @@ func main() {
 		(*models.Rating)(nil),
 	)
 
+	// Temporary disable foreign keys
+	db.NewRaw("SET FOREIGN_KEY_CHECKS = 0").Exec(context.Background())
+
 	ctx := context.Background()
 	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 	if err := fixture.Load(ctx, os.DirFS("cmd"), "fixtures.yaml"); err != nil {
 		panic(err)
 	}
+
+	// Enable foreign keys
+	db.NewRaw("SET FOREIGN_KEY_CHECKS = 1").Exec(context.Background())
 
 	for i := 0; i < 10; i++ {
 		location := &models.Location{
@@ -117,4 +123,33 @@ func main() {
 		}
 		db.NewInsert().Model(rating).Exec(ctx)
 	}
+
+	/* FOREIGN KEYS */
+	// UserToEvent
+	db.NewRaw("ALTER TABLE `user_to_event` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `user_to_event` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// CategoryToEvent
+	db.NewRaw("ALTER TABLE `category_to_event` ADD FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `category_to_event` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// User
+	db.NewRaw("ALTER TABLE `users` ADD FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// Category
+	db.NewRaw("ALTER TABLE `categories` ADD FOREIGN KEY (`parent_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// Event
+	db.NewRaw("ALTER TABLE `events` ADD FOREIGN KEY (`location_id`) REFERENCES `locations`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// EntranceFee
+	db.NewRaw("ALTER TABLE `entrance_fees` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// Comment
+	db.NewRaw("ALTER TABLE `comments` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `comments` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE").Exec(ctx)
+
+	// Rating
+	db.NewRaw("ALTER TABLE `ratings` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `ratings` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE").Exec(ctx)
 }

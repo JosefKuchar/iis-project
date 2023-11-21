@@ -5,6 +5,7 @@ import (
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -18,9 +19,12 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data := template.AdminCategoryPageData{}
 		data.Errors = make(map[string]string)
 
-		parentID, err := strconv.Atoi(r.FormValue("parent_id"))
-		if err != nil {
-			return data, err
+		if r.FormValue("parent_id") != "" {
+			parentID, err := strconv.Atoi(r.FormValue("parent_id"))
+			if err != nil {
+				return data, err
+			}
+			data.Category.ParentID = int64(parentID)
 		}
 
 		idString := chi.URLParam(r, "id")
@@ -35,7 +39,6 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 
 		data.Category.ID = int64(id)
 		data.Category.Name = r.FormValue("name")
-		data.Category.ParentID = int64(parentID)
 		data.Category.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
@@ -182,14 +185,17 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 	// Create new category
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
 		data, err := parseForm(r)
+		fmt.Println("asdf")
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}
 
+		fmt.Println("asdfa")
 		// TODO: Check errors
 		_, err = rs.db.NewInsert().Model(&data.Category).Exec(r.Context())
 		if err != nil {
+			fmt.Println(err.Error())
 			http.Error(w, err.Error(), 500)
 			return
 		}
