@@ -100,7 +100,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminEventsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminEventsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -136,7 +136,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminEventsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminEventsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -241,7 +241,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminEventsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminEventsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

@@ -120,7 +120,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminCategoriesPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminCategoriesPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -156,7 +156,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminCategoriesPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminCategoriesPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -260,7 +260,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminCategoriesPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminCategoriesPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

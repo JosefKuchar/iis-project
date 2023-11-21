@@ -115,7 +115,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminLocationsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminLocationsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -152,7 +152,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminLocationsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminLocationsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
@@ -257,7 +257,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminLocationsPageTable(data, appbar).Render(r.Context(), w)
+		err = template.AdminLocationsPageTable(data, appbar, true).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

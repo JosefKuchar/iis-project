@@ -1,12 +1,19 @@
 package template
 
 import (
-	"JosefKuchar/iis-project/models"
 	"strconv"
 )
 
+type UserData struct {
+    ID int
+    Name string
+    Email string
+    RoleID int
+    RoleName string
+}
+
 type AppbarData struct {
-	User models.User
+	User UserData
     NewEvents int
     NewLocations int
     NewCategories int
@@ -81,6 +88,11 @@ templ AppbarStandalone(data AppbarData, swap bool) {
                 </li>
             </ul>
         </div>
-        <div class="navbar-end"></div>
+        <div class="navbar-end">
+            <div>
+                <div>{data.User.Name}</div>
+                <div>{data.User.RoleName}</div>
+            </div>
+        </div>
     </div>
 }
