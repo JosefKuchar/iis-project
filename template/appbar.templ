@@ -2,6 +2,7 @@ package template
 
 import (
 	"strconv"
+    "JosefKuchar/iis-project/settings"
 )
 
 type UserData struct {
@@ -41,51 +42,55 @@ templ AppbarStandalone(data AppbarData, swap bool) {
         </a>
         <div class="navbar-center">
             <ul class="menu menu-horizontal">
-                <li>
-                    <a href="/admin/users">
-                        <i class="las la-users"></i>
-                        Uživatelé
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/events">
-                        <i class="las la-calendar"></i>
-                        Události
-                        if data.NewEvents > 0 {
-                            <span class="badge badge-sm badge-warning">
-                                {strconv.Itoa(data.NewEvents)}
-                            </span>
-                        }
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/locations">
-                        <i class="las la-map"></i>
-                        Místa
-                        if data.NewLocations > 0 {
-                            <span class="badge badge-sm badge-warning">
-                                {strconv.Itoa(data.NewLocations)}
-                            </span>
-                        }
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/categories">
-                        <i class="las la-tags"></i>
-                        Kategorie
-                        if data.NewCategories > 0 {
-                            <span class="badge badge-sm badge-warning">
-                                {strconv.Itoa(data.NewCategories)}
-                            </span>
-                        }
-                    </a>
-                </li>
-                <li>
-                    <a href="/admin/comments">
-                        <i class="las la-comment"></i>
-                        Komentáře
-                    </a>
-                </li>
+                if data.User.RoleID == settings.ROLE_ADMIN {
+                    <li>
+                        <a href="/admin/users">
+                            <i class="las la-users"></i>
+                            Uživatelé
+                        </a>
+                    </li>
+                }
+                if data.User.RoleID == settings.ROLE_ADMIN || data.User.RoleID == settings.ROLE_MODERATOR {
+                    <li>
+                        <a href="/admin/events">
+                            <i class="las la-calendar"></i>
+                            Události
+                            if data.NewEvents > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewEvents)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/locations">
+                            <i class="las la-map"></i>
+                            Místa
+                            if data.NewLocations > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewLocations)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/categories">
+                            <i class="las la-tags"></i>
+                            Kategorie
+                            if data.NewCategories > 0 {
+                                <span class="badge badge-sm badge-warning">
+                                    {strconv.Itoa(data.NewCategories)}
+                                </span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/comments">
+                            <i class="las la-comment"></i>
+                            Komentáře
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
         <div class="navbar-end">
@@ -93,6 +98,7 @@ templ AppbarStandalone(data AppbarData, swap bool) {
                 <div>{data.User.Name}</div>
                 <div>{data.User.RoleName}</div>
             </div>
+            <a href="/logout">Odhlásit se</a>
         </div>
     </div>
 }
