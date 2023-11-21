@@ -67,6 +67,13 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
         @AdminEventPageForm(data)
         <script>
             $(document).ready(function() {
+                $('#location').select2({
+                    ajax: {
+                        url: '/admin/locations/select2',
+                        dataType: 'json'
+                    },
+                    placeholder: 'Žádná'
+                });
                 $('#categories').select2({
                     ajax: {
                         url: '/admin/categories/select2',
@@ -115,6 +122,19 @@ templ AdminEventPageForm(data AdminEventPageData) {
                 name="categories[]"
                 id="categories"
                 multiple="multiple"
+            >
+            </select>
+            <label class="label">
+            <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
+            </label>
+        </div>
+        <div class="form-control" id="location_form_control" hx-preserve>
+            <label class="label">
+                <span class="label-text">Místo *</span>
+            </label>
+            <select
+                name="location"
+                id="location"
             >
             </select>
             <label class="label">

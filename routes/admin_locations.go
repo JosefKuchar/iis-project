@@ -4,6 +4,7 @@ import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -288,6 +289,30 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		}
 
 		err = template.AdminLocationPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	r.Get("/select2", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var locations []models.Location
+		err := rs.db.NewSelect().Model(&locations).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		var results Select2Results
+		for _, category := range locations {
+			results.Results = append(results.Results, Select2Result{
+				ID:   category.ID,
+				Text: category.Name,
+			})
+		}
+
+		err = json.NewEncoder(w).Encode(results)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
