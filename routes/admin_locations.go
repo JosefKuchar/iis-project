@@ -146,6 +146,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminLocationPageData{}
 		data.New = true
+		data.Location.Approved = true
 
 		err := template.AdminLocationPage(data).Render(r.Context(), w)
 		if err != nil {

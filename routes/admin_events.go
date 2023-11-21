@@ -131,6 +131,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminEventPageData{}
 		data.New = true
+		data.Event.Approved = true
 
 		err := template.AdminEventPage(data).Render(r.Context(), w)
 		if err != nil {

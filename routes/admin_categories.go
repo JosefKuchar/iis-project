@@ -150,6 +150,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminCategoryPageData{}
 		data.New = true
+		data.Category.Approved = true
 
 		err := template.AdminCategoryPage(data).Render(r.Context(), w)
 		if err != nil {
