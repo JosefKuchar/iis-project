@@ -40,7 +40,13 @@ func (rs resources) EventRoutes() chi.Router {
 		token, _, _ := jwtauth.FromContext(r.Context())
 		data.LoggedIn = token != nil
 
-		template.EventsPage(data).Render(r.Context(), w)
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		template.EventsPage(data, appbar).Render(r.Context(), w)
 	})
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {
@@ -145,7 +151,13 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 		}
 
-		template.EventPage(data).Render(r.Context(), w)
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		template.EventPage(data, appbar).Render(r.Context(), w)
 	})
 
 	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {

@@ -12,8 +12,8 @@ type EventsPageData struct {
     LoggedIn bool
 }
 
-templ EventsPage(data EventsPageData) {
-    @IndexContainer("Události") {
+templ EventsPage(data EventsPageData, appbar AppbarData) {
+    @Appbar("Události", appbar) {
         <h1 class="text-3xl text-center m-10">Události</h1>
         <div hx-get="/user" hx-trigger="load" class="my-5"></div>
         <div class="grid grid-cols-1">

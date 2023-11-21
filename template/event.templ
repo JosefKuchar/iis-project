@@ -13,8 +13,8 @@ type EventPageData struct {
 	IsAtendee bool
 }
 
-templ EventPage(data EventPageData) {
-	@IndexContainer("Detail události") {
+templ EventPage(data EventPageData, appbar AppbarData) {
+	@Appbar("Detail události", appbar) {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
 		<div class="flex">
 			for _, categories := range data.Categories {
