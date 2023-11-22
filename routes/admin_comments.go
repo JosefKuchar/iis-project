@@ -122,7 +122,12 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminCommentPageData{}
 
-		err := rs.db.NewSelect().Model(&data.Comment).Where("comment.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
+		err := rs.db.NewSelect().
+			Model(&data.Comment).
+			Relation("User").
+			Relation("Event").
+			Where("comment.id = ?", chi.URLParam(r, "id")).
+			Scan(r.Context())
 		if err != nil {
 			http.Error(w, http.StatusText(404), 404)
 			return
