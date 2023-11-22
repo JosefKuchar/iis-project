@@ -72,7 +72,7 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
                         url: '/admin/locations/select2',
                         dataType: 'json'
                     },
-                    placeholder: 'Žádná'
+                    placeholder: 'Žádné'
                 });
                 $('#categories').select2({
                     ajax: {
@@ -98,63 +98,17 @@ templ AdminEventPageForm(data AdminEventPageData) {
         hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form" }
         id="event-detail-form"
     >
-        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Název *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
-                name="name"
-                id="name"
-                value={ data.Event.Name }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control" id="categories_form_control" hx-preserve>
-            <label class="label">
-                <span class="label-text">Kategorie</span>
-            </label>
-            <select
-                name="categories[]"
-                id="categories"
-                multiple="multiple"
-            >
-            </select>
-            <label class="label">
-            <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control" id="location_form_control" hx-preserve>
-            <label class="label">
-                <span class="label-text">Místo *</span>
-            </label>
-            <select
-                name="location"
-                id="location"
-            >
-            </select>
-            <label class="label">
-            <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label cursor-pointer">
-                <span class="label-text">Schváleno</span>
-                <input
-                    type="checkbox"
-                    class="toggle"
-                    id="approved"
-                    name="approved"
-                    if data.Event.Approved {
-                        checked="checked"
-                    }
-                />
-            </label>
-        </div>
+        @AdminNewField(data.New)
+        @AdminTextField(data.Event.Name, data.Errors["Name"], "name", "Název *")
+        @AdminSelectMulti(data.Errors["Categories"], "categories", "Kategorie") {
+        }
+        @AdminSelect(data.Errors["Location"], "location", "Místo *") {
+        }
+        @AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
+        @AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
+        @AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita")
+        @AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
+        @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
             <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>

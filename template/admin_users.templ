@@ -81,44 +81,10 @@ templ AdminUserPageForm(data AdminUserPageData) {
         hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) + "/form" }
         id="user-detail-form"
     >
-        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Jméno *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
-                name="name"
-                id="name"
-                value={ data.User.Name }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Email *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Email"] != "") }
-                name="email"
-                value={ data.User.Email }
-            />
-            <label class="label">
-            <div class="text-error">{ data.Errors["Email"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control" id="role_id_form_control" hx-preserve>
-            <label class="label">
-                <span class="label-text">Role *</span>
-            </label>
-            <select
-                name="role_id"
-                id="role_id"
-            >
+        @AdminNewField(data.New)
+        @AdminTextField(data.User.Name, data.Errors["Name"], "name", "Jméno *")
+        @AdminTextField(data.User.Email, data.Errors["email"], "email", "Email *")
+        @AdminSelect(data.Errors["Role"], "role_id", "Role *") {
             for _, role := range data.Roles {
                 <option
                     value={ strconv.Itoa(int(role.ID)) }
@@ -129,11 +95,7 @@ templ AdminUserPageForm(data AdminUserPageData) {
                     { role.Name }
                 </option>
             }
-            </select>
-            <label class="label">
-            <div class="text-error">{ data.Errors["Role"] }&nbsp;</div>
-            </label>
-        </div>
+        }
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/users/new">Vytvořit uživatele</button>
             <a href="/admin/users" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>

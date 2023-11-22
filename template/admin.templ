@@ -1,6 +1,7 @@
 package template
 
 import "strconv"
+import "time"
 import "JosefKuchar/iis-project/settings"
 
 templ AdminTableDecorator(name string, endpoint string, newItemName string, query string, totalCount int, page int) {
@@ -103,6 +104,116 @@ templ AdminTextarea(value string, validation string, name string, title string) 
             <div class="text-error">{ validation }&nbsp;</div>
         </label>
     </div>
+}
+
+templ AdminTextField(value string, validation string, name string, title string) {
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <input
+            type="text"
+            class={"input input-bordered", templ.KV("input-error", validation != "") }
+            name={ name }
+            id={ name }
+            value={ value }
+        />
+        <label class="label">
+            <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
+templ AdminNumberField(value int64, validation string, name string, title string) {
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <input
+            type="number"
+            class={"input input-bordered", templ.KV("input-error", validation != "") }
+            name={ name }
+            id={ name }
+            value={ strconv.Itoa(int(value)) }
+        />
+        <label class="label">
+            <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
+templ AdminDatetime(value time.Time, validation string, name string, title string) {
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <input
+            type="datetime-local"
+            class={"input input-bordered", templ.KV("input-error", validation != "") }
+            name={ name }
+            id={ name }
+            value={ value.Format("2006-01-02T15:04") }
+        />
+        <label class="label">
+            <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
+templ AdminCheckbox(value bool, name string, title string) {
+    <div class="form-control">
+        <label class="label cursor-pointer">
+            <span class="label-text">{ title }</span>
+            <input
+                type="checkbox"
+                class="toggle"
+                id={ name }
+                name={ name }
+                if value {
+                    checked="checked"
+                }
+            />
+        </label>
+    </div>
+}
+
+templ AdminSelect(validation string, name string, title string) {
+    <div class="form-control" id={ name + "_form_control"} hx-preserve>
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <select
+            name={ name }
+            id={ name }
+        >
+            { children... }
+        </select>
+        <label class="label">
+        <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
+templ AdminSelectMulti(validation string, name string, title string) {
+    <div class="form-control" id={ name + "_form_control"} hx-preserve>
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <select
+            name={ name + "[]" }
+            id={ name }
+            multiple="multiple"
+        >
+            { children... }
+        </select>
+        <label class="label">
+        <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
+templ AdminNewField(value bool) {
+    <input type="hidden" name="new" value={ strconv.FormatBool(value) } />
 }
 
 templ AdminDetailHeader() {

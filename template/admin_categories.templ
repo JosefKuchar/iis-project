@@ -106,52 +106,14 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
         hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) + "/form" }
         id="category-detail-form"
     >
-        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Název *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
-                name="name"
-                id="name"
-                value={ data.Category.Name }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control" id="parent_id_form_control" hx-preserve>
-            <label class="label">
-                <span class="label-text">Rodičovská kategorie</span>
-            </label>
-            <select
-                name="parent_id"
-                id="parent_id"
-            >
-                if !data.New && data.Category.ParentID > 0 {
-                    <option value={ strconv.Itoa(int(data.Category.ParentID)) }>{ data.Category.Parent.Name }</option>
-                }
-            </select>
-            <label class="label">
-            <div class="text-error">{ data.Errors["Parent"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label cursor-pointer">
-                <span class="label-text">Schváleno</span>
-                <input
-                    type="checkbox"
-                    class="toggle"
-                    id="approved"
-                    name="approved"
-                    if data.Category.Approved {
-                        checked="checked"
-                    }
-                />
-            </label>
-        </div>
+        @AdminNewField(data.New)
+        @AdminTextField(data.Category.Name, data.Errors["Name"], "name", "Název *")
+        @AdminSelect(data.Errors["Parent"], "parent_id", "Rodičovská kategorie") {
+            if !data.New && data.Category.ParentID > 0 {
+                <option value={ strconv.Itoa(int(data.Category.ParentID)) }>{ data.Category.Parent.Name }</option>
+            }
+        }
+        @AdminCheckbox(data.Category.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new">Vytvořit kategorii</button>
             <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>

@@ -75,81 +75,12 @@ templ AdminLocationPageForm(data AdminLocationPageData) {
         hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) + "/form" }
         id="location-detail-form"
     >
-        <input type="hidden" name="new" value={ strconv.FormatBool(data.New) } />
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Název *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Name"] != "") }
-                name="name"
-                id="name"
-                value={ data.Location.Name }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Name"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Ulica *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Street"] != "") }
-                name="street"
-                id="street"
-                value={ data.Location.Street }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Street"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">PSC *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["Zip"] != "") }
-                name="zip"
-                id="zip"
-                value={ data.Location.Zip }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["Zip"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label">
-                <span class="label-text">Mesto *</span>
-            </label>
-            <input
-                type="text"
-                class={"input input-bordered", templ.KV("input-error", data.Errors["City"] != "") }
-                name="city"
-                id="city"
-                value={ data.Location.City }
-            />
-            <label class="label">
-                <div class="text-error">{ data.Errors["City"] }&nbsp;</div>
-            </label>
-        </div>
-        <div class="form-control">
-            <label class="label cursor-pointer">
-                <span class="label-text">Schváleno</span>
-                <input
-                    type="checkbox"
-                    class="toggle"
-                    id="approved"
-                    name="approved"
-                    if data.Location.Approved {
-                        checked="checked"
-                    }
-                />
-            </label>
-        </div>
+        @AdminNewField(data.New)
+        @AdminTextField(data.Location.Name, data.Errors["Name"], "name", "Název *")
+        @AdminTextField(data.Location.Street, data.Errors["Street"], "street", "Ulice *")
+        @AdminTextField(data.Location.Zip, data.Errors["Zip"], "zip", "PSČ *")
+        @AdminTextField(data.Location.City, data.Errors["City"], "city", "Město *")
+        @AdminCheckbox(data.Location.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new">Vytvořit místo</button>
             <a href="/admin/locations" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
