@@ -3,6 +3,8 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
@@ -160,6 +162,13 @@ func AdminAuthenticator(next http.Handler) http.Handler {
 
 		if token == nil || jwt.Validate(token) != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Make exception for own user page
+		prefix := "/admin/users/" + strconv.Itoa(int(claims["ID"].(float64)))
+		if strings.HasPrefix(r.URL.Path, prefix) {
+			next.ServeHTTP(w, r)
 			return
 		}
 

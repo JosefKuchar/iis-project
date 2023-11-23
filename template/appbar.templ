@@ -95,10 +95,10 @@ templ AppbarStandalone(data AppbarData, swap bool) {
         </div>
         <div class="navbar-end">
             if data.User.ID > 0 {
-                <div>
+                <a href={templ.URL("/admin/users/" + strconv.Itoa(int(data.User.ID)))}>
                     <div>{data.User.Name}</div>
                     <div>{data.User.RoleName}</div>
-                </div>
+                </a>
                 <a href="/logout">Odhlásit se</a>
             } else {
                 <a href="/login">Přihlásit se</a>
