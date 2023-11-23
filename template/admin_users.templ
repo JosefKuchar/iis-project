@@ -10,6 +10,7 @@ type AdminUsersPageData struct {
     TotalCount int
     Page int
     Query string
+    OwnID int
 }
 
 templ AdminUsersPage(data AdminUsersPageData, appbar AppbarData) {
@@ -38,7 +39,9 @@ templ AdminUsersPageTable(data AdminUsersPageData) {
                             <td>{ user.Role.Name }</td>
                         }
                         <td>
-                            @AdminTableDeleteButton("/admin/users", user.ID)
+                            if int(user.ID) != data.OwnID {
+                                @AdminTableDeleteButton("/admin/users", user.ID)
+                            }
                         </td>
                     }
                 }
@@ -52,6 +55,7 @@ type AdminUserPageData struct {
     Roles []models.Role
     Errors map[string]string
     New bool
+    Own bool
 }
 
 templ AdminUserPage(data AdminUserPageData, appbar AppbarData) {
@@ -89,16 +93,18 @@ templ AdminUserPageForm(data AdminUserPageData) {
         } else {
             @AdminPasswordField(data.User.Password, data.Errors["Password"], "password", "Heslo (zadejte pouze pokud chcete změnit)")
         }
-        @AdminSelect(data.Errors["Role"], "role_id", "Role *") {
-            for _, role := range data.Roles {
-                <option
-                    value={ strconv.Itoa(int(role.ID)) }
-                    if role.ID == data.User.RoleID {
-                        selected="selected"
-                    }
-                >
-                    { role.Name }
-                </option>
+        if !data.Own {
+            @AdminSelect(data.Errors["Role"], "role_id", "Role *") {
+                for _, role := range data.Roles {
+                    <option
+                        value={ strconv.Itoa(int(role.ID)) }
+                        if role.ID == data.User.RoleID {
+                            selected="selected"
+                        }
+                    >
+                        { role.Name }
+                    </option>
+                }
             }
         }
         if data.New {
@@ -106,11 +112,13 @@ templ AdminUserPageForm(data AdminUserPageData) {
             <a href="/admin/users" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }>Uložit</button>
-            <button
-                class="btn"
-                hx-delete={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }
-                hx-confirm="Opravdu chcete smazat uživatele?"
-            >Smazat</button>
+            if !data.Own {
+                <button
+                    class="btn"
+                    hx-delete={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }
+                    hx-confirm="Opravdu chcete smazat uživatele?"
+                >Smazat</button>
+            }
         }
 
     </form>

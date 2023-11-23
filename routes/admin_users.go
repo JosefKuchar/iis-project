@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,11 +20,6 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data.Errors = make(map[string]string)
 
 		err := rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
-		if err != nil {
-			return data, err
-		}
-
-		roleID, err := strconv.Atoi(r.FormValue("role_id"))
 		if err != nil {
 			return data, err
 		}
@@ -41,9 +37,21 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data.User.ID = int64(id)
 		data.User.Email = r.FormValue("email")
 		data.User.Name = r.FormValue("name")
-		data.User.RoleID = int64(roleID)
 		data.User.Password = r.FormValue("password")
 		data.New = r.FormValue("new") == "true"
+
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		if claims["ID"].(float64) == float64(data.User.ID) {
+			data.Own = true
+		}
+
+		if !data.Own {
+			roleID, err := strconv.Atoi(r.FormValue("role_id"))
+			if err != nil {
+				return data, err
+			}
+			data.User.RoleID = int64(roleID)
+		}
 
 		if data.User.Email == "" {
 			data.Errors["Email"] = "Email cannot be empty"
@@ -78,6 +86,10 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		if err != nil {
 			return data, err
 		}
+
+		// Get own user id
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		data.OwnID = int(claims["ID"].(float64))
 
 		data.TotalCount = count
 		data.Page = page
@@ -173,9 +185,15 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			return
 		}
 
+		up := rs.db.NewUpdate().Model(&data.User)
+
+		if data.Own {
+			up = up.ExcludeColumn("role_id")
+		}
+
 		if data.User.Password == "" {
 			// Don't update password
-			_, err = rs.db.NewUpdate().Model(&data.User).ExcludeColumn("password").Where("id = ?", data.User.ID).Exec(r.Context())
+			_, err = up.ExcludeColumn("password").Where("id = ?", data.User.ID).Exec(r.Context())
 			if err != nil {
 				http.Error(w, err.Error(), 500)
 				return
@@ -189,14 +207,19 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			}
 			data.User.Password = string(bcryptPassword)
 
-			_, err = rs.db.NewUpdate().Model(&data.User).Where("id = ?", data.User.ID).Exec(r.Context())
+			_, err = up.Where("id = ?", data.User.ID).Exec(r.Context())
 			if err != nil {
 				http.Error(w, err.Error(), 500)
 				return
 			}
 		}
 
-		w.Header().Set("HX-Redirect", "/admin/users")
+		if data.Own {
+			// Logout
+			http.Redirect(w, r, "/logout", http.StatusFound)
+		} else {
+			w.Header().Set("HX-Redirect", "/admin/users")
+		}
 	})
 
 	// Existing user detail
@@ -210,6 +233,11 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		}
 		// Don't send password
 		data.User.Password = ""
+		// Check if it's own user
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		if claims["ID"].(float64) == float64(data.User.ID) {
+			data.Own = true
+		}
 
 		err = rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
 		if err != nil {
