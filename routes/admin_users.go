@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (rs resources) AdminUsersRoutes() chi.Router {
@@ -41,6 +42,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data.User.Email = r.FormValue("email")
 		data.User.Name = r.FormValue("name")
 		data.User.RoleID = int64(roleID)
+		data.User.Password = r.FormValue("password")
 		data.New = r.FormValue("new") == "true"
 
 		if data.User.Email == "" {
@@ -147,7 +149,14 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			return
 		}
 
-		// TODO: Check errors
+		// Hash password
+		bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(data.User.Password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		data.User.Password = string(bcryptPassword)
+
 		_, err = rs.db.NewInsert().Model(&data.User).Exec(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -164,10 +173,27 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			return
 		}
 
-		_, err = rs.db.NewUpdate().Model(&data.User).Where("id = ?", data.User.ID).Exec(r.Context())
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
+		if data.User.Password == "" {
+			// Don't update password
+			_, err = rs.db.NewUpdate().Model(&data.User).ExcludeColumn("password").Where("id = ?", data.User.ID).Exec(r.Context())
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+		} else {
+			// Hash password
+			bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(data.User.Password), bcrypt.DefaultCost)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			data.User.Password = string(bcryptPassword)
+
+			_, err = rs.db.NewUpdate().Model(&data.User).Where("id = ?", data.User.ID).Exec(r.Context())
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
 		}
 
 		w.Header().Set("HX-Redirect", "/admin/users")
@@ -182,6 +208,8 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
+		// Don't send password
+		data.User.Password = ""
 
 		err = rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
 		if err != nil {

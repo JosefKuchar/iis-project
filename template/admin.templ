@@ -142,6 +142,24 @@ templ AdminNumberField(value int64, validation string, name string, title string
     </div>
 }
 
+templ AdminPasswordField(value string, validation string, name string, title string) {
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <input
+            type="password"
+            class={"input input-bordered", templ.KV("input-error", validation != "") }
+            name={ name }
+            id={ name }
+            value={ value }
+        />
+        <label class="label">
+            <div class="text-error">{ validation }&nbsp;</div>
+        </label>
+    </div>
+}
+
 templ AdminDatetime(value time.Time, validation string, name string, title string) {
     <div class="form-control">
         <label class="label">

@@ -58,7 +58,7 @@ templ AdminUserPage(data AdminUserPageData, appbar AppbarData) {
     @Appbar("Detail uživatele", appbar) {
         if data.New {
             @AdminDetailHeader() {
-                "Nový uživatel"
+                Nový uživatel
             }
         } else {
             @AdminDetailHeader() {
@@ -84,6 +84,11 @@ templ AdminUserPageForm(data AdminUserPageData) {
         @AdminNewField(data.New)
         @AdminTextField(data.User.Name, data.Errors["Name"], "name", "Jméno *")
         @AdminTextField(data.User.Email, data.Errors["email"], "email", "Email *")
+        if data.New {
+            @AdminPasswordField(data.User.Password, data.Errors["Password"], "password", "Heslo *")
+        } else {
+            @AdminPasswordField(data.User.Password, data.Errors["Password"], "password", "Heslo (zadejte pouze pokud chcete změnit)")
+        }
         @AdminSelect(data.Errors["Role"], "role_id", "Role *") {
             for _, role := range data.Roles {
                 <option
