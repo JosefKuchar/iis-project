@@ -15,7 +15,13 @@ import (
 )
 
 func addTextSearch(q *bun.SelectQuery, text string) *bun.SelectQuery {
-	return q.Where("event.description LIKE ?", "%"+text+"%")
+
+	// TODO: maybe add full text for category filtering as well
+	q = q.WhereGroup("OR", func(q2 *bun.SelectQuery) *bun.SelectQuery {
+		return q2.Where("event.name LIKE ?", "%"+text+"%").WhereOr("location.name LIKE ?", "%"+text+"%").WhereOr("event.description LIKE ?", "%"+text+"%")
+	})
+
+	return q
 }
 
 func addUserFilter(q *bun.SelectQuery, userId interface{}) *bun.SelectQuery {
@@ -63,6 +69,8 @@ func (rs resources) EventRoutes() chi.Router {
 		if slug != "" {
 			q = addTextSearch(q, slug)
 		}
+
+		fmt.Println(q)
 
 		if checked != "" {
 			token, claims, _ := jwtauth.FromContext(r.Context())
