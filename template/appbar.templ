@@ -97,9 +97,12 @@ templ AppbarStandalone(data AppbarData, swap bool) {
             <ul class="menu menu-horizontal items-center">
             if data.User.ID > 0 {
                 <li>
-                    <a href={templ.URL("/admin/users/" + strconv.Itoa(int(data.User.ID)))} class="block">
-                        <div>{data.User.Name}</div>
-                        <div class="text-xs">{data.User.RoleName}</div>
+                    <a href={templ.URL("/admin/users/" + strconv.Itoa(int(data.User.ID)))}>
+                        <i class="las la-user"></i>
+                        <div class="block">
+                            <div>{data.User.Name}</div>
+                            <div class="text-xs">{data.User.RoleName}</div>
+                        </div>
                     </a>
                 </li>
                 <li>
