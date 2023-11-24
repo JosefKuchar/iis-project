@@ -82,7 +82,7 @@ func (rs resources) RegisterRoutes() chi.Router {
 			}
 		}
 
-		template.RegisterPage(data).Render(r.Context(), w)
+		template.RegisterForm(data).Render(r.Context(), w)
 	})
 
 	return r
