@@ -6,6 +6,7 @@ import (
 	"JosefKuchar/iis-project/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -27,10 +28,58 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return data, err
 		}
 
+		r.ParseForm()
+
 		data.Event.ID = int64(id)
 		data.Event.Name = r.FormValue("name")
+		if r.FormValue("capacity") != "" {
+			capacity, err := strconv.Atoi(r.FormValue("capacity"))
+			if err != nil {
+				return data, err
+			}
+			data.Event.Capacity = int64(capacity)
+		}
+		if r.FormValue("start") != "" {
+			from, err := time.Parse("2006-01-02T15:04", r.FormValue("start"))
+			if err != nil {
+				return data, err
+			}
+			data.Event.Start = from
+		}
+		if r.FormValue("end") != "" {
+			from, err := time.Parse("2006-01-02T15:04", r.FormValue("end"))
+			if err != nil {
+				return data, err
+			}
+			data.Event.End = from
+		}
+		data.Event.Description = r.FormValue("description")
 		data.Event.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
+
+		// Entrance fees
+		entranceFeeNames := r.Form["entranceFeeName[]"]
+		entranceFeePrices := r.Form["entranceFeePrice[]"]
+		entranceFeeIDs := r.Form["entranceFeeID[]"]
+		for i := range entranceFeeNames {
+			id, err := strconv.Atoi(entranceFeeIDs[i])
+			if err != nil {
+				return data, err
+			}
+			price := 0
+			if entranceFeePrices[i] != "" {
+				price, err = strconv.Atoi(entranceFeePrices[i])
+				if err != nil {
+					return data, err
+				}
+			}
+
+			data.Event.EntranceFees = append(data.Event.EntranceFees, models.EntranceFee{
+				ID:    int64(id),
+				Name:  entranceFeeNames[i],
+				Price: int64(price),
+			})
+		}
 
 		if data.Event.Name == "" {
 			data.Errors["Name"] = "Name cannot be empty"
@@ -203,6 +252,8 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			NewSelect().
 			Model(&data.Event).
 			Relation("EntranceFees").
+			Relation("Categories").
+			Relation("Location").
 			Where("event.id = ?", chi.URLParam(r, "id")).
 			Scan(r.Context())
 		if err != nil {
@@ -276,6 +327,49 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
+		err = template.AdminEventPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	// Delete entrance fee
+	r.Post("/{id}/form/delete-fee/{feeIndex}", func(w http.ResponseWriter, r *http.Request) {
+		feeIndex, err := strconv.Atoi(chi.URLParam(r, "feeIndex"))
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// Remove entrance fee
+		for i := range data.Event.EntranceFees {
+			if i == feeIndex {
+				data.Event.EntranceFees = append(data.Event.EntranceFees[:i], data.Event.EntranceFees[i+1:]...)
+				break
+			}
+		}
+
+		err = template.AdminEventPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	// Add entrance fee
+	r.Post("/{id}/form/add-fee", func(w http.ResponseWriter, r *http.Request) {
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		data.Event.EntranceFees = append(data.Event.EntranceFees, models.EntranceFee{})
 		err = template.AdminEventPageForm(data).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
