@@ -22,5 +22,5 @@ go.work
 
 node_modules
 tmp
-static
+static/style.css
 *_templ.go
