@@ -199,7 +199,12 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		data := template.AdminEventPageData{}
 		data.New = false
 
-		err := rs.db.NewSelect().Model(&data.Event).Where("event.id = ?", chi.URLParam(r, "id")).Scan(r.Context())
+		err := rs.db.
+			NewSelect().
+			Model(&data.Event).
+			Relation("EntranceFees").
+			Where("event.id = ?", chi.URLParam(r, "id")).
+			Scan(r.Context())
 		if err != nil {
 			http.Error(w, http.StatusText(404), 404)
 			return

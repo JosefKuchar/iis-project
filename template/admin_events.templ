@@ -106,8 +106,32 @@ templ AdminEventPageForm(data AdminEventPageData) {
         }
         @AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
         @AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
-        @AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita")
+        @AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita", "Osob")
         @AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg">Kategorie vstupného</h2>
+            <button class="btn">
+                <i class="las la-plus"></i>
+                Nová kategorie vstupného
+            </button>
+        </div>
+        for _, entranceFee := range data.Event.EntranceFees {
+            <div class="flex gap-4 items-center">
+                <div class="grow">
+                    @AdminTextField(entranceFee.Name, "", "entranceFeeName", "Název")
+                </div>
+                <div class="grow">
+                    @AdminNumberField(entranceFee.Price, "", "entranceFeePrice", "Cena", "Kč")
+                </div>
+                <button
+                    class="btn btn-md btn-outline btn-sm tooltip mb-1"
+                    data-tip="Smazat"
+                >
+                    <i class="las la-trash text-xl"></i>
+                </button>
+            </div>
+        }
+        <h2 class="text-lg">Účastníci</h2>
         @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>

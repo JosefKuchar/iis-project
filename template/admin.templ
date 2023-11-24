@@ -124,18 +124,23 @@ templ AdminTextField(value string, validation string, name string, title string)
     </div>
 }
 
-templ AdminNumberField(value int64, validation string, name string, title string) {
+templ AdminNumberField(value int64, validation string, name string, title string, units string) {
     <div class="form-control">
         <label class="label">
             <span class="label-text">{ title }</span>
         </label>
-        <input
-            type="number"
-            class={"input input-bordered", templ.KV("input-error", validation != "") }
-            name={ name }
-            id={ name }
-            value={ strconv.Itoa(int(value)) }
-        />
+        <div class="join">
+            <input
+                type="number"
+                class={"input input-bordered join-item grow", templ.KV("input-error", validation != "") }
+                name={ name }
+                id={ name }
+                value={ strconv.Itoa(int(value)) }
+            />
+            <div class="join-item bg-base-100 border border-base-content border-opacity-20 height-3 flex items-center">
+                <div class="px-4">{ units }</div>
+            </div>
+        </div>
         <label class="label">
             <div class="text-error">{ validation }&nbsp;</div>
         </label>
