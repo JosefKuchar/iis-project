@@ -94,7 +94,6 @@ func (rs resources) EventRoutes() chi.Router {
 				q = addUserFilter(q, claims["ID"])
 			}
 		}
-		fmt.Println(selectedCategories)
 
 		if selectedCategories != nil {
 			var categories []models.Category
@@ -115,7 +114,6 @@ func (rs resources) EventRoutes() chi.Router {
 
 			q = addCategoryFilter(q, ids)
 		}
-		fmt.Println(q)
 
 		q = q.Order("event.id ASC").Group("event.id")
 
@@ -160,7 +158,6 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 
 		data.Finished = data.Event.End.Before(time.Now())
-		fmt.Println(data.Finished)
 
 		for _, category := range data.Event.Categories {
 			var tree []models.Category
@@ -186,15 +183,6 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 
 		template.EventPage(data, appbar).Render(r.Context(), w)
-	})
-
-	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {
-		var categories []models.Category
-		r.ParseForm()
-
-		rs.db.NewSelect().Model(&categories).Where("id IN (?)", bun.In(r.Form["category"])).Scan(r.Context())
-
-		template.Categories(categories).Render(r.Context(), w)
 	})
 
 	r.Post("/{id}/{userid}/comment", func(w http.ResponseWriter, r *http.Request) {
