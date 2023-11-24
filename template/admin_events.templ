@@ -101,8 +101,14 @@ templ AdminEventPageForm(data AdminEventPageData) {
         @AdminNewField(data.New)
         @AdminTextField(data.Event.Name, data.Errors["Name"], "name", "Název *")
         @AdminSelectMulti(data.Errors["Categories"], "categories", "Kategorie") {
+            for _, category := range data.Event.Categories {
+                <option value={ strconv.Itoa(int(category.ID)) } selected>{ category.Name }</option>
+            }
         }
         @AdminSelect(data.Errors["Location"], "location", "Místo *") {
+            if data.Event.Location != nil {
+                <option value={ strconv.Itoa(int(data.Event.Location.ID)) } selected>{ data.Event.Location.Name }</option>
+            }
         }
         @AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
         @AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
@@ -116,12 +122,13 @@ templ AdminEventPageForm(data AdminEventPageData) {
             </button>
         </div>
         for _, entranceFee := range data.Event.EntranceFees {
+            <input type="hidden" name="entranceFeeID[]" value={ strconv.Itoa(int(entranceFee.ID)) } />
             <div class="flex gap-4 items-center">
                 <div class="grow">
-                    @AdminTextField(entranceFee.Name, "", "entranceFeeName", "Název")
+                    @AdminTextField(entranceFee.Name, "", "entranceFeeName[]", "Název")
                 </div>
                 <div class="grow">
-                    @AdminNumberField(entranceFee.Price, "", "entranceFeePrice", "Cena", "Kč")
+                    @AdminNumberField(entranceFee.Price, "", "entranceFeePrice[]", "Cena", "Kč")
                 </div>
                 <button
                     class="btn btn-md btn-outline btn-sm tooltip mb-1"
