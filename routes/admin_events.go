@@ -330,5 +330,48 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		}
 	})
 
+	// Delete entrance fee
+	r.Post("/{id}/form/delete-fee/{feeIndex}", func(w http.ResponseWriter, r *http.Request) {
+		feeIndex, err := strconv.Atoi(chi.URLParam(r, "feeIndex"))
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// Remove entrance fee
+		for i := range data.Event.EntranceFees {
+			if i == feeIndex {
+				data.Event.EntranceFees = append(data.Event.EntranceFees[:i], data.Event.EntranceFees[i+1:]...)
+				break
+			}
+		}
+
+		err = template.AdminEventPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	// Add entrance fee
+	r.Post("/{id}/form/add-fee", func(w http.ResponseWriter, r *http.Request) {
+		data, err := parseForm(r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		data.Event.EntranceFees = append(data.Event.EntranceFees, models.EntranceFee{})
+		err = template.AdminEventPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
 	return r
 }

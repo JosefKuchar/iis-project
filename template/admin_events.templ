@@ -116,12 +116,17 @@ templ AdminEventPageForm(data AdminEventPageData) {
         @AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
         <div class="flex items-center justify-between">
             <h2 class="text-lg">Kategorie vstupného</h2>
-            <button class="btn">
+            <button
+                class="btn"
+                hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/add-fee" }
+                hx-target="#event-detail-form"
+                hx-swap="morph"
+            >
                 <i class="las la-plus"></i>
                 Nová kategorie vstupného
             </button>
         </div>
-        for _, entranceFee := range data.Event.EntranceFees {
+        for i, entranceFee := range data.Event.EntranceFees {
             <input type="hidden" name="entranceFeeID[]" value={ strconv.Itoa(int(entranceFee.ID)) } />
             <div class="flex gap-4 items-center">
                 <div class="grow">
@@ -133,6 +138,9 @@ templ AdminEventPageForm(data AdminEventPageData) {
                 <button
                     class="btn btn-md btn-outline btn-sm tooltip mb-1"
                     data-tip="Smazat"
+                    hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/delete-fee/" + strconv.Itoa(i) }
+                    hx-target="#event-detail-form"
+                    hx-swap="morph"
                 >
                     <i class="las la-trash text-xl"></i>
                 </button>
