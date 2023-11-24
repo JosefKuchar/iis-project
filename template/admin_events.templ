@@ -131,7 +131,13 @@ templ AdminEventPageForm(data AdminEventPageData) {
                 </button>
             </div>
         }
-        <h2 class="text-lg">Účastníci</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg">Účastníci</h2>
+            <button class="btn">
+                <i class="las la-plus"></i>
+                Nový účastník
+            </button>
+        </div>
         @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
