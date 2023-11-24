@@ -55,6 +55,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		}
 		data.Event.Description = r.FormValue("description")
 		data.Event.Approved = r.FormValue("approved") == "on"
+		if r.FormValue("location_id") != "" {
+			location, err := strconv.Atoi(r.FormValue("location_id"))
+			if err != nil {
+				return data, err
+			}
+			data.Event.LocationID = int64(location)
+		}
 		data.New = r.FormValue("new") == "true"
 
 		// Entrance fees
@@ -208,6 +215,53 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		}
 	})
 
+	syncFees := func(r *http.Request, fees []models.EntranceFee, eventId int) error {
+		// Get current entrance fees
+		var currentEntranceFees []models.EntranceFee
+		err := rs.db.
+			NewSelect().
+			Model(&currentEntranceFees).
+			Where("event_id = ?", eventId).
+			Scan(r.Context())
+		if err != nil {
+			return err
+		}
+		// Sync entrance fees
+		for _, fee := range fees {
+			fee.EventID = int64(eventId)
+			// If fee is new, insert it
+			if fee.ID == 0 {
+				_, err := rs.db.NewInsert().Model(&fee).Exec(r.Context())
+				if err != nil {
+					return err
+				}
+			} else {
+				// Update existing fee
+				_, err := rs.db.NewUpdate().Model(&fee).Where("id = ?", fee.ID).Exec(r.Context())
+				if err != nil {
+					return err
+				}
+			}
+		}
+		// Delete removed fees
+		for _, fee := range currentEntranceFees {
+			found := false
+			for _, newFee := range fees {
+				if fee.ID == newFee.ID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				_, err = rs.db.NewDelete().Model(&fee).Where("id = ?", fee.ID).Exec(r.Context())
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+
 	// Create new event
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
 		data, err := parseForm(r)
@@ -217,8 +271,14 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		}
 
 		// TODO: Check errors
-		// Create new event
-		_, err = rs.db.NewInsert().Model(&data.Event).Exec(r.Context())
+		// Create new event and get its ID
+		_, err = rs.db.NewInsert().Model(&data.Event).Returning("id").Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = syncFees(r, data.Event.EntranceFees, int(data.Event.ID))
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -235,6 +295,12 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		}
 
 		_, err = rs.db.NewUpdate().Model(&data.Event).Where("id = ?", data.Event.ID).Exec(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = syncFees(r, data.Event.EntranceFees, int(data.Event.ID))
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
