@@ -55,7 +55,7 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
 
 templ Categories(categories []models.Category) {
     for _, category := range categories {
-        <div class="badge badge-primary mr-2 p-3">{ category.Name }</div>
+        <div class="badge badge-primary p-3">{ category.Name }</div>
     }
 }
 
@@ -64,19 +64,19 @@ templ Events(events []models.Event) {
         for _, event := range events {
             <a href={ templ.URL("/events/" + strconv.Itoa(int(event.ID))) } class="card bg-base-200 hover:opacity-80 hover:cursor-pointer" >
                 <figure>
-                <img src={"https://picsum.photos/seed/" + strconv.Itoa(int(event.ID)) + "/500/200"} />
+                    <img src={"https://picsum.photos/seed/" + strconv.Itoa(int(event.ID)) + "/500/200"} />
                 </figure>
                 <div class="card-body">
-                <h2 class="card-title">
-                    <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }</span> { event.Name }
-                </h2>
-                <div class="flex items-center">
-                    <i class="las la-map-marker-alt"></i>
-                    <div class="ml-1">{ event.Location.Name }</div>
-                </div>
-                <div class="flex">
-                    @Categories(event.Categories)
-                </div>
+                    <h2 class="card-title">
+                        <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }</span> { event.Name }
+                    </h2>
+                    <div class="flex items-center">
+                        <i class="las la-map-marker-alt"></i>
+                        <div class="ml-1">{ event.Location.Name }</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        @Categories(event.Categories)
+                    </div>
                 </div>
             </a>
         }
