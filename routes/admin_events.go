@@ -88,6 +88,18 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			})
 		}
 
+		// Categories
+		categoryIDs := r.Form["categories[]"]
+		for i := range categoryIDs {
+			id, err := strconv.Atoi(categoryIDs[i])
+			if err != nil {
+				return data, err
+			}
+			data.Event.Categories = append(data.Event.Categories, models.Category{
+				ID: int64(id),
+			})
+		}
+
 		if data.Event.Name == "" {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
@@ -262,6 +274,25 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		return nil
 	}
 
+	syncCategories := func(r *http.Request, categories []models.Category, eventId int) error {
+		// Remove all categories
+		_, err := rs.db.NewDelete().Model((*models.CategoryToEvent)(nil)).Where("event_id = ?", eventId).Exec(r.Context())
+		if err != nil {
+			return err
+		}
+		// Insert new categories
+		for _, category := range categories {
+			_, err := rs.db.NewInsert().Model(&models.CategoryToEvent{
+				EventID:    int64(eventId),
+				CategoryID: category.ID,
+			}).Exec(r.Context())
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
 	// Create new event
 	r.Post("/new", func(w http.ResponseWriter, r *http.Request) {
 		data, err := parseForm(r)
@@ -278,6 +309,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
+		// Sync categories
+		err = syncCategories(r, data.Event.Categories, int(data.Event.ID))
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		// Sync entrance fees
 		err = syncFees(r, data.Event.EntranceFees, int(data.Event.ID))
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -300,6 +338,13 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
+		// Sync categories
+		err = syncCategories(r, data.Event.Categories, int(data.Event.ID))
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		// Sync entrance fees
 		err = syncFees(r, data.Event.EntranceFees, int(data.Event.ID))
 		if err != nil {
 			http.Error(w, err.Error(), 500)
