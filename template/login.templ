@@ -1,18 +1,28 @@
 package template
 
-templ LoginPage() {
+type LoginPageData struct {
+    Email string
+    Password string
+    Error string
+}
+
+templ LoginPage(data LoginPageData) {
     @IndexContainer("Přihlášení") {
-        <form hx-post="/login">
-            <div class="grid grid-cols-1 m-5">
-                <div class="form-control my-2"><label class="label"><span class="label-text">Email</span></label> <input type="text" name="email" id="email" class="input input-bordered"/></div>
-                <div class="label">
-                    <div></div>
-                </div>
-                <div class="form-control my-2"><label class="label"><span class="label-text">Password</span></label> <input type="password" name="password" id="password" class="input input-bordered"/></div>
-                <div class="label"><a class="link link-primary" href="/register">Not a user yet? register here</a></div>
-                <button class="btn-primary btn">Login</button>
-            </div>
-        </form>
+        @LoginPageForm(data)
     }
 }
 
+templ LoginPageForm(data LoginPageData) {
+    <form hx-post="/login">
+        <div class="grid grid-cols-1 m-5">
+            if data.Error != "" {
+                <div class="text-error mb-4">{ data.Error }</div>
+            }
+            @AdminTextField(data.Email, "", "email", "Email *")
+            @AdminPasswordField(data.Password, "", "password", "Heslo *")
+            <div class="label"><a class="link link-primary" href="/register">Ještě nemáte účet? Zaregistrujte se zde</a></div>
+            <button class="btn-primary btn mb-4">Přihlásit se</button>
+            <a class="btn" href="/">Vstoupit bez přihlášení</a>
+        </div>
+    </form>
+}

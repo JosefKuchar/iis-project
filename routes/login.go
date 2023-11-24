@@ -3,7 +3,6 @@ package routes
 import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/template"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -14,26 +13,33 @@ func (rs resources) LoginRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		template.LoginPage().Render(r.Context(), w)
+		data := template.LoginPageData{}
+
+		template.LoginPage(data).Render(r.Context(), w)
 	})
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
+		data := template.LoginPageData{
+			Error:    "Špatné heslo nebo email",
+			Email:    email,
+			Password: password,
+		}
+
 		// Verify email and password
 		var user models.User
 		err := rs.db.NewSelect().Model(&user).Where("email = ?", email).Relation("Role").Scan(r.Context())
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			template.LoginPageForm(data).Render(r.Context(), w)
 			return
 		}
 
 		// Compare password
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
-			fmt.Println(err)
-			w.WriteHeader(http.StatusUnauthorized)
+			template.LoginPageForm(data).Render(r.Context(), w)
 			return
 		}
 
@@ -46,7 +52,8 @@ func (rs resources) LoginRoutes() chi.Router {
 			"Role":   user.Role,
 		})
 		if err != nil {
-			panic(err)
+			http.Error(w, err.Error(), 500)
+			return
 		}
 		// Set token to cookie
 		http.SetCookie(w, &http.Cookie{

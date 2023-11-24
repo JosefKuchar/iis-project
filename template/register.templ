@@ -19,40 +19,16 @@ templ RegisterPage(data RegisterPageData) {
 }
 
 templ RegisterForm(data RegisterPageData) {
-    <form id="register-form" hx-post="/register/validate" hx-trigger="keyup change delay:300ms" hx-target="#register_container">
+    <form id="register-form" hx-post="/register/validate" hx-trigger="keyup change delay:300ms" hx-target="#register-form" hx-swap="morph">
         <div class="grid grid-cols-1 m-5">
-            <div class="form-control my-2">
-                <label class="label">
-                    <span class="label-text">Email</span>
-                </label>
-                <input type="text" name="email" id="email" class="input input-bordered" value={ data.Email }/>
-                <label class="label">
-                    <div class="text-red-600">{ data.EmailError }</div>
-                </label>
-            </div>
-            <div class="form-control my-2">
-                <label class="label">
-                    <span class="label-text">Password</span>
-                </label>
-                <input type="password" name="password" id="password" class="input input-bordered" value={ data.Password }/>
-                <label class="label">
-                    <div class="text-red-600">{ data.PasswordError }</div>
-                </label>
-            </div>
-            <div class="form-control my-2">
-                <label class="label">
-                    <span class="label-text">Repeat password</span>
-                </label>
-                <input type="password" name="repeated_password" id="repeated_password" class="input input-bordered" value={ data.RepeatedPassword }/>
-                <label class="label">
-                    <div class="text-red-600">{ data.RepeatedPasswordError }</div>
-                </label>
-            </div>
+            @AdminTextField(data.Email, data.EmailError, "email", "Email *")
+            @AdminPasswordField(data.Password, data.PasswordError, "password", "Heslo *")
+            @AdminPasswordField(data.RepeatedPassword, data.RepeatedPasswordError, "repeated_password", "Heslo znovu *")
             <button class="btn-primary btn" hx-post="/register" id="register-button"
                 if !data.Valid {
                     disabled="true"
                 }
-            >Register</button>
+            >Registrovat se</button>
         </div>
     </form>
 }
