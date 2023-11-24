@@ -2,6 +2,7 @@ package routes
 
 import (
 	"JosefKuchar/iis-project/models"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -119,13 +120,13 @@ func (rs resources) EventRoutes() chi.Router {
 			Relation("Categories").
 			Relation("Comments").
 			Relation("Comments.User").
+			Relation("EntranceFees").
 			Scan(r.Context())
 
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		data.IsAtendee = false
 		token, jwt, _ := jwtauth.FromContext(r.Context())
 		if token == nil {
 			data.UserId = -1
@@ -133,9 +134,13 @@ func (rs resources) EventRoutes() chi.Router {
 			data.UserId = int(jwt["ID"].(float64))
 
 			var u2e models.UserToEvent
-			err = rs.db.NewSelect().Model(&u2e).Where("user_id = ? AND event_id = ?", jwt["ID"], id).Scan(r.Context())
+			err = rs.db.NewSelect().
+				Model(&u2e).
+				Where("user_to_event.user_id = ? AND user_to_event.event_id = ?", jwt["ID"], id).
+				Relation("EntranceFee").
+				Scan(r.Context())
 			if err == nil {
-				data.IsAtendee = true
+				data.RegisteredFee = &u2e
 			}
 		}
 
@@ -197,22 +202,50 @@ func (rs resources) EventRoutes() chi.Router {
 		template.Comments(comments).Render(r.Context(), w)
 	})
 
-	r.With(validateAction).Post("/{id}/{userid}/{action}", func(w http.ResponseWriter, r *http.Request) {
+	r.With(validateAction).Post("/{id}/{userid}/{entrancefeeid}/{action}", func(w http.ResponseWriter, r *http.Request) {
 		eventId, _ := strconv.Atoi(chi.URLParam(r, "id"))
 		userId, _ := strconv.Atoi(chi.URLParam(r, "userid"))
+		entranceFeeId, _ := strconv.Atoi(chi.URLParam(r, "entrancefeeid"))
 		action := chi.URLParam(r, "action")
 
 		if action == "register" {
 			userToEvent := models.UserToEvent{
-				UserID:  int64(userId),
-				EventID: int64(eventId),
+				UserID:        int64(userId),
+				EventID:       int64(eventId),
+				EntranceFeeID: int64(entranceFeeId),
 			}
 			rs.db.NewInsert().Model(&userToEvent).Exec(r.Context())
 		} else {
 			rs.db.NewDelete().Model(&models.UserToEvent{}).Where("user_id = ? AND event_id = ?", userId, eventId).Exec(r.Context())
 		}
 
-		template.RegisterSection(action == "register", userId, false, eventId).Render(r.Context(), w)
+		// Get the userToEvent
+		var userToEvent models.UserToEvent
+		err := rs.db.NewSelect().
+			Model(&userToEvent).
+			Where("user_to_event.user_id = ?", userId).
+			Where("user_to_event.event_id = ?", eventId).
+			Relation("EntranceFee").
+			Scan(r.Context())
+
+		if err != nil && err != sql.ErrNoRows {
+			fmt.Println(err)
+		}
+
+		if err == sql.ErrNoRows {
+			// User is no longer registered, get entrance fees
+			var entranceFees []models.EntranceFee
+			err = rs.db.NewSelect().
+				Model(&entranceFees).
+				Where("entrance_fee.event_id = ?", eventId).
+				Scan(r.Context())
+
+			template.RegisterSection(userId, false, eventId, entranceFees, nil).Render(r.Context(), w)
+			return
+		}
+
+		template.RegisterSection(userId, true, eventId, nil, &userToEvent).Render(r.Context(), w)
+
 	})
 
 	return r

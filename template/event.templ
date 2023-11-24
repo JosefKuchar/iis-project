@@ -10,7 +10,7 @@ type EventPageData struct {
 	Categories [][]models.Category
 	UserId int
 	Finished bool
-	IsAtendee bool
+	RegisteredFee *models.UserToEvent
 }
 
 templ EventPage(data EventPageData, appbar AppbarData) {
@@ -29,12 +29,17 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 				</div>
 			}
 		</div>
-		<p class="my-10">
-			{ data.Event.Description }
-		</p>
-		<p class="my-10" id="registerSection">
-			@RegisterSection(data.IsAtendee, data.UserId, data.Finished, int(data.Event.ID))
-		</p>
+		<div class="my-6">
+			<p class="text-xs uppercase font-bold">Popis</p>
+			<p>
+				{ data.Event.Description }
+			</p>
+		</div>
+		if (!data.Finished) {
+		<div class="my-10" id="registerSection">
+			@RegisterSection(data.UserId, data.Finished, int(data.Event.ID), data.Event.EntranceFees, data.RegisteredFee)
+		</div>
+		}
 		<div>
 			@CommentInput(data)
 		</div>
@@ -44,15 +49,44 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 	}
 }
 
-templ RegisterSection(Atendee bool, userId int, finished bool, eventId int) {
-	if Atendee {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/unregister" } hx-swap="outerHTML" if finished {
-			disabled="true"
-		}>Odhlásit se</button>
+templ RegisterSection(userId int, finished bool, eventId int, entranceFees []models.EntranceFee, registeredFee *models.UserToEvent) {
+	if registeredFee != nil {
+		<div class="mb-1">Ste přihlásený na tenhle event:</div>
+		<div class="p-4 rounded-xl border border-stone-100/20 flex justify-between items-center">
+			<div class="space-y-1">
+				<div class="text-sm text-primary font-semibold">
+					{ registeredFee.EntranceFee.Name }
+				</div>
+				<div class="text-sm">
+					{ strconv.Itoa(int(registeredFee.EntranceFee.Price)) + " CZK" }
+				</div>
+			</div>
+			<div class="flex items-center gap-6">
+				if registeredFee.Approved {
+					<span class="text-green-500">Zaplaceno</span>
+				} else {
+					<span class="text-red-500">Nezaplaceno</span>
+				}
+				<button hx-target="#registerSection" class="btn btn-primary" hx-post={"/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/" + strconv.Itoa(int(registeredFee.EntranceFee.ID)) + "/unregister" }>Odhlásit se</button>
+			</div>
+		</div>
 	} else {
-		<button class="btn btn-primary" hx-post={ "/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/register" } hx-swap="outerHTML" if finished {
-			disabled="true"
-		}>Přihlásit se</button>
+		<div class="mb-1 text-xs uppercase font-bold">Vstupenky</div>
+		<div class="space-y-2">
+			for _, eventFee := range entranceFees {
+				<div class="p-4 rounded-xl border border-stone-100/20 flex justify-between items-center">
+					<div class="space-y-1">
+						<div class="text-sm text-primary font-semibold">
+							{ eventFee.Name }
+						</div>
+						<div class="text-sm">
+							{ strconv.Itoa(int(eventFee.Price)) + " CZK" }
+						</div>
+					</div>
+					<button class="btn btn-primary" hx-target="#registerSection" hx-post={"/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/" + strconv.Itoa(int(eventFee.ID)) + "/register" }>Přihlásit se</button>
+				</div>
+			}
+		</div>
 	}
 }
 
@@ -72,12 +106,17 @@ templ Comments(comments []models.Comment) {
 }
 
 templ CommentInput(data EventPageData) {
+		if data.Finished {
+			<div class="text-xs uppercase font-bold">
+				Komentáře
+			</div>
+		}
 		<p>
 			if data.Finished && data.UserId != -1 {
 				<form class="form-control" hx-on::after-request="this.reset()">
 					<textarea class="textarea textarea-bordered h-24" placeholder="Write a comment here" name="comment" id="comment"></textarea>
 
-					<button class="btn btn-primary" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
+					<button class="btn btn-primary mt-4" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
 
 				</form>
 			}

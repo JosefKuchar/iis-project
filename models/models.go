@@ -9,10 +9,13 @@ import (
 type UserToEvent struct {
 	bun.BaseModel `bun:"table:user_to_event"`
 
-	UserID  int64  `bun:",pk"`
-	User    *User  `bun:"rel:belongs-to"`
-	EventID int64  `bun:",pk"`
-	Event   *Event `bun:"rel:belongs-to"`
+	UserID        int64        `bun:",pk"`
+	User          *User        `bun:"rel:belongs-to"`
+	EventID       int64        `bun:",pk"`
+	Event         *Event       `bun:"rel:belongs-to"`
+	EntranceFeeID int64        `bun:",nullzero"`
+	EntranceFee   *EntranceFee `bun:"rel:belongs-to"`
+	Approved      bool         `bun:",notnull"`
 }
 
 type CategoryToEvent struct {
@@ -91,6 +94,20 @@ type EntranceFee struct {
 	Event   *Event `bun:"rel:belongs-to"`
 	Price   int64  `bun:",notnull"`
 	Name    string `bun:",notnull"`
+}
+
+type EventRegistration struct {
+	bun.BaseModel `bun:"table:event_registrations"`
+
+	ID               int64 `bun:",pk,autoincrement"`
+	EventID          int64
+	Event            *Event `bun:"rel:belongs-to"`
+	UserID           int64
+	User             *User `bun:"rel:belongs-to"`
+	Approved         bool  `bun:",notnull"`
+	EntranceFeeID    int64
+	EntranceFee      *EntranceFee `bun:"rel:belongs-to"`
+	RegistrationDate time.Time    `bun:",notnull"`
 }
 
 type Comment struct {

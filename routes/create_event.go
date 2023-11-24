@@ -48,10 +48,15 @@ func (rs resources) CreateEventRoutes() chi.Router {
 			End:         toTimestamp,
 		}
 
+		// Disable foreign key checks
+		rs.db.NewRaw("SET FOREIGN_KEY_CHECKS = 0").Exec(r.Context())
+
 		_, err = rs.db.NewInsert().Model(&newEvent).Returning("*").Exec(r.Context())
 		if err != nil {
 			panic(err)
 		}
+
+		rs.db.NewRaw("SET FOREIGN_KEY_CHECKS = 1").Exec(r.Context())
 
 		data := template.CreateEventLocationData{
 			EventID:   strconv.FormatInt(newEvent.ID, 10),
