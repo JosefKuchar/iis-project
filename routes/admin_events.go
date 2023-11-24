@@ -66,9 +66,12 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			if err != nil {
 				return data, err
 			}
-			price, err := strconv.Atoi(entranceFeePrices[i])
-			if err != nil {
-				return data, err
+			price := 0
+			if entranceFeePrices[i] != "" {
+				price, err = strconv.Atoi(entranceFeePrices[i])
+				if err != nil {
+					return data, err
+				}
 			}
 
 			data.Event.EntranceFees = append(data.Event.EntranceFees, models.EntranceFee{

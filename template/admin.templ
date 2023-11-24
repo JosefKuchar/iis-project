@@ -131,11 +131,16 @@ templ AdminNumberField(value int64, validation string, name string, title string
         </label>
         <div class="join">
             <input
+                min="0"
                 type="number"
                 class={"input input-bordered join-item grow", templ.KV("input-error", validation != "") }
                 name={ name }
                 id={ name }
-                value={ strconv.Itoa(int(value)) }
+                if value != 0 {
+                    value={ strconv.Itoa(int(value)) }
+                } else {
+                    value=""
+                }
             />
             <div class="join-item bg-base-100 border border-base-content border-opacity-20 height-3 flex items-center">
                 <div class="px-4">{ units }</div>
