@@ -7,9 +7,27 @@ import (
 
 type EventsPageData struct {
     Categories []models.Category
+    Locations []models.Location
     SelectedCategories []models.Category
     Events []models.Event
     LoggedIn bool
+}
+
+templ SelectMulti(name string, title string) {
+    <div class="form-control" id={ name + "_form_control"} hx-preserve>
+        <label class="label">
+            <span class="label-text">{ title }</span>
+        </label>
+        <select
+            name={ name + "[]" }
+            id={ name }
+            multiple="multiple"
+        >
+            { children... }
+        </select>
+        <label class="label">
+        </label>
+    </div>
 }
 
 templ EventsPage(data EventsPageData, appbar AppbarData) {
@@ -18,21 +36,38 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
         <div hx-get="/user" hx-trigger="load" class="my-5"></div>
         <div class="grid grid-cols-1">
             <form hx-target="#eventList" hx-post="/events/filter">
-                <div class="form-control w-full max-w-xs my-5">
+                <div class="form-control my-5">
                     <label class="label"><span class="label-text">Search</span></label>
-                    <input type="text" class="input input-bordered w-full max-w-xs" name="slug" id="slug"/></div>
-                <div class="form-control w-full max-w-xs my-5">
-                    <label class="label"><span class="label-text">Select categories</span></label>
-                    <select class="select select-bordered" id="category" name="category" multiple="true" hx-post="/events/categories" hx-target="#selectedCategories">
+                    <input type="text" class="input input-bordered w-full max-w-s" name="slug" id="slug"/>
+                </div>
+                <div class="flex gap-x-5 my-5">
+                    <div class="flex flex-col w-1/2 form-control">
+                        <label class="label"><span class="label-text">From</span></label>
+                        <input type="datetime-local" class="input input-bordered" name="from" id="from"/>
+                    </div>
+                    <div class="flex flex-col w-1/2 form-control">
+                        <label class="label"><span class="label-text">To</span></label>
+                        <input type="datetime-local" class="input input-bordered" name="to" id="to"/>
+                    </div>
+                </div>
+                <div class="form-control my-5">
+                    <label for="location" class="label label-text">Select Location</label>
+                    <select class="select select-bordered" name="location" id="location">
+                        <option value="0">Select location</option>
+                        for _, location := range data.Locations {
+                            <option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-control my-5">
+                    <label class="label label-text">Select Categories</label>
+                    <select name="categories" id="categories" multiple="multiple">
                         for _, category := range data.Categories {
                             <option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
                         }
                     </select>
-                    <div class="flex flex-wrap mt-2" id="selectedCategories">
-                        @Categories(data.SelectedCategories)
-                    </div>
                 </div>
-                <div class="form-control w-full max-w-xs my-5">
+                <div class="form-control w-full max-w-s my-5">
                     <label class="label cursor-pointer">
                         <span class="label-text">Show only my events</span>
                         if data.LoggedIn {
@@ -50,6 +85,18 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
         <div id="eventList">
             @Events(data.Events)
         </div>
+        <script>
+            $(document).ready(function() {
+                $('#categories').select2({
+                    ajax: {
+                        url: '/events/categories/select2',
+                        dataType: 'json'
+                    },
+                    allowClear: true,
+                    placeholder: 'Žádná'
+                });
+            });
+        </script>
     }
 }
 
