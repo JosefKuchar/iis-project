@@ -96,20 +96,6 @@ type EntranceFee struct {
 	Name    string `bun:",notnull"`
 }
 
-type EventRegistration struct {
-	bun.BaseModel `bun:"table:event_registrations"`
-
-	ID               int64 `bun:",pk,autoincrement"`
-	EventID          int64
-	Event            *Event `bun:"rel:belongs-to"`
-	UserID           int64
-	User             *User `bun:"rel:belongs-to"`
-	Approved         bool  `bun:",notnull"`
-	EntranceFeeID    int64
-	EntranceFee      *EntranceFee `bun:"rel:belongs-to"`
-	RegistrationDate time.Time    `bun:",notnull"`
-}
-
 type Comment struct {
 	bun.BaseModel `bun:"table:comments"`
 
