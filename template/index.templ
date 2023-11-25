@@ -18,6 +18,13 @@ templ Index(title string) {
 		<body hx-boost="true" hx-ext="morph">
 			{ children... }
 		</body>
+		<script>
+			jQuery(document).ready(function( $ ) {
+				$(window).on('popstate', function() {
+					location.reload(true);
+				});
+			});
+		</script>
 	</html>
 }
 
