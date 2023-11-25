@@ -46,7 +46,7 @@ func (rs resources) Routes() chi.Router {
 		})
 		// Admins only
 		r.Group(func(r chi.Router) {
-			r.Use(AdminAuthenticator)
+			r.Use(rs.AdminAuthenticator)
 			r.Mount("/admin/users", rs.AdminUsersRoutes())
 		})
 	})
@@ -141,7 +141,9 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 		}
 
 		// Make exception for admin events page
-		if r.URL.Path == "/admin/events" || r.URL.Path == "/admin/categories/select2" || r.URL.Path == "/admin/locations/select2" {
+		if r.URL.Path == "/admin/events" ||
+			r.URL.Path == "/admin/categories/select2" ||
+			r.URL.Path == "/admin/locations/select2" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -180,7 +182,7 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 	})
 }
 
-func AdminAuthenticator(next http.Handler) http.Handler {
+func (rs resources) AdminAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, claims, err := jwtauth.FromContext(r.Context())
 
@@ -191,6 +193,12 @@ func AdminAuthenticator(next http.Handler) http.Handler {
 
 		if token == nil || jwt.Validate(token) != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Make exception for admin events page
+		if r.URL.Path == "/admin/users/select2" {
+			next.ServeHTTP(w, r)
 			return
 		}
 

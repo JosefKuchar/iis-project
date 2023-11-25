@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"encoding/json"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -315,6 +317,33 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		}
 
 		err = template.AdminUserPageForm(data).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	r.Get("/select2", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var users []models.User
+		err := rs.db.NewSelect().
+			Model(&users).
+			Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		var results Select2Results
+		for _, user := range users {
+			results.Results = append(results.Results, Select2Result{
+				ID:   user.ID,
+				Text: user.Name,
+			})
+		}
+
+		err = json.NewEncoder(w).Encode(results)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

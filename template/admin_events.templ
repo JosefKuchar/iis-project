@@ -77,6 +77,13 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
                     },
                     placeholder: 'Žádné'
                 });
+                $('#owner_id').select2({
+                    ajax: {
+                        url: '/admin/users/select2',
+                        dataType: 'json'
+                    },
+                    placeholder: 'Žádné'
+                });
                 $('#categories').select2({
                     ajax: {
                         url: '/admin/categories/select2',
@@ -111,6 +118,11 @@ templ AdminEventPageForm(data AdminEventPageData) {
 		@AdminSelect(data.Errors["Location"], "location_id", "Místo *") {
 			if data.Event.Location != nil {
 				<option value={ strconv.Itoa(int(data.Event.Location.ID)) } selected>{ data.Event.Location.Name }</option>
+			}
+		}
+        @AdminSelect(data.Errors["Owner"], "owner_id", "Organizátor *") {
+			if data.Event.Owner != nil {
+				<option value={ strconv.Itoa(int(data.Event.Owner.ID)) } selected>{ data.Event.Owner.Name }</option>
 			}
 		}
 		@AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")

@@ -108,6 +108,14 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
 
+		if r.FormValue("owner_id") != "" {
+			owner, err := strconv.Atoi(r.FormValue("owner_id"))
+			if err != nil {
+				return data, err
+			}
+			data.Event.OwnerID = int64(owner)
+		}
+
 		// Get user role
 		_, claims, _ := jwtauth.FromContext(r.Context())
 		data.UserRole = int(claims["RoleID"].(float64))
@@ -400,6 +408,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			Relation("Location").
 			Relation("UsersToEvent").
 			Relation("UsersToEvent.User").
+			Relation("Owner").
 			Where("event.id = ?", chi.URLParam(r, "id")).
 			Scan(r.Context())
 		if err != nil {

@@ -86,3 +86,7 @@
 .select2-results__option--selected {
     @apply bg-base-100
 }
+
+.select2-results__options {
+    @apply max-h-96 overflow-y-auto;
+}
