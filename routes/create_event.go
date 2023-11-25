@@ -27,6 +27,7 @@ func (rs resources) CreateEventRoutes() chi.Router {
 
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
+		capacity := r.FormValue("capacity")
 		description := r.FormValue("description")
 		from := r.FormValue("from")
 		to := r.FormValue("to")
@@ -46,6 +47,15 @@ func (rs resources) CreateEventRoutes() chi.Router {
 			Description: description,
 			Start:       fromTimestamp,
 			End:         toTimestamp,
+		}
+
+		if capacity != "" {
+			capacityInt, err := strconv.ParseInt(capacity, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+
+			newEvent.Capacity = capacityInt
 		}
 
 		// Disable foreign key checks

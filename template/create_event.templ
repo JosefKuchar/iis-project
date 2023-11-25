@@ -25,6 +25,10 @@ templ CreateEvent(data CreateEventData) {
 						<input type="text" name="name" required id="name" class="input input-bordered text-sm"/>
 					</div>
 					<div class="form-control">
+						<label class="label label-text">Capacity (Leave empty for unlimited)</label>
+						<input class="textarea textarea-bordered text-sm" name="capacity" id="capacity" type="number"></input>
+					</div>
+					<div class="form-control">
 						<label class="label label-text">Description</label>
 						<textarea class="textarea textarea-bordered h-24" required name="description" id="description"></textarea>
 					</div>

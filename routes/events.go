@@ -182,6 +182,18 @@ func (rs resources) EventRoutes() chi.Router {
 			return
 		}
 
+		// Check capacity
+		userToEventCount, err := rs.db.NewSelect().
+			Model((*models.UserToEvent)(nil)).
+			Where("user_to_event.event_id = ?", id).
+			Count(r.Context())
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		data.Full = userToEventCount >= int(data.Event.Capacity)
+
 		template.EventPage(data, appbar).Render(r.Context(), w)
 	})
 
@@ -267,11 +279,34 @@ func (rs resources) EventRoutes() chi.Router {
 				Where("entrance_fee.event_id = ?", eventId).
 				Scan(r.Context())
 
-			template.RegisterSection(userId, false, eventId, entranceFees, nil).Render(r.Context(), w)
+			template.RegisterSection(userId, false, eventId, entranceFees, nil, false).Render(r.Context(), w)
 			return
 		}
 
-		template.RegisterSection(userId, true, eventId, nil, &userToEvent).Render(r.Context(), w)
+		// Check if we reached the capacity
+		var event models.Event
+		err = rs.db.NewSelect().
+			Model(&event).
+			Where("event.id = ?", eventId).
+			Relation("EntranceFees").
+			Scan(r.Context())
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		userToEventCount, err := rs.db.NewSelect().
+			Model((*models.UserToEvent)(nil)).
+			Where("user_to_event.event_id = ?", eventId).
+			Count(r.Context())
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		eventFull := userToEventCount >= int(event.Capacity)
+
+		template.RegisterSection(userId, true, eventId, nil, &userToEvent, eventFull).Render(r.Context(), w)
 
 	})
 

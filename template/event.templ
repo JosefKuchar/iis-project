@@ -11,6 +11,7 @@ type EventPageData struct {
 	UserId int
 	Finished bool
 	RegisteredFee *models.UserToEvent
+	Full bool
 }
 
 templ EventPage(data EventPageData, appbar AppbarData) {
@@ -37,7 +38,7 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 		</div>
 		if (!data.Finished) {
 		<div class="my-10" id="registerSection">
-			@RegisterSection(data.UserId, data.Finished, int(data.Event.ID), data.Event.EntranceFees, data.RegisteredFee)
+			@RegisterSection(data.UserId, data.Finished, int(data.Event.ID), data.Event.EntranceFees, data.RegisteredFee, data.Full)
 		</div>
 		}
 		<div>
@@ -49,10 +50,10 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 	}
 }
 
-templ RegisterSection(userId int, finished bool, eventId int, entranceFees []models.EntranceFee, registeredFee *models.UserToEvent) {
+templ RegisterSection(userId int, finished bool, eventId int, entranceFees []models.EntranceFee, registeredFee *models.UserToEvent, full bool) {
 	if registeredFee != nil {
 		<div class="mb-1">Ste přihlásený na tenhle event:</div>
-		<div class="p-4 rounded-xl border border-stone-100/20 flex justify-between items-center">
+		<div class="p-4 rounded-xl border border-base-300 flex justify-between items-center">
 			<div class="space-y-1">
 				<div class="text-sm text-primary font-semibold">
 					{ registeredFee.EntranceFee.Name }
@@ -74,7 +75,7 @@ templ RegisterSection(userId int, finished bool, eventId int, entranceFees []mod
 		<div class="mb-1 text-xs uppercase font-bold">Vstupenky</div>
 		<div class="space-y-2">
 			for _, eventFee := range entranceFees {
-				<div class="p-4 rounded-xl border border-stone-100/20 flex justify-between items-center">
+				<div class="p-4 rounded-xl border border-base-300 flex justify-between items-center">
 					<div class="space-y-1">
 						<div class="text-sm text-primary font-semibold">
 							{ eventFee.Name }
@@ -83,7 +84,12 @@ templ RegisterSection(userId int, finished bool, eventId int, entranceFees []mod
 							{ strconv.Itoa(int(eventFee.Price)) + " CZK" }
 						</div>
 					</div>
-					<button class="btn btn-primary" hx-target="#registerSection" hx-post={"/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/" + strconv.Itoa(int(eventFee.ID)) + "/register" }>Přihlásit se</button>
+					if (userId != -1 && !full) {
+						<button class="btn btn-primary" hx-target="#registerSection" hx-post={"/events/" + strconv.Itoa(eventId) + "/" + strconv.Itoa(userId) + "/" + strconv.Itoa(int(eventFee.ID)) + "/register" }>Přihlásit se</button>
+					}
+					if (full) {
+						<span class="text-red-500">Plno</span>
+					}
 				</div>
 			}
 		</div>
