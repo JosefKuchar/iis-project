@@ -20,7 +20,7 @@ templ AdminCommentsPage(data AdminCommentsPageData, appbar AppbarData) {
 
 templ AdminCommentsPageTable(data AdminCommentsPageData) {
     <form id="table" hx-swap="morph">
-        @AdminTableDecorator("Komentáře", "/admin/comments", "Nový komentář", data.Query, data.TotalCount, data.Page, true) {
+        @AdminTableDecorator("Komentáře", "/admin/comments", "Nový komentář", data.Query, data.TotalCount, data.Page, false) {
             <table class="table table-zebra">
                 <tr>
                     <th>ID</th>
