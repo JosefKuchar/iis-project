@@ -37,30 +37,30 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
         <div class="grid grid-cols-1">
             <form hx-target="#eventList" hx-post="/events/filter">
                 <div class="form-control my-5">
-                    <label class="label"><span class="label-text">Search</span></label>
+                    <label class="label"><span class="label-text">Obsahuje text</span></label>
                     <input type="text" class="input input-bordered w-full max-w-s" name="slug" id="slug"/>
                 </div>
                 <div class="flex gap-x-5 my-5">
                     <div class="flex flex-col w-1/2 form-control">
-                        <label class="label"><span class="label-text">From</span></label>
+                        <label class="label"><span class="label-text">Datum a čas od</span></label>
                         <input type="datetime-local" class="input input-bordered" name="from" id="from"/>
                     </div>
                     <div class="flex flex-col w-1/2 form-control">
-                        <label class="label"><span class="label-text">To</span></label>
+                        <label class="label"><span class="label-text">Datum a čas do</span></label>
                         <input type="datetime-local" class="input input-bordered" name="to" id="to"/>
                     </div>
                 </div>
                 <div class="form-control my-5">
-                    <label for="location" class="label label-text">Select Location</label>
+                    <label for="location" class="label label-text">V lokalitě</label>
                     <select class="select select-bordered" name="location" id="location">
-                        <option value="0">Select location</option>
+                        <option value="0">Všechny lokality</option>
                         for _, location := range data.Locations {
                             <option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
                         }
                     </select>
                 </div>
                 <div class="form-control my-5">
-                    <label class="label label-text">Select Categories</label>
+                    <label class="label label-text">Obsahuje kategorie</label>
                     <select name="categories" id="categories" multiple="multiple">
                         for _, category := range data.Categories {
                             <option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
@@ -69,16 +69,16 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                 </div>
                 <div class="form-control w-full max-w-s my-5">
                     <label class="label cursor-pointer">
-                        <span class="label-text">Show only my events</span>
+                        <span class="label-text">Pouze události na které jsem přihlášen</span>
                         if data.LoggedIn {
                             <input type="checkbox" class="checkbox checkbox-primary" name="myEvents"/>
                         }  else {
-                            <div class="lg:tooltip" data-tip="Log in to filter your events">
+                            <div class="lg:tooltip" data-tip="Přihlašte se to filtrování svých událostí">
                                 <input type="checkbox" class="checkbox checkbox-primary" name="myEvents" disabled="true"/>
                             </div>
                         }
                     </label>
-                    <button class="btn btn-primary" type="submit">Filter</button>
+                    <button class="btn btn-primary" type="submit">Hledat</button>
                 </div>
             </form>
         </div>
@@ -93,7 +93,7 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                         dataType: 'json'
                     },
                     allowClear: true,
-                    placeholder: 'Žádná'
+                    placeholder: 'Všechny kategorie'
                 });
             });
         </script>
