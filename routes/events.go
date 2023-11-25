@@ -3,6 +3,7 @@ package routes
 import (
 	"JosefKuchar/iis-project/models"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -43,6 +44,7 @@ func (rs resources) EventRoutes() chi.Router {
 
 		rs.db.NewSelect().Model(&data.Events).Relation("Location").Relation("Categories").Scan(r.Context())
 		rs.db.NewSelect().Model(&data.Categories).Scan(r.Context())
+		rs.db.NewSelect().Model(&data.Locations).Scan(r.Context())
 
 		token, _, _ := jwtauth.FromContext(r.Context())
 		data.LoggedIn = token != nil
@@ -63,7 +65,10 @@ func (rs resources) EventRoutes() chi.Router {
 
 		slug := r.FormValue("slug")
 		checked := r.FormValue("myEvents")
-		selectedCategories := r.Form["category"]
+		from := r.FormValue("from")
+		to := r.FormValue("to")
+		location := r.FormValue("location")
+		selectedCategories := r.Form["categories"]
 
 		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories")
 
@@ -71,7 +76,17 @@ func (rs resources) EventRoutes() chi.Router {
 			q = addTextSearch(q, slug)
 		}
 
-		fmt.Println(q)
+		if location != "0" {
+			q = q.Where("location.id = ?", location)
+		}
+
+		if from != "" {
+			q = q.Where("event.start >= ?", from)
+		}
+
+		if to != "" {
+			q = q.Where("event.end <= ?", to)
+		}
 
 		if checked != "" {
 			token, claims, _ := jwtauth.FromContext(r.Context())
@@ -80,7 +95,6 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 		}
 
-		fmt.Println(selectedCategories)
 		if selectedCategories != nil {
 			var categories []models.Category
 
@@ -99,7 +113,6 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 
 			q = addCategoryFilter(q, ids)
-
 		}
 
 		q = q.Order("event.id ASC").Group("event.id")
@@ -145,7 +158,6 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 
 		data.Finished = data.Event.End.Before(time.Now())
-		fmt.Println(data.Finished)
 
 		for _, category := range data.Event.Categories {
 			var tree []models.Category
@@ -173,15 +185,6 @@ func (rs resources) EventRoutes() chi.Router {
 		template.EventPage(data, appbar).Render(r.Context(), w)
 	})
 
-	r.Post("/categories", func(w http.ResponseWriter, r *http.Request) {
-		var categories []models.Category
-		r.ParseForm()
-
-		rs.db.NewSelect().Model(&categories).Where("id IN (?)", bun.In(r.Form["category"])).Scan(r.Context())
-
-		template.Categories(categories).Render(r.Context(), w)
-	})
-
 	r.Post("/{id}/{userid}/comment", func(w http.ResponseWriter, r *http.Request) {
 		commentText := r.FormValue("comment")
 		eventId, _ := strconv.Atoi(chi.URLParam(r, "id"))
@@ -200,6 +203,30 @@ func (rs resources) EventRoutes() chi.Router {
 		rs.db.NewSelect().Model(&comments).Where("event_id = ?", eventId).Relation("User").Scan(r.Context())
 
 		template.Comments(comments).Render(r.Context(), w)
+	})
+
+	r.Get("/categories/select2", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var categories []models.Category
+		err := rs.db.NewSelect().Model(&categories).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		var results Select2Results
+		for _, category := range categories {
+			results.Results = append(results.Results, Select2Result{
+				ID:   category.ID,
+				Text: category.Name,
+			})
+		}
+
+		err = json.NewEncoder(w).Encode(results)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
 	})
 
 	r.With(validateAction).Post("/{id}/{userid}/{entrancefeeid}/{action}", func(w http.ResponseWriter, r *http.Request) {
