@@ -108,6 +108,10 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			data.Errors["Name"] = "Name cannot be empty"
 		}
 
+		// Get user role
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		data.UserRole = int(claims["RoleID"].(float64))
+
 		return data, nil
 	}
 
@@ -357,7 +361,11 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
-		_, err = rs.db.NewUpdate().Model(&data.Event).Where("id = ?", data.Event.ID).Exec(r.Context())
+		_, err = rs.db.NewUpdate().
+			Model(&data.Event).
+			Where("id = ?", data.Event.ID).
+			OmitZero().
+			Exec(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
