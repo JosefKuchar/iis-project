@@ -109,7 +109,7 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 			return
 		}
 
-		_, err = rs.db.NewUpdate().Model(&data.Comment).Where("id = ?", data.Comment.ID).Exec(r.Context())
+		_, err = rs.db.NewUpdate().Model(&data.Comment).Column("text").Where("id = ?", data.Comment.ID).Exec(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
