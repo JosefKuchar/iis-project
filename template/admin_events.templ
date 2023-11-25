@@ -153,6 +153,9 @@ templ AdminEventPageForm(data AdminEventPageData) {
                 Nový účastník
             </button>
         </div>
+        for _, participant := range data.Event.UsersToEvent {
+            <div>{ participant.User.Name }</div>
+        }
         @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>

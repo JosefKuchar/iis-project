@@ -83,6 +83,7 @@ type Event struct {
 	Comments     []Comment     `bun:"rel:has-many"`
 	Ratings      []Rating      `bun:"rel:has-many"`
 	Categories   []Category    `bun:"m2m:category_to_event,join:Event=Category"`
+	UsersToEvent []UserToEvent `bun:"rel:has-many"`
 	Approved     bool          `bun:",notnull"`
 }
 

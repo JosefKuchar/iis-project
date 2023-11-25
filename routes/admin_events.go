@@ -365,6 +365,8 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			Relation("EntranceFees").
 			Relation("Categories").
 			Relation("Location").
+			Relation("UsersToEvent").
+			Relation("UsersToEvent.User").
 			Where("event.id = ?", chi.URLParam(r, "id")).
 			Scan(r.Context())
 		if err != nil {
