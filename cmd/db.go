@@ -97,9 +97,15 @@ func main() {
 		db.NewInsert().Model(user).Exec(ctx)
 
 		for j := 0; j < 3; j++ {
+			// Fetch random event and fees
+			var event models.Event
+			db.NewSelect().Model(&event).Relation("EntranceFees").Relation("Categories").Where("id = ?", int64(gofakeit.Number(1, 10))).Scan(ctx)
+
+			// Create userToEvent with random entrance fee
 			userToEvent := &models.UserToEvent{
-				EventID: int64(gofakeit.Number(1, 10)),
-				UserID:  int64(i + 1),
+				UserID:        int64(i + 1),
+				EventID:       event.ID,
+				EntranceFeeID: event.EntranceFees[gofakeit.Number(0, len(event.EntranceFees)-1)].ID,
 			}
 			db.NewInsert().Model(userToEvent).Exec(ctx)
 		}
