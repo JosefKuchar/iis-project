@@ -75,7 +75,7 @@ type Event struct {
 	Name         string `bun:",notnull"`
 	LocationID   int64
 	Location     *Location     `bun:"rel:belongs-to"`
-	Description  string        `bun:","`
+	Description  string        `bun:"type:text,"`
 	Start        time.Time     `bun:",notnull"`
 	End          time.Time     `bun:",notnull"`
 	Capacity     int64         `bun:","`
@@ -105,7 +105,7 @@ type Comment struct {
 	Event   *Event `bun:"rel:belongs-to"`
 	UserID  int64
 	User    *User  `bun:"rel:belongs-to"`
-	Text    string `bun:",notnull"`
+	Text    string `bun:"type:text,notnull"`
 }
 
 type Rating struct {

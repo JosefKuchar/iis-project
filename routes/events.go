@@ -214,7 +214,13 @@ func (rs resources) EventRoutes() chi.Router {
 
 		rs.db.NewSelect().Model(&comments).Where("event_id = ?", eventId).Relation("User").Scan(r.Context())
 
-		template.Comments(comments).Render(r.Context(), w)
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		template.Comments(comments, appbar).Render(r.Context(), w)
 	})
 
 	r.Get("/categories/select2", func(w http.ResponseWriter, r *http.Request) {

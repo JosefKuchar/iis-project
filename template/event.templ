@@ -2,6 +2,7 @@ package template
 
 import (
 	"JosefKuchar/iis-project/models"
+	"JosefKuchar/iis-project/settings"
 	"strconv"
 )
 
@@ -45,7 +46,7 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 			@CommentInput(data)
 		</div>
 		<div id="comments">
-			@Comments(data.Event.Comments)
+			@Comments(data.Event.Comments, appbar)
 		</div>
 	}
 }
@@ -96,16 +97,23 @@ templ RegisterSection(userId int, finished bool, eventId int, entranceFees []mod
 	}
 }
 
-templ Comments(comments []models.Comment) {
+templ Comments(comments []models.Comment, appbar AppbarData) {
 	<ul>
 		for _, comment := range comments {
 			<li class="flex my-5">
-				<div class="avatar placeholder">
-					<div class="bg-neutral-focus text-neutral-content rounded-full w-16">
-						<span class="text-xl">{comment.User.Email[:2]}</span>
+				<div class="chat chat-start items-end flex">
+					<div class="avatar placeholder">
+						<div class="bg-neutral-focus text-neutral-content rounded-full w-16">
+							<span class="text-xl">{comment.User.Email[:2]}</span>
+						</div>
 					</div>
+					<div class="chat-bubble">{ comment.Text }</div>
+					if appbar.User.RoleID == settings.ROLE_ADMIN || appbar.User.RoleID == settings.ROLE_MODERATOR {
+						<a href={templ.URL("/admin/comments/" + strconv.Itoa(int(comment.ID)))} class="btn">
+							<i class="las la-pen"></i>
+						</a>
+					}
 				</div>
-				<div class="mx-5"> { comment.Text } </div>
 			</li>
 		}
 	</ul>
@@ -120,9 +128,9 @@ templ CommentInput(data EventPageData) {
 		<p>
 			if data.Finished && data.UserId != -1 {
 				<form class="form-control" hx-on::after-request="this.reset()">
-					<textarea class="textarea textarea-bordered h-24" placeholder="Write a comment here" name="comment" id="comment"></textarea>
+					<textarea class="textarea textarea-bordered h-24" placeholder="Váš komentář" name="comment" id="comment"></textarea>
 
-					<button class="btn btn-primary mt-4" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Odeslat</button>
+					<button class="btn btn-primary mt-4" type="submit" hx-target="#comments" hx-post={ "/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(int(data.UserId)) + "/comment" }>Přidat</button>
 
 				</form>
 			}
