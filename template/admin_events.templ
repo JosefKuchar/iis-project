@@ -154,7 +154,20 @@ templ AdminEventPageForm(data AdminEventPageData) {
             </button>
         </div>
         for _, participant := range data.Event.UsersToEvent {
-            <div>{ participant.User.Name }</div>
+            <div class="flex gap-4 items-center">
+                <div>{ participant.User.Name }</div>
+                <div>
+                    @AdminSelect("", "participantFee[]", "Kategorie vstupného") {
+                        for _, entranceFee := range data.Event.EntranceFees {
+                            <option value={ strconv.Itoa(int(entranceFee.ID)) }
+                                if participant.EntranceFeeID == entranceFee.ID {
+                                    selected
+                                }
+                            >{ entranceFee.Name }</option>
+                        }
+                    }
+                </div>
+            </div>
         }
         @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
         if data.New {
