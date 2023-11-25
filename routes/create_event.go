@@ -3,6 +3,8 @@ package routes
 import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/template"
+	"fmt"
+	"github.com/go-chi/jwtauth/v5"
 	"net/http"
 	"strconv"
 	"time"
@@ -32,6 +34,13 @@ func (rs resources) CreateEventRoutes() chi.Router {
 		from := r.FormValue("from")
 		to := r.FormValue("to")
 
+		// Get current user id
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		userID, err := strconv.ParseInt(fmt.Sprintf("%v", claims["ID"]), 10, 64)
+		if err != nil {
+			panic(err)
+		}
+
 		fromTimestamp, err := time.Parse("2006-01-02T15:04", from)
 		if err != nil {
 			panic(err)
@@ -47,6 +56,7 @@ func (rs resources) CreateEventRoutes() chi.Router {
 			Description: description,
 			Start:       fromTimestamp,
 			End:         toTimestamp,
+			OwnerID:     userID,
 		}
 
 		if capacity != "" {

@@ -21,7 +21,7 @@ templ AdminUsersPage(data AdminUsersPageData, appbar AppbarData) {
 
 templ AdminUsersPageTable(data AdminUsersPageData) {
     <form id="table" hx-swap="morph">
-        @AdminTableDecorator("Uživatelé", "/admin/users", "Nový uživatel", data.Query, data.TotalCount, data.Page) {
+        @AdminTableDecorator("Uživatelé", "/admin/users", "Nový uživatel", data.Query, data.TotalCount, data.Page, true) {
             <table class="table table-zebra">
                 <tr>
                     <th>ID</th>

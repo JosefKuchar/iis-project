@@ -4,9 +4,13 @@ import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
 	"JosefKuchar/iis-project/template"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/uptrace/bun"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -115,16 +119,37 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 
 		query := r.FormValue("query")
 
+		_, claims, err := jwtauth.FromContext(r.Context())
+		if err != nil {
+			return template.AdminEventsPageData{}, err
+		}
+
 		data := template.AdminEventsPageData{}
-		count, err := rs.db.
+		eventsQuery := rs.db.
 			NewSelect().
 			Model(&data.Events).
-			Where("name LIKE ?", "%"+query+"%").
-			WhereOr("id LIKE ?", "%"+query+"%").
+			WhereGroup("AND", func(q *bun.SelectQuery) *bun.SelectQuery {
+				return q.
+					Where("event.name like ?", "%"+query+"%").
+					WhereOr("event.id like ?", "%"+query+"%")
+			}).
 			Order("approved ASC").
 			Limit(settings.PAGE_SIZE).
-			Offset(offset).
-			ScanAndCount(r.Context())
+			Offset(offset)
+
+		data.UserRole = int(claims["RoleID"].(float64))
+
+		if data.UserRole != settings.ROLE_ADMIN && data.UserRole != settings.ROLE_MODERATOR {
+			userId, err := strconv.ParseInt(fmt.Sprintf("%v", claims["ID"]), 10, 64)
+			if err != nil {
+				return template.AdminEventsPageData{}, err
+			}
+
+			eventsQuery = eventsQuery.Where("owner_id = ?", userId)
+		}
+
+		count, err := eventsQuery.ScanAndCount(r.Context())
+
 		if err != nil {
 			return template.AdminEventsPageData{}, err
 		}
@@ -378,6 +403,15 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+
+		// Get user role
+		_, claims, err := jwtauth.FromContext(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		data.UserRole = int(claims["RoleID"].(float64))
 
 		err = template.AdminEventPage(data, appbar).Render(r.Context(), w)
 		if err != nil {

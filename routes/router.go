@@ -38,7 +38,7 @@ func (rs resources) Routes() chi.Router {
 		})
 		// Moderators and admins
 		r.Group(func(r chi.Router) {
-			r.Use(ModeratorAuthenticator)
+			r.Use(rs.ModeratorAuthenticator)
 			r.Mount("/admin/events", rs.AdminEventsRoutes())
 			r.Mount("/admin/categories", rs.AdminCategoriesRoutes())
 			r.Mount("/admin/comments", rs.AdminCommentsRoutes())
@@ -126,7 +126,7 @@ func UserAuthenticator(next http.Handler) http.Handler {
 	})
 }
 
-func ModeratorAuthenticator(next http.Handler) http.Handler {
+func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, claims, err := jwtauth.FromContext(r.Context())
 
@@ -138,6 +138,35 @@ func ModeratorAuthenticator(next http.Handler) http.Handler {
 		if token == nil || jwt.Validate(token) != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
+		}
+
+		// Make exception for admin events page
+		if r.URL.Path == "/admin/events" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Get user made event ids
+		var events []models.Event
+		rs.db.NewSelect().
+			Model(&events).
+			ColumnExpr("event.id").
+			Where("owner_id = ?", claims["ID"]).
+			Scan(r.Context())
+
+		prefixes := make([]string, len(events))
+		for i, event := range events {
+			prefixes[i] = "/admin/events/" + strconv.Itoa(int(event.ID))
+		}
+
+		if len(prefixes) > 0 {
+			// Make exception for own events
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(r.URL.Path, prefix) {
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
 		}
 
 		// Check if user is moderator or admin

@@ -4,7 +4,7 @@ import "strconv"
 import "time"
 import "JosefKuchar/iis-project/settings"
 
-templ AdminTableDecorator(name string, endpoint string, newItemName string, query string, totalCount int, page int) {
+templ AdminTableDecorator(name string, endpoint string, newItemName string, query string, totalCount int, page int, admin bool) {
     <div class="flex items-center justify-between mb-5">
         <h1 class="text-2xl">{ name }</h1>
         <div class="flex">
@@ -18,13 +18,15 @@ templ AdminTableDecorator(name string, endpoint string, newItemName string, quer
                 hx-post={endpoint}
                 hx-trigger="keyup changed delay:200ms"
             />
-            <a
-                href={ templ.URL(endpoint + "/new") }
-                hx-target="body"
-                hx-push-url="true"
-                hx-swap="outerHTML"
-                class="btn btn-primary"
-            ><i class="las la-plus"></i>{ newItemName }</a>
+            if admin {
+                <a
+                    href={ templ.URL(endpoint + "/new") }
+                    hx-target="body"
+                    hx-push-url="true"
+                    hx-swap="outerHTML"
+                    class="btn btn-primary"
+                ><i class="las la-plus"></i>{ newItemName }</a>
+            }
         </div>
     </div>
     { children... }
@@ -69,13 +71,16 @@ templ AdminTableDeleteButton(endpoint string, id int64) {
     </button>
 }
 
-templ AdminTableApproveButton(endpoint string, id int64, approved bool) {
+templ AdminTableApproveButton(endpoint string, id int64, approved bool, disabled bool) {
     <form>
         <input
             type="checkbox"
             class="toggle"
             if approved {
                 checked="checked"
+            }
+            if disabled {
+                disabled="disabled"
             }
             name="approved"
             hx-trigger="click consume delay:100ms"

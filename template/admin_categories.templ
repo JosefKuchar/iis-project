@@ -19,7 +19,7 @@ templ AdminCategoriesPage(data AdminCategoriesPageData, appbar AppbarData) {
 
 templ AdminCategoriesPageTable(data AdminCategoriesPageData, appbar AppbarData, standalone bool) {
     <form id="table" hx-swap="morph">
-        @AdminTableDecorator("Kategorie", "/admin/categories", "Nová kategorie", data.Query, data.TotalCount, data.Page) {
+        @AdminTableDecorator("Kategorie", "/admin/categories", "Nová kategorie", data.Query, data.TotalCount, data.Page, true) {
             <table class="table table-zebra">
                 <tr>
                     <th>ID</th>
@@ -51,7 +51,7 @@ templ AdminCategoriesPageTable(data AdminCategoriesPageData, appbar AppbarData, 
                             }
                         </td>
                         <td>
-                            @AdminTableApproveButton("/admin/categories", category.ID, category.Approved)
+                            @AdminTableApproveButton("/admin/categories", category.ID, category.Approved, false)
                         </td>
                         <td>
                             @AdminTableDeleteButton("/admin/categories", category.ID)

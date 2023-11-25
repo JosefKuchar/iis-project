@@ -50,18 +50,20 @@ templ AppbarStandalone(data AppbarData, swap bool) {
                         </a>
                     </li>
                 }
-                if data.User.RoleID == settings.ROLE_ADMIN || data.User.RoleID == settings.ROLE_MODERATOR {
+                if data.User.RoleID == settings.ROLE_ADMIN || data.User.RoleID == settings.ROLE_MODERATOR || data.User.RoleID == settings.ROLE_USER {
                     <li>
                         <a href="/admin/events">
                             <i class="las la-calendar"></i>
                             Události
-                            if data.NewEvents > 0 {
+                            if data.NewEvents > 0 && data.User.RoleID != settings.ROLE_USER {
                                 <span class="badge badge-sm badge-warning">
                                     {strconv.Itoa(data.NewEvents)}
                                 </span>
                             }
                         </a>
                     </li>
+                }
+                if data.User.RoleID == settings.ROLE_ADMIN || data.User.RoleID == settings.ROLE_MODERATOR {
                     <li>
                         <a href="/admin/locations">
                             <i class="las la-map"></i>
@@ -94,8 +96,11 @@ templ AppbarStandalone(data AppbarData, swap bool) {
             </ul>
         </div>
         <div class="navbar-end">
-            <ul class="menu menu-horizontal items-center">
+            <ul class="menu gap-2 menu-horizontal items-center">
             if data.User.ID > 0 {
+                <a class="btn btn-sm btn-neutral" href="/create-event">
+                    <i class="las la-plus text-lg font-bold"></i>
+                </a>
                 <li>
                     <a href={templ.URL("/admin/users/" + strconv.Itoa(int(data.User.ID)))}>
                         <i class="las la-user"></i>

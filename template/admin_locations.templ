@@ -19,7 +19,7 @@ templ AdminLocationsPage(data AdminLocationsPageData, appbar AppbarData) {
 
 templ AdminLocationsPageTable(data AdminLocationsPageData, appbar AppbarData, standalone bool) {
     <form id="table" hx-swap="morph">
-        @AdminTableDecorator("Místa", "/admin/locations", "Nové místo", data.Query, data.TotalCount, data.Page) {
+        @AdminTableDecorator("Místa", "/admin/locations", "Nové místo", data.Query, data.TotalCount, data.Page, true) {
             <table class="table table-zebra">
                 <tr>
                     <th>ID</th>
@@ -32,7 +32,7 @@ templ AdminLocationsPageTable(data AdminLocationsPageData, appbar AppbarData, st
                         <td>{ strconv.Itoa(int(location.ID)) }</td>
                         <td>{ location.Name }</td>
                         <td>
-                            @AdminTableApproveButton("/admin/locations", location.ID, location.Approved)
+                            @AdminTableApproveButton("/admin/locations", location.ID, location.Approved, false)
                         </td>
                         <td>
                             @AdminTableDeleteButton("/admin/locations", location.ID)

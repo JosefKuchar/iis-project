@@ -2,70 +2,73 @@ package template
 
 import "JosefKuchar/iis-project/models"
 import "strconv"
+import "JosefKuchar/iis-project/settings"
 
 type AdminEventsPageData struct {
 	Events []models.Event
     TotalCount int
     Page int
     Query string
+    UserRole int
 }
 
-
 templ AdminEventsPage(data AdminEventsPageData, appbar AppbarData) {
-    @Appbar("Události", appbar) {
-        @AdminEventsPageTable(data, appbar, false)
-    }
+	@Appbar("Události", appbar) {
+		@AdminEventsPageTable(data, appbar, false)
+	}
 }
 
 templ AdminEventsPageTable(data AdminEventsPageData, appbar AppbarData, standalone bool) {
-    <form id="table" hx-swap="morph">
-        @AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page) {
-            <table class="table table-zebra">
-                <tr>
-                    <th>ID</th>
-                    <th>Název</th>
-                    <th>Schváleno</th>
-                    <th>Akce</th>
-                </tr>
-                for _, event := range data.Events {
-                    @AdminTableRow("/admin/events", event.ID) {
-                        <td>{ strconv.Itoa(int(event.ID)) }</td>
-                        <td>{ event.Name }</td>
-                        <td>
-                            @AdminTableApproveButton("/admin/events", event.ID, event.Approved)
-                        </td>
-                        <td>
-                            @AdminTableDeleteButton("/admin/events", event.ID)
-                        </td>
-                    }
-                }
-            </table>
-        }
-    </form>
-    if standalone {
-        @AppbarStandalone(appbar, true)
-    }
+	<form id="table" hx-swap="morph">
+		@AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page, data.UserRole != settings.ROLE_USER) {
+			<table class="table table-zebra">
+				<tr>
+					<th>ID</th>
+					<th>Název</th>
+					<th>Schváleno</th>
+					<th>Akce</th>
+				</tr>
+				for _, event := range data.Events {
+					@AdminTableRow("/admin/events", event.ID) {
+						<td>{ strconv.Itoa(int(event.ID)) }</td>
+						<td>{ event.Name }</td>
+						<td>
+							@AdminTableApproveButton("/admin/events", event.ID, event.Approved, data.UserRole == settings.ROLE_USER)
+						</td>
+						<td>
+							@AdminTableDeleteButton("/admin/events", event.ID)
+						</td>
+					}
+				}
+			</table>
+		}
+	</form>
+	if standalone {
+		@AppbarStandalone(appbar, true)
+	}
 }
 
 type AdminEventPageData struct {
 	Event models.Event
     Errors map[string]string
     New bool
+    UserRole int
 }
 
 templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
-    @Appbar("Detail událost", appbar) {
-        if data.New {
-            @AdminDetailHeader() {
-                Nová událost
-            }
-        } else {
-            @AdminDetailHeader() {
-                Událost { data.Event.Name }
-            }
-        }
-        @AdminEventPageForm(data)
-        <script>
+	@Appbar("Detail událost", appbar) {
+		if data.New {
+			@AdminDetailHeader() {
+				Nová událost
+			}
+		} else {
+			@AdminDetailHeader() {
+				Událost 
+				{ data.Event.Name }
+			}
+		}
+		@AdminEventPageForm(data)
+		<script>
             $(document).ready(function() {
                 $('#location_id').select2({
                     ajax: {
@@ -88,98 +91,103 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
                 });
             });
         </script>
-    }
+	}
 }
 
 templ AdminEventPageForm(data AdminEventPageData) {
-    <form
-        hx-trigger="keyup delay:300ms, change from:#approved"
-        hx-swap="morph"
-        hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form" }
-        id="event-detail-form"
-    >
-        @AdminNewField(data.New)
-        @AdminTextField(data.Event.Name, data.Errors["Name"], "name", "Název *")
-        @AdminSelectMulti(data.Errors["Categories"], "categories", "Kategorie") {
-            for _, category := range data.Event.Categories {
-                <option value={ strconv.Itoa(int(category.ID)) } selected>{ category.Name }</option>
-            }
-        }
-        @AdminSelect(data.Errors["Location"], "location_id", "Místo *") {
-            if data.Event.Location != nil {
-                <option value={ strconv.Itoa(int(data.Event.Location.ID)) } selected>{ data.Event.Location.Name }</option>
-            }
-        }
-        @AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
-        @AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
-        @AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita", "Osob")
-        @AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg">Kategorie vstupného</h2>
-            <button
-                class="btn"
-                hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/add-fee" }
-                hx-target="#event-detail-form"
-                hx-swap="morph"
-            >
-                <i class="las la-plus"></i>
-                Nová kategorie vstupného
-            </button>
-        </div>
-        for i, entranceFee := range data.Event.EntranceFees {
-            <input type="hidden" name="entranceFeeID[]" value={ strconv.Itoa(int(entranceFee.ID)) } />
-            <div class="flex gap-4 items-center">
-                <div class="grow">
-                    @AdminTextField(entranceFee.Name, "", "entranceFeeName[]", "Název")
-                </div>
-                <div class="grow">
-                    @AdminNumberField(entranceFee.Price, "", "entranceFeePrice[]", "Cena", "Kč")
-                </div>
-                <button
-                    class="btn btn-md btn-outline btn-sm tooltip mb-1"
-                    data-tip="Smazat"
-                    hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/delete-fee/" + strconv.Itoa(i) }
-                    hx-target="#event-detail-form"
-                    hx-swap="morph"
-                >
-                    <i class="las la-trash text-xl"></i>
-                </button>
-            </div>
-        }
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg">Účastníci</h2>
-            <button class="btn">
-                <i class="las la-plus"></i>
-                Nový účastník
-            </button>
-        </div>
-        for _, participant := range data.Event.UsersToEvent {
-            <div class="flex gap-4 items-center">
-                <div>{ participant.User.Name }</div>
-                <div>
-                    @AdminSelect("", "participantFee[]", "Kategorie vstupného") {
-                        for _, entranceFee := range data.Event.EntranceFees {
-                            <option value={ strconv.Itoa(int(entranceFee.ID)) }
-                                if participant.EntranceFeeID == entranceFee.ID {
-                                    selected
-                                }
-                            >{ entranceFee.Name }</option>
-                        }
-                    }
-                </div>
-            </div>
-        }
-        @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
-        if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
-            <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
-        } else {
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
-            <button
-                class="btn"
-                hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
-                hx-confirm="Opravdu chcete smazat událost?"
-            >Smazat</button>
-        }
-    </form>
+	<form
+ 		hx-trigger="keyup delay:300ms, change from:#approved"
+ 		hx-swap="morph"
+ 		hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form" }
+ 		id="event-detail-form"
+	>
+		@AdminNewField(data.New)
+		@AdminTextField(data.Event.Name, data.Errors["Name"], "name", "Název *")
+		@AdminSelectMulti(data.Errors["Categories"], "categories", "Kategorie") {
+			for _, category := range data.Event.Categories {
+				<option value={ strconv.Itoa(int(category.ID)) } selected>{ category.Name }</option>
+			}
+		}
+		@AdminSelect(data.Errors["Location"], "location_id", "Místo *") {
+			if data.Event.Location != nil {
+				<option value={ strconv.Itoa(int(data.Event.Location.ID)) } selected>{ data.Event.Location.Name }</option>
+			}
+		}
+		@AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
+		@AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
+		@AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita", "Osob")
+		@AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
+		<div class="flex items-center justify-between">
+			<h2 class="text-lg">Kategorie vstupného</h2>
+			<button
+ 				class="btn"
+ 				hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/add-fee" }
+ 				hx-target="#event-detail-form"
+ 				hx-swap="morph"
+			>
+				<i class="las la-plus"></i>
+				Nová kategorie vstupného
+			</button>
+		</div>
+		for i, entranceFee := range data.Event.EntranceFees {
+			<input type="hidden" name="entranceFeeID[]" value={ strconv.Itoa(int(entranceFee.ID)) }/>
+			<div class="flex gap-4 items-center">
+				<div class="grow">
+					@AdminTextField(entranceFee.Name, "", "entranceFeeName[]", "Název")
+				</div>
+				<div class="grow">
+					@AdminNumberField(entranceFee.Price, "", "entranceFeePrice[]", "Cena", "Kč")
+				</div>
+				<button
+ 					class="btn btn-md btn-outline btn-sm tooltip mb-1"
+ 					data-tip="Smazat"
+ 					hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form/delete-fee/" + strconv.Itoa(i) }
+ 					hx-target="#event-detail-form"
+ 					hx-swap="morph"
+				>
+					<i class="las la-trash text-xl"></i>
+				</button>
+			</div>
+		}
+		if data.UserRole != settings.ROLE_USER {
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg">Účastníci</h2>
+				h2>
+				<button class="btn">
+					<i class="las la-plus"></i>
+					Nový účastník
+				</button>
+			</div>
+			for _, participant := range data.Event.UsersToEvent {
+				<div class="flex gap-4 items-center">
+					<div>{ participant.User.Name }</div>
+					<div>
+						@AdminSelect("", "participantFee[]", "Kategorie vstupného") {
+							for _, entranceFee := range data.Event.EntranceFees {
+								<option
+ 									value={ strconv.Itoa(int(entranceFee.ID)) }
+ 									if participant.EntranceFeeID == entranceFee.ID {
+										selected
+									}
+								>{ entranceFee.Name }</option>
+							}
+						}
+					</div>
+				</div>
+			}
+		@AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
+		}
+		if data.New {
+			<button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
+			<a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+		} else {
+			<button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
+			<button
+ 				class="btn"
+ 				hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
+ 				hx-confirm="Opravdu chcete smazat událost?"
+			>Smazat</button>
+		}
+	</form>
 }
+

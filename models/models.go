@@ -85,6 +85,8 @@ type Event struct {
 	Categories   []Category    `bun:"m2m:category_to_event,join:Event=Category"`
 	UsersToEvent []UserToEvent `bun:"rel:has-many"`
 	Approved     bool          `bun:",notnull"`
+	OwnerID      int64         `bun:",notnull"`
+	Owner        *User         `bun:"rel:belongs-to"`
 }
 
 type EntranceFee struct {
