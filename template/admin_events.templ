@@ -162,44 +162,66 @@ templ AdminEventPageForm(data AdminEventPageData) {
 			</div>
 		}
 		if data.UserRole != settings.ROLE_USER {
-			<div class="flex items-center justify-between">
-				<h2 class="text-lg">Účastníci</h2>
-				h2>
-				<button class="btn">
-					<i class="las la-plus"></i>
-					Nový účastník
-				</button>
-			</div>
-			for _, participant := range data.Event.UsersToEvent {
-				<div class="flex gap-4 items-center">
-					<div>{ participant.User.Name }</div>
-					<div>
-						@AdminSelect("", "participantFee[]", "Kategorie vstupného") {
-							for _, entranceFee := range data.Event.EntranceFees {
-								<option
- 									value={ strconv.Itoa(int(entranceFee.ID)) }
- 									if participant.EntranceFeeID == entranceFee.ID {
-										selected
-									}
-								>{ entranceFee.Name }</option>
-							}
-						}
-					</div>
-				</div>
-			}
-		@AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
+            <div class="my-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg">Účastníci</h2>
+                </div>
+                <div class="divide-y flex flex-col divide-base-200 border-t border-b border-base-200" id="event_users">
+                    @AdminEventUsers(data.Event.UsersToEvent, data.Event.ID)
+                </div>
+            </div>
 		}
-		if data.New {
-			<button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
-			<a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
-		} else {
-			<button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
-			<button
- 				class="btn"
- 				hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
- 				hx-confirm="Opravdu chcete smazat událost?"
-			>Smazat</button>
-		}
+        <div class="flex items-center justify-between mt-10">
+		    @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
+            <div>
+                if data.New {
+                    <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+                    <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
+                } else {
+                    <button
+                        class="btn"
+                        hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
+                        hx-confirm="Opravdu chcete smazat událost?"
+                    >Smazat</button>
+                    <button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
+                }
+            </div>
+        </div>
 	</form>
 }
 
+templ AdminEventUsers(data []models.UserToEvent, eventId int64) {
+for _, participant := range data {
+    <div class="flex gap-4 items-center justify-between py-2">
+        <div>
+            <div>{ participant.User.Name }</div>
+            <div class="text-xs">{ participant.EntranceFee.Name }</div>
+        </div>
+        <div class="form-control flex-row gap-6 items-center">
+            <label class="label flex items-center gap-2 cursor-pointer">
+                <span class="label-text">Zaplaceno</span>
+                <input
+                    type="checkbox"
+                    class="toggle"
+                    hx-post={ "/admin/events/" + strconv.Itoa(int(eventId)) + "/" + strconv.Itoa(int(participant.User.ID)) + "/paid" }
+                    hx-target="#event_users"
+                    hx-trigger="change"
+                    id={ strconv.Itoa(int(participant.User.ID)) }
+                    name={ strconv.Itoa(int(participant.User.ID)) }
+                    if participant.Approved {
+                        checked="checked"
+                    }
+                />
+            </label>
+            <button
+ 				class="btn btn-outline btn-sm tooltip mb-1"
+ 				data-tip="Smazat"
+                hx-post={ "/admin/events/" + strconv.Itoa(int(eventId)) + "/" + strconv.Itoa(int(participant.User.ID)) + "/remove" }
+ 				hx-target="#event_users"
+			>
+				<i class="las la-trash text-xl"></i>
+			</button>
+        </div>
+    </div>
+}
+}

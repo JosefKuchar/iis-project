@@ -195,7 +195,7 @@ templ AdminDatetime(value time.Time, validation string, name string, title strin
 
 templ AdminCheckbox(value bool, name string, title string) {
     <div class="form-control">
-        <label class="label cursor-pointer">
+        <label class="label flex items-center gap-2 cursor-pointer">
             <span class="label-text">{ title }</span>
             <input
                 type="checkbox"

@@ -42,9 +42,20 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data := template.EventsPageData{}
 
-		rs.db.NewSelect().Model(&data.Events).Relation("Location").Relation("Categories").Scan(r.Context())
-		rs.db.NewSelect().Model(&data.Categories).Scan(r.Context())
-		rs.db.NewSelect().Model(&data.Locations).Scan(r.Context())
+		err := rs.db.NewSelect().Model(&data.Events).Relation("Location").Relation("Categories").Scan(r.Context())
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		err = rs.db.NewSelect().Model(&data.Categories).Scan(r.Context())
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		err = rs.db.NewSelect().Model(&data.Locations).Scan(r.Context())
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		token, _, _ := jwtauth.FromContext(r.Context())
 		data.LoggedIn = token != nil
@@ -55,7 +66,10 @@ func (rs resources) EventRoutes() chi.Router {
 			return
 		}
 
-		template.EventsPage(data, appbar).Render(r.Context(), w)
+		err = template.EventsPage(data, appbar).Render(r.Context(), w)
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
 
 	r.Post("/filter", func(w http.ResponseWriter, r *http.Request) {

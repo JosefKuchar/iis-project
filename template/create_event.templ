@@ -26,7 +26,7 @@ templ CreateEvent(data CreateEventData) {
 					</div>
 					<div class="form-control">
 						<label class="label label-text">Kapacita (Vynechte pro neobmedzenou)</label>
-						<input class="textarea textarea-bordered text-sm" placeholder="Neobmedzená" name="capacity" id="capacity" type="number" />
+						<input min="1" class="textarea textarea-bordered text-sm" placeholder="Neobmedzená" name="capacity" id="capacity" type="number" />
 					</div>
 					<div class="form-control">
 						<label class="label label-text">Popis</label>
@@ -35,11 +35,11 @@ templ CreateEvent(data CreateEventData) {
 					<div class="grid grid-cols-2 gap-4">
 						<div class="form-control">
 							<label class="label label-text">Od</label>
-							<input type="datetime-local" required class="input input-bordered" name="from" id="from"/>
+							<input min="2000-01-01" onfocus="this.min=new Date().toISOString().split('T')[0]" type="datetime-local" required class="input input-bordered" name="from" id="from"/>
 						</div>
 						<div class="form-control">
 							<label class="label label-text">Do</label>
-							<input type="datetime-local" required class="input input-bordered" name="to" id="to"/>
+							<input min="2000-01-01" onfocus="this.min=new Date().toISOString().split('T')[0]" type="datetime-local" required class="input input-bordered" name="to" id="to"/>
 						</div>
 					</div>
 					<button class="btn btn-primary">Pokračovat</button>
@@ -64,8 +64,7 @@ templ CreateEventLocation(data CreateEventLocationData) {
 			</div>
 			<div class="form-control">
 				<label for="location" class="label label-text">Vyberte lokalitu</label>
-				<select class="select select-bordered" name="location" id="location">
-					<option value="0">Vyberte lokalitu</option>
+				<select class="select select-bordered" name="location" id="location" required>
 					for _, location := range data.Locations {
 						<option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
 					}

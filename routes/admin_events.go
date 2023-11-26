@@ -408,6 +408,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			Relation("Location").
 			Relation("UsersToEvent").
 			Relation("UsersToEvent.User").
+			Relation("UsersToEvent.EntranceFee").
 			Relation("Owner").
 			Where("event.id = ?", chi.URLParam(r, "id")).
 			Scan(r.Context())
@@ -538,6 +539,92 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
+	})
+
+	r.Post("/{id}/{userId}/paid", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+		}
+		userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+		}
+
+		approved := r.FormValue(strconv.Itoa(userId)) == "on"
+
+		userToEvent := models.UserToEvent{
+			UserID:   int64(userId),
+			EventID:  int64(id),
+			Approved: approved,
+		}
+
+		_, err = rs.db.NewUpdate().
+			Model(&userToEvent).
+			Column("approved").
+			Where("user_id = ?", userId).
+			Where("event_id = ?", id).
+			Exec(r.Context())
+
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		// Get all usersToEvent
+		var usersToEvent []models.UserToEvent
+		err = rs.db.NewSelect().
+			Model(&usersToEvent).
+			Where("user_to_event.event_id = ?", id).
+			Relation("User").
+			Relation("EntranceFee").
+			Scan(r.Context())
+
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		template.AdminEventUsers(usersToEvent, int64(id)).Render(r.Context(), w)
+	})
+
+	r.Post("/{id}/{userId}/remove", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+		}
+
+		userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+		if err != nil {
+			http.Error(w, http.StatusText(404), 404)
+		}
+
+		_, err = rs.db.NewDelete().
+			Model(&models.UserToEvent{}).
+			Where("user_id = ?", userId).
+			Where("event_id = ?", id).
+			Exec(r.Context())
+
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		// Get all usersToEvent
+		var usersToEvent []models.UserToEvent
+		err = rs.db.NewSelect().
+			Model(&usersToEvent).
+			Where("user_to_event.event_id = ?", id).
+			Relation("User").
+			Relation("EntranceFee").
+			Scan(r.Context())
+
+		if err != nil {
+			http.Error(w, err.Error(), 404)
+			return
+		}
+
+		template.AdminEventUsers(usersToEvent, int64(id)).Render(r.Context(), w)
 	})
 
 	return r
