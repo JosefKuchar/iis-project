@@ -188,25 +188,17 @@ func (rs resources) EventRoutes() chi.Router {
 			Where("user_to_event.event_id = ?", id).
 			Count(r.Context())
 
-		if err != nil {
-			fmt.Println(err)
-		}
-
 		data.Full = userToEventCount >= int(data.Event.Capacity)
 
 		var userRating models.Rating
 
 		err = rs.db.NewSelect().Model(&userRating).Where("user_id = ? AND event_id = ?", data.UserId, id).Scan(r.Context())
 
-		fmt.Println(userRating)
-
 		if err != nil {
 			data.UserRating = 0
 		} else {
 			data.UserRating = userRating.Rating
 		}
-
-		fmt.Println(data.UserRating)
 
 		template.EventPage(data, appbar).Render(r.Context(), w)
 	})

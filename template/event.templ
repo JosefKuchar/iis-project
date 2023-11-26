@@ -22,7 +22,7 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
 		<div class="flex justify-between">
 			@CategoriesSection(data.Categories)
-			if data.UserId != -1 {
+			if data.UserId != -1 && data.Finished {
 				<form hx-post={"/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(data.UserId) + "/rate"} hx-trigger="change" hx-swap="none">
 					@RatingsSection(data.UserRating)
 				</form>
