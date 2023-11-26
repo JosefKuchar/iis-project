@@ -194,6 +194,20 @@ func (rs resources) EventRoutes() chi.Router {
 
 		data.Full = userToEventCount >= int(data.Event.Capacity)
 
+		var userRating models.Rating
+
+		err = rs.db.NewSelect().Model(&userRating).Where("user_id = ? AND event_id = ?", data.UserId, id).Scan(r.Context())
+
+		fmt.Println(userRating)
+
+		if err != nil {
+			data.UserRating = 0
+		} else {
+			data.UserRating = userRating.Rating
+		}
+
+		fmt.Println(data.UserRating)
+
 		template.EventPage(data, appbar).Render(r.Context(), w)
 	})
 
@@ -221,6 +235,23 @@ func (rs resources) EventRoutes() chi.Router {
 		}
 
 		template.Comments(comments, appbar).Render(r.Context(), w)
+	})
+
+	r.Post("/{id}/{userid}/rate", func(w http.ResponseWriter, r *http.Request) {
+		eventId, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		userId, _ := strconv.Atoi(chi.URLParam(r, "userid"))
+
+		var rating, _ = strconv.Atoi(r.FormValue("rating-9"))
+
+		rs.db.NewDelete().Model(&models.Rating{}).Where("user_id = ? AND event_id = ?", userId, eventId).Exec(r.Context())
+		if rating != 0 {
+			userRating := models.Rating{
+				UserID:  int64(userId),
+				EventID: int64(eventId),
+				Rating:  int64(rating),
+			}
+			rs.db.NewInsert().Model(&userRating).Exec(r.Context())
+		}
 	})
 
 	r.Get("/categories/select2", func(w http.ResponseWriter, r *http.Request) {

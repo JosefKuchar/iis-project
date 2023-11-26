@@ -4,6 +4,7 @@ import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/settings"
 	"strconv"
+	"fmt"
 )
 
 type EventPageData struct {
@@ -13,22 +14,18 @@ type EventPageData struct {
 	Finished bool
 	RegisteredFee *models.UserToEvent
 	Full bool
+	UserRating int64
 }
 
 templ EventPage(data EventPageData, appbar AppbarData) {
 	@Appbar("Detail události", appbar) {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
-		<div class="flex">
-			for _, categories := range data.Categories {
-				<div class="badge badge-primary m-2">
-					<div class="flex breadcrumbs">
-					<ul>
-						for _, category := range categories {
-							<li><a href="#" class="hover:underline">{ category.Name }</a></li>
-						}
-					</ul>
-					</div>
-				</div>
+		<div class="flex justify-between">
+			@CategoriesSection(data.Categories)
+			if data.UserId != -1 {
+				<form hx-post={"/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(data.UserId) + "/rate"} hx-trigger="change" hx-swap="none">
+					@RatingsSection(data.UserRating)
+				</form>
 			}
 		</div>
 		<div class="my-6">
@@ -38,9 +35,9 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 			</p>
 		</div>
 		if (!data.Finished) {
-		<div class="my-10" id="registerSection">
-			@RegisterSection(data.UserId, data.Finished, int(data.Event.ID), data.Event.EntranceFees, data.RegisteredFee, data.Full)
-		</div>
+			<div class="my-10" id="registerSection">
+				@RegisterSection(data.UserId, data.Finished, int(data.Event.ID), data.Event.EntranceFees, data.RegisteredFee, data.Full)
+			</div>
 		}
 		<div>
 			@CommentInput(data)
@@ -49,6 +46,35 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 			@Comments(data.Event.Comments, appbar)
 		</div>
 	}
+}
+
+templ RatingsSection(rating int64) {
+	<div class="rating">
+		<input type="radio" name="rating-9" class="rating-hidden" value={"0"} checked/>
+		for i := 1; i <= 5; i++ {
+			if rating >= int64(i) {
+				<input type="radio" name="rating-9" class="mask mask-star-2" value={fmt.Sprint(i)} checked/>
+			} else {
+				<input type="radio" name="rating-9" class="mask mask-star-2" value={fmt.Sprint(i)}/>
+			}
+		}
+	</div>
+}
+
+templ CategoriesSection(categoryHierarchy [][]models.Category) {
+	<div class="flex">
+		for _, categories := range categoryHierarchy {
+			<div class="badge badge-primary m-2">
+				<div class="flex breadcrumbs">
+				<ul>
+					for _, category := range categories {
+						<li><a href="#" class="hover:underline">{ category.Name }</a></li>
+					}
+				</ul>
+				</div>
+			</div>
+		}
+	</div>
 }
 
 templ RegisterSection(userId int, finished bool, eventId int, entranceFees []models.EntranceFee, registeredFee *models.UserToEvent, full bool) {

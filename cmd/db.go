@@ -125,7 +125,6 @@ func main() {
 			Rating:  int64(gofakeit.Number(1, 5)),
 			EventID: int64(gofakeit.Number(1, 10)),
 			UserID:  int64(gofakeit.Number(1, 10)),
-			Text:    gofakeit.LoremIpsumSentence(10),
 		}
 		db.NewInsert().Model(rating).Exec(ctx)
 	}

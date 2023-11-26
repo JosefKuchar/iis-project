@@ -117,7 +117,6 @@ type Rating struct {
 	EventID int64
 	Event   *Event `bun:"rel:belongs-to"`
 	UserID  int64
-	User    *User  `bun:"rel:belongs-to"`
-	Text    string `bun:",notnull"`
-	Rating  int64  `bun:",notnull"`
+	User    *User `bun:"rel:belongs-to"`
+	Rating  int64 `bun:",notnull"`
 }
