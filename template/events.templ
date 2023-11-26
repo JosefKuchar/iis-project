@@ -117,9 +117,15 @@ templ Events(events []models.Event) {
                     <h2 class="card-title">
                         <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }</span> { event.Name }
                     </h2>
-                    <div class="flex items-center">
-                        <i class="las la-map-marker-alt"></i>
-                        <div class="ml-1">{ event.Location.Name }</div>
+                    <div class="flex justify-between">
+                        <div class="flex">
+                            <i class="las la-map-marker-alt"></i>
+                            <div class="ml-1">{ event.Location.Name }</div>
+                        </div>
+                        <div class="flex">
+                            <div>{ event.Start.Format("2006-01-02")}</div>
+                            <i class="las la-calendar ml-1"></i>
+                        </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         @Categories(event.Categories)
