@@ -86,7 +86,7 @@ templ CategoriesSection(categoryHierarchy [][]models.Category) {
 				<div class="flex breadcrumbs">
 				<ul>
 					for _, category := range categories {
-						<li><a href="#" class="hover:underline">{ category.Name }</a></li>
+						<li><div>{ category.Name }</div></li>
 					}
 				</ul>
 				</div>
