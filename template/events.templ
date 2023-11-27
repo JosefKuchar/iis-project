@@ -123,7 +123,7 @@ templ AverageRating(rating float64, index int) {
 }
 
 templ Events(events []models.Event, ratings []float64) {
-    <div class="grid grid-cols-4 gap-10">
+    <div class="grid grid-cols-4 gap-6">
         for i, event := range events {
             <a href={ templ.URL("/events/" + strconv.Itoa(int(event.ID))) } class="card bg-base-200 hover:opacity-80 hover:cursor-pointer" >
                 <div class="card-body">
