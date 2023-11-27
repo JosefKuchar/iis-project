@@ -14,23 +14,6 @@ type EventsPageData struct {
     LoggedIn bool
 }
 
-templ SelectMulti(name string, title string) {
-    <div class="form-control" id={ name + "_form_control"} hx-preserve>
-        <label class="label">
-            <span class="label-text">{ title }</span>
-        </label>
-        <select
-            name={ name + "[]" }
-            id={ name }
-            multiple="multiple"
-        >
-            { children... }
-        </select>
-        <label class="label">
-        </label>
-    </div>
-}
-
 templ EventsPage(data EventsPageData, appbar AppbarData) {
     @Appbar("Události", appbar) {
         <h1 class="text-3xl text-center m-10">Události</h1>
@@ -52,9 +35,8 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                     </div>
                 </div>
                 <div class="form-control my-5">
-                    <label for="location" class="label label-text">V lokalitě</label>
-                    <select class="select select-bordered" name="location" id="location">
-                        <option value="0">Všechny lokality</option>
+                    <label class="label label-text">V lokalitě</label>
+                    <select name="location" id="location">
                         for _, location := range data.Locations {
                             <option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
                         }
@@ -96,6 +78,14 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                     allowClear: true,
                     placeholder: 'Všechny kategorie'
                 });
+                $('#location').select2({
+                    ajax: {
+                        url: '/events/locations/select2',
+                        dataType: 'json'
+                    },
+                    allowClear: true,
+                    placeholder: 'Všechny lokality'
+                });
             });
         </script>
     }
@@ -110,7 +100,7 @@ templ Categories(categories []models.Category) {
 templ AverageRating(rating float64, index int) {
 	<div class="rating rating-xs grow-0">
 		<input type="radio"
-            class="rating-hidden" 
+            class="rating-hidden hidden" 
             if int(rating) == 0 { 
                 checked="checked"
             }
@@ -136,17 +126,10 @@ templ Events(events []models.Event, ratings []float64) {
     <div class="grid grid-cols-4 gap-10">
         for i, event := range events {
             <a href={ templ.URL("/events/" + strconv.Itoa(int(event.ID))) } class="card bg-base-200 hover:opacity-80 hover:cursor-pointer" >
-                <figure>
-                    <img src={"https://picsum.photos/seed/" + strconv.Itoa(int(event.ID)) + "/500/200"} />
-                </figure>
                 <div class="card-body">
-                    <h2 class="card-title flex justify-between">
-                        <div class="flex">
-                            <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }&nbsp</span> { event.Name }
-                        </div>
-                        <div class="flex">
-                            @AverageRating(ratings[i], i)
-                        </div>
+                    @AverageRating(ratings[i], i)
+                    <h2 class="card-title text-2xl">
+                        { event.Name }
                     </h2>
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center">

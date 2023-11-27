@@ -109,7 +109,8 @@ func (rs resources) EventRoutes() chi.Router {
 			q = addTextSearch(q, slug)
 		}
 
-		if location != "0" {
+		fmt.Println(location)
+		if location != "" {
 			q = q.Where("location.id = ?", location)
 		}
 
@@ -314,6 +315,30 @@ func (rs resources) EventRoutes() chi.Router {
 			results.Results = append(results.Results, Select2Result{
 				ID:   category.ID,
 				Text: category.Name,
+			})
+		}
+
+		err = json.NewEncoder(w).Encode(results)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	})
+
+	r.Get("/locations/select2", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var locations []models.Location
+		err := rs.db.NewSelect().Model(&locations).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		var results Select2Results
+		for _, location := range locations {
+			results.Results = append(results.Results, Select2Result{
+				ID:   location.ID,
+				Text: location.Name,
 			})
 		}
 
