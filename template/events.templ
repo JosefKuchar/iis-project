@@ -41,9 +41,6 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                 <div class="form-control my-5">
                     <label class="label label-text">Obsahuje kategorie</label>
                     <select name="categories" id="categories" multiple="multiple">
-                        for _, category := range data.Categories {
-                            <option value={ strconv.Itoa(int(category.ID)) }>{ category.Name }</option>
-                        }
                     </select>
                 </div>
                 <div class="form-control w-full max-w-s my-5">

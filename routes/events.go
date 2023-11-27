@@ -55,7 +55,7 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data := template.EventsPageData{}
 
-		err := rs.db.NewSelect().Model(&data.Events).Where("event.approved = 1").Relation("Location").Relation("Categories").Relation("Ratings").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&data.Events).Where("event.approved = 1").Relation("Location").Relation("Categories").Relation("Ratings").Order("event.start ASC").Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -103,7 +103,7 @@ func (rs resources) EventRoutes() chi.Router {
 		location := r.FormValue("location")
 		selectedCategories := r.Form["categories"]
 
-		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Relation("Ratings")
+		q := rs.db.NewSelect().Model(&events).Where("event.approved = 1").Relation("Location").Relation("Categories").Relation("Ratings")
 
 		if slug != "" {
 			q = addTextSearch(q, slug)
@@ -148,7 +148,7 @@ func (rs resources) EventRoutes() chi.Router {
 			q = addCategoryFilter(q, ids)
 		}
 
-		q = q.Order("event.id ASC").Group("event.id")
+		q = q.Order("event.start ASC").Group("event.id")
 
 		q.Scan(r.Context())
 
@@ -303,7 +303,7 @@ func (rs resources) EventRoutes() chi.Router {
 		w.Header().Set("Content-Type", "application/json")
 
 		var categories []models.Category
-		err := rs.db.NewSelect().Model(&categories).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&categories).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Where("approved = 1").Scan(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -327,7 +327,7 @@ func (rs resources) EventRoutes() chi.Router {
 		w.Header().Set("Content-Type", "application/json")
 
 		var locations []models.Location
-		err := rs.db.NewSelect().Model(&locations).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&locations).Where("name LIKE ?", "%"+r.FormValue("q")+"%").Where("approved = 1").Scan(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
