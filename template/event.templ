@@ -104,7 +104,7 @@ templ CategoriesSection(categoryHierarchy [][]models.Category) {
 templ RegisterSection(userId int, finished bool, eventId int, entranceFees []models.EntranceFee, registeredFee *models.UserToEvent, full bool) {
 	if registeredFee != nil {
 		<div class="mb-1">Ste přihlásený na tenhle event:</div>
-		<div class="p-4 rounded-xl border border-base-300 flex justify-between items-center">
+		<div class="p-4 rounded-xl border border-border border-opacity-[15%] flex justify-between items-center">
 			<div class="space-y-1">
 				<div class="text-sm text-primary font-semibold">
 					{ registeredFee.EntranceFee.Name }
@@ -126,7 +126,7 @@ templ RegisterSection(userId int, finished bool, eventId int, entranceFees []mod
 		<div class="mb-1 text-xs uppercase font-bold">Vstupenky</div>
 		<div class="space-y-2">
 			for _, eventFee := range entranceFees {
-				<div class="p-4 rounded-xl border border-base-300 flex justify-between items-center">
+				<div class="p-4 rounded-xl border border-border border-opacity-[15%] flex justify-between items-center">
 					<div class="space-y-1">
 						<div class="text-sm text-primary font-semibold">
 							{ eventFee.Name }

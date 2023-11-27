@@ -229,7 +229,7 @@ func (rs resources) EventRoutes() chi.Router {
 			Where("user_to_event.event_id = ?", id).
 			Count(r.Context())
 
-		data.Full = userToEventCount >= int(data.Event.Capacity)
+		data.Full = userToEventCount >= int(data.Event.Capacity) && data.Event.Capacity != 0
 
 		var userRating models.Rating
 
@@ -420,7 +420,7 @@ func (rs resources) EventRoutes() chi.Router {
 			fmt.Println(err)
 		}
 
-		eventFull := userToEventCount >= int(event.Capacity)
+		eventFull := userToEventCount >= int(event.Capacity) && event.Capacity != 0
 
 		template.RegisterSection(userId, true, eventId, nil, &userToEvent, eventFull).Render(r.Context(), w)
 
