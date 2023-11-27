@@ -170,6 +170,7 @@ func (rs resources) EventRoutes() chi.Router {
 			Where("event.id = ?", id).
 			Relation("Location").
 			Relation("Categories").
+			Relation("UsersToEvent").
 			Relation("Comments").
 			Relation("Ratings").
 			Relation("Comments.User").
