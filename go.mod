@@ -3,11 +3,13 @@ module JosefKuchar/iis-project
 go 1.21.1
 
 require (
-	github.com/brianvoe/gofakeit/v6 v6.23.2
+	github.com/a-h/templ v0.2.364
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/jwtauth/v5 v5.1.1
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/joho/godotenv v1.5.1
+	github.com/lestrrat-go/jwx/v2 v2.0.11
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dbfixture v1.1.16
 	github.com/uptrace/bun/dialect/mysqldialect v1.1.16
@@ -15,23 +17,16 @@ require (
 )
 
 require (
-	github.com/a-h/templ v0.2.364 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
-	github.com/fatih/color v1.15.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
 	github.com/lestrrat-go/iter v1.0.2 // indirect
-	github.com/lestrrat-go/jwx/v2 v2.0.11 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
-	github.com/uptrace/bun/extra/bundebug v1.1.16 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
