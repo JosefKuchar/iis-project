@@ -15,6 +15,7 @@ type EventPageData struct {
 	RegisteredFee *models.UserToEvent
 	Full bool
 	UserRating int64
+	AverageRating float64
 }
 
 templ EventPage(data EventPageData, appbar AppbarData) {
@@ -22,10 +23,8 @@ templ EventPage(data EventPageData, appbar AppbarData) {
 		<h1 class="text-3xl text-center m-10">{ data.Event.Name }</h1>
 		<div class="flex justify-between">
 			@CategoriesSection(data.Categories)
-			if data.UserId != -1 && data.Finished {
-				<form hx-post={"/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(data.UserId) + "/rate"} hx-trigger="change" hx-swap="none">
-					@RatingsSection(data.UserRating)
-				</form>
+			if data.Finished {
+				@AverageRating(data.AverageRating, int(data.Event.ID))
 			}
 		</div>
 		<div class="my-6">
@@ -52,11 +51,9 @@ templ RatingsSection(rating int64) {
 	<div class="rating">
 		<input type="radio" name="rating-9" class="rating-hidden" value={"0"} checked/>
 		for i := 1; i <= 5; i++ {
-			if rating >= int64(i) {
-				<input type="radio" name="rating-9" class="mask mask-star-2" value={fmt.Sprint(i)} checked/>
-			} else {
-				<input type="radio" name="rating-9" class="mask mask-star-2" value={fmt.Sprint(i)}/>
-			}
+			<input type="radio" name="rating-9" class="mask mask-star-2" value={fmt.Sprint(i)} if rating >= int64(i) {
+				checked="checked"
+			}/>
 		}
 	</div>
 }
@@ -147,8 +144,21 @@ templ Comments(comments []models.Comment, appbar AppbarData) {
 
 templ CommentInput(data EventPageData) {
 		if data.Finished {
-			<div class="text-xs uppercase font-bold">
-				Komentáře
+			<div class="flex justify-between">
+				<div class="flex flex-col">
+					<div class="text-xs uppercase font-bold mb-5 ml-1"/>
+					<div class="text-xs uppercase font-bold">
+						Komentáře
+					</div>
+				</div>
+				<div class="flex flex-col text-right">
+					<div class="text-xs uppercase font-bold mb-5 ml-1">
+						Vaše hodnocení
+					</div>
+					<form hx-post={"/events/" + strconv.Itoa(int(data.Event.ID)) + "/" + strconv.Itoa(data.UserId) + "/rate"} hx-trigger="change" hx-swap="none">
+						@RatingsSection(data.UserRating)
+					</form>
+				</div>
 			</div>
 		}
 		<p>

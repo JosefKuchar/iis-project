@@ -16,6 +16,19 @@ import (
 	"github.com/uptrace/bun"
 )
 
+func calculateAverageRating(ratings []models.Rating) float64 {
+	var sum int64
+	for _, rating := range ratings {
+		sum += rating.Rating
+	}
+	var len = len(ratings)
+	if len == 0 {
+		return 0.0
+	} else {
+		return float64(sum) / float64(len)
+	}
+}
+
 func addTextSearch(q *bun.SelectQuery, text string) *bun.SelectQuery {
 
 	// TODO: maybe add full text for category filtering as well
@@ -42,7 +55,7 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data := template.EventsPageData{}
 
-		err := rs.db.NewSelect().Model(&data.Events).Where("event.approved = 1").Relation("Location").Relation("Categories").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&data.Events).Where("event.approved = 1").Relation("Location").Relation("Categories").Relation("Ratings").Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -66,6 +79,12 @@ func (rs resources) EventRoutes() chi.Router {
 			return
 		}
 
+		data.AverageRatings = make([]float64, len(data.Events))
+
+		for i, event := range data.Events {
+			data.AverageRatings[i] = calculateAverageRating(event.Ratings)
+		}
+
 		err = template.EventsPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			fmt.Println(err)
@@ -84,7 +103,7 @@ func (rs resources) EventRoutes() chi.Router {
 		location := r.FormValue("location")
 		selectedCategories := r.Form["categories"]
 
-		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories")
+		q := rs.db.NewSelect().Model(&events).Relation("Location").Relation("Categories").Relation("Ratings")
 
 		if slug != "" {
 			q = addTextSearch(q, slug)
@@ -133,7 +152,13 @@ func (rs resources) EventRoutes() chi.Router {
 
 		q.Scan(r.Context())
 
-		template.Events(events).Render(r.Context(), w)
+		var ratings = make([]float64, len(events))
+
+		for i, event := range events {
+			ratings[i] = calculateAverageRating(event.Ratings)
+		}
+
+		template.Events(events, ratings).Render(r.Context(), w)
 	})
 
 	r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -146,6 +171,7 @@ func (rs resources) EventRoutes() chi.Router {
 			Relation("Location").
 			Relation("Categories").
 			Relation("Comments").
+			Relation("Ratings").
 			Relation("Comments.User").
 			Relation("EntranceFees").
 			Scan(r.Context())
@@ -214,6 +240,10 @@ func (rs resources) EventRoutes() chi.Router {
 			data.UserRating = userRating.Rating
 		}
 
+		data.AverageRating = calculateAverageRating(data.Event.Ratings)
+
+		fmt.Println(data.AverageRating)
+
 		template.EventPage(data, appbar).Render(r.Context(), w)
 	})
 
@@ -258,6 +288,14 @@ func (rs resources) EventRoutes() chi.Router {
 			}
 			rs.db.NewInsert().Model(&userRating).Exec(r.Context())
 		}
+
+		var ratings []models.Rating
+		rs.db.NewSelect().Model(&ratings).Where("event_id = ?", eventId).Scan(r.Context())
+
+		var averageRating = calculateAverageRating(ratings)
+
+		template.AverageRating(averageRating, eventId).Render(r.Context(), w)
+
 	})
 
 	r.Get("/categories/select2", func(w http.ResponseWriter, r *http.Request) {

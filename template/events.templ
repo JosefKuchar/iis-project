@@ -10,6 +10,7 @@ type EventsPageData struct {
     Locations []models.Location
     SelectedCategories []models.Category
     Events []models.Event
+    AverageRatings []float64
     LoggedIn bool
 }
 
@@ -83,7 +84,7 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
             </form>
         </div>
         <div id="eventList">
-            @Events(data.Events)
+            @Events(data.Events, data.AverageRatings)
         </div>
         <script>
             $(document).ready(function() {
@@ -106,16 +107,46 @@ templ Categories(categories []models.Category) {
     }
 }
 
-templ Events(events []models.Event) {
+templ AverageRating(rating float64, index int) {
+	<div class="rating rating-xs grow-0">
+		<input type="radio"
+            class="rating-hidden" 
+            if int(rating) == 0 { 
+                checked="checked"
+            }
+            name={"rating - " + strconv.Itoa(index)}
+            id={"rating - " + strconv.Itoa(index)}
+        />
+		for i := 1; i <= 10; i++ {
+            <input type="radio" name={"rating - " + strconv.Itoa(index)} if i % 2 == 1 {
+                class="mask py-5 mask-star-2 mask-half-1 bg-secondary"
+            } else {
+                class="mask py-5 mask-star-2 mask-half-2 bg-secondary"
+            }
+            if int(rating * 2) == i {
+                checked="checked"
+            }
+            disabled="true"
+            />
+        }
+    </div>
+}
+
+templ Events(events []models.Event, ratings []float64) {
     <div class="grid grid-cols-4 gap-10">
-        for _, event := range events {
+        for i, event := range events {
             <a href={ templ.URL("/events/" + strconv.Itoa(int(event.ID))) } class="card bg-base-200 hover:opacity-80 hover:cursor-pointer" >
                 <figure>
                     <img src={"https://picsum.photos/seed/" + strconv.Itoa(int(event.ID)) + "/500/200"} />
                 </figure>
                 <div class="card-body">
-                    <h2 class="card-title">
-                        <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }</span> { event.Name }
+                    <h2 class="card-title flex justify-between">
+                        <div class="flex">
+                            <span class="text-xl text-secondary">#{ strconv.Itoa(int(event.ID)) }&nbsp</span> { event.Name }
+                        </div>
+                        <div class="flex">
+                            @AverageRating(ratings[i], i)
+                        </div>
                     </h2>
                     <div class="flex justify-between">
                         <div class="flex">
