@@ -115,7 +115,11 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
         }
         @AdminCheckbox(data.Category.Approved, "approved", "Schváleno")
         if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new">Vytvořit kategorii</button>
+            <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new"
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Vytvořit kategorii</button>
             <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }

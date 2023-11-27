@@ -18,9 +18,44 @@ import (
 func (rs resources) AdminEventsRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	validateForm := func(data *template.AdminEventPageData) {
+		data.Errors = make(map[string]string)
+
+		if data.Event.Name == "" {
+			data.Errors["Name"] = "Název nesmí být prázdný"
+		}
+
+		if data.Event.LocationID == 0 {
+			data.Errors["Location"] = "Musíte vybrat lokaci"
+		}
+
+		if data.Event.OwnerID == 0 {
+			data.Errors["Owner"] = "Musíte vybrat vlastníka"
+		}
+
+		if data.Event.Start.IsZero() {
+			data.Errors["Start"] = "Musíte vyplnit začátek"
+		}
+
+		if data.Event.End.IsZero() {
+			data.Errors["End"] = "Musíte vyplnit konec"
+		}
+
+		if data.Event.Start.After(data.Event.End) {
+			data.Errors["Start"] = "Začátek musí být před koncem"
+		}
+
+		if data.Event.Capacity < 0 {
+			data.Errors["Capacity"] = "Kapacita musí být nezáporné číslo"
+		}
+
+		if data.Event.Description == "" {
+			data.Errors["Description"] = "Popis nesmí být prázdný"
+		}
+	}
+
 	parseForm := func(r *http.Request) (template.AdminEventPageData, error) {
 		data := template.AdminEventPageData{}
-		data.Errors = make(map[string]string)
 
 		idString := chi.URLParam(r, "id")
 		if idString == "" {
@@ -116,39 +151,7 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		_, claims, _ := jwtauth.FromContext(r.Context())
 		data.UserRole = int(claims["RoleID"].(float64))
 
-		// Validation
-		if data.Event.Name == "" {
-			data.Errors["Name"] = "Název nesmí být prázdný"
-		}
-
-		if data.Event.LocationID == 0 {
-			data.Errors["Location"] = "Musíte vybrat lokaci"
-		}
-
-		if data.Event.OwnerID == 0 {
-			data.Errors["Owner"] = "Musíte vybrat vlastníka"
-		}
-
-		if data.Event.Start.IsZero() {
-			data.Errors["Start"] = "Musíte vyplnit začátek"
-		}
-
-		if data.Event.End.IsZero() {
-			data.Errors["End"] = "Musíte vyplnit konec"
-		}
-
-		if data.Event.Start.After(data.Event.End) {
-			data.Errors["Start"] = "Začátek musí být před koncem"
-		}
-
-		if data.Event.Capacity < 0 {
-			data.Errors["Capacity"] = "Kapacita musí být nezáporné číslo"
-		}
-
-		if data.Event.Description == "" {
-			data.Errors["Description"] = "Popis nesmí být prázdný"
-		}
-
+		validateForm(&data)
 		return data, nil
 	}
 
@@ -281,14 +284,10 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		data := template.AdminEventPageData{}
 		data.New = true
 		data.Event.Approved = true
+		validateForm(&data)
 		appbar, err := getAppbarData(&rs, r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		if len(data.Errors) > 0 {
-			http.Error(w, "Invalid form", 400)
 			return
 		}
 
@@ -404,6 +403,10 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 

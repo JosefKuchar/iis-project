@@ -82,7 +82,11 @@ templ AdminLocationPageForm(data AdminLocationPageData) {
         @AdminTextField(data.Location.City, data.Errors["City"], "city", "Město *")
         @AdminCheckbox(data.Location.Approved, "approved", "Schváleno")
         if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new">Vytvořit místo</button>
+            <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new"
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Vytvořit místo</button>
             <a href="/admin/locations" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }

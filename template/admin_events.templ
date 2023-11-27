@@ -176,7 +176,11 @@ templ AdminEventPageForm(data AdminEventPageData) {
             <div>
                 if data.New {
                     <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
-                    <button class="btn btn-primary" type="submit" hx-post="/admin/events/new">Vytvořit událost</button>
+                    <button class="btn btn-primary" type="submit" hx-post="/admin/events/new"
+						if len(data.Errors) != 0 {
+							disabled="disabled"
+						}
+					>Vytvořit událost</button>
                 } else {
                     <button
                         class="btn"

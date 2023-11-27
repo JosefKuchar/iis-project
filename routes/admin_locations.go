@@ -14,9 +14,28 @@ import (
 func (rs resources) AdminLocationsRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	validateForm := func(data *template.AdminLocationPageData) {
+		data.Errors = make(map[string]string)
+
+		if data.Location.Name == "" {
+			data.Errors["Name"] = "Název nesmí být prázdný"
+		}
+
+		if data.Location.Street == "" {
+			data.Errors["Street"] = "Ulice nesmí být prázdná"
+		}
+
+		if data.Location.Zip == "" {
+			data.Errors["Zip"] = "PSČ nesmí být prázdné"
+		}
+
+		if data.Location.City == "" {
+			data.Errors["City"] = "Město nesmí být prázdné"
+		}
+	}
+
 	parseForm := func(r *http.Request) (template.AdminLocationPageData, error) {
 		data := template.AdminLocationPageData{}
-		data.Errors = make(map[string]string)
 
 		idString := chi.URLParam(r, "id")
 		if idString == "" {
@@ -36,22 +55,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data.Location.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
-		if data.Location.Name == "" {
-			data.Errors["Name"] = "Název nesmí být prázdný"
-		}
-
-		if data.Location.Street == "" {
-			data.Errors["Street"] = "Ulice nesmí být prázdná"
-		}
-
-		if data.Location.Zip == "" {
-			data.Errors["Zip"] = "PSČ nesmí být prázdné"
-		}
-
-		if data.Location.City == "" {
-			data.Errors["City"] = "Město nesmí být prázdné"
-		}
-
+		validateForm(&data)
 		return data, nil
 	}
 
@@ -164,6 +168,7 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data := template.AdminLocationPageData{}
 		data.New = true
 		data.Location.Approved = true
+		validateForm(&data)
 		appbar, err := getAppbarData(&rs, r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)

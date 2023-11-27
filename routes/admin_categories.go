@@ -15,9 +15,16 @@ import (
 func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	validateForm := func(data *template.AdminCategoryPageData) {
+		data.Errors = make(map[string]string)
+
+		if data.Category.Name == "" {
+			data.Errors["Name"] = "Název nesmí být prázdný"
+		}
+	}
+
 	parseForm := func(r *http.Request) (template.AdminCategoryPageData, error) {
 		data := template.AdminCategoryPageData{}
-		data.Errors = make(map[string]string)
 
 		if r.FormValue("parent_id") != "" {
 			parentID, err := strconv.Atoi(r.FormValue("parent_id"))
@@ -42,10 +49,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data.Category.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
-		if data.Category.Name == "" {
-			data.Errors["Name"] = "Název nesmí být prázdný"
-		}
-
+		validateForm(&data)
 		return data, nil
 	}
 
@@ -170,6 +174,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data := template.AdminCategoryPageData{}
 		data.New = true
 		data.Category.Approved = true
+		validateForm(&data)
 		appbar, err := getAppbarData(&rs, r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
