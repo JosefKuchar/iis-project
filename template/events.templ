@@ -148,14 +148,14 @@ templ Events(events []models.Event, ratings []float64) {
                             @AverageRating(ratings[i], i)
                         </div>
                     </h2>
-                    <div class="flex justify-between">
-                        <div class="flex">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center">
                             <i class="las la-map-marker-alt"></i>
                             <div class="ml-1">{ event.Location.Name }</div>
                         </div>
-                        <div class="flex">
-                            <div>{ event.Start.Format("2006-01-02")}</div>
-                            <i class="las la-calendar ml-1"></i>
+                        <div class="flex items-center">
+                            <i class="las la-calendar"></i>
+                            <div class="ml-1">{ event.Start.Format("02.01.2006 15:04")}</div>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
