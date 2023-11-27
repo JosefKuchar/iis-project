@@ -42,7 +42,7 @@ func (rs resources) EventRoutes() chi.Router {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data := template.EventsPageData{}
 
-		err := rs.db.NewSelect().Model(&data.Events).Relation("Location").Relation("Categories").Scan(r.Context())
+		err := rs.db.NewSelect().Model(&data.Events).Where("event.approved = 1").Relation("Location").Relation("Categories").Scan(r.Context())
 		if err != nil {
 			fmt.Println(err)
 		}
