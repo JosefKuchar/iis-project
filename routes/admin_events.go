@@ -145,6 +145,9 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 				return data, err
 			}
 			data.Event.OwnerID = int64(owner)
+		} else {
+			_, claims, _ := jwtauth.FromContext(r.Context())
+			data.Event.OwnerID = int64(claims["ID"].(float64))
 		}
 
 		// Get user role
@@ -285,6 +288,9 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		data.New = true
 		data.Event.Approved = true
 		validateForm(&data)
+		// Get user role
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		data.UserRole = int(claims["RoleID"].(float64))
 		appbar, err := getAppbarData(&rs, r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)

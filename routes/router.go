@@ -145,6 +145,7 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 
 		// Make exception for admin events page
 		if r.URL.Path == "/admin/events" ||
+			r.URL.Path == "/admin/events/new" ||
 			r.URL.Path == "/admin/categories/select2" ||
 			r.URL.Path == "/admin/locations/select2" {
 			next.ServeHTTP(w, r)
@@ -163,6 +164,7 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 		for i, event := range events {
 			prefixes[i] = "/admin/events/" + strconv.Itoa(int(event.ID))
 		}
+		prefixes = append(prefixes, "/admin/events/0")
 
 		if len(prefixes) > 0 {
 			// Make exception for own events
