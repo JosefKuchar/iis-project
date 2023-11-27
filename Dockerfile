@@ -19,10 +19,7 @@ RUN npm run css-generate
 RUN go install github.com/a-h/templ/cmd/templ@latest
 
 # Generate html
-RUN ~/go/bin/templ
-
-# Seed the database
-RUN go run cmd/db.go
+RUN ${GOPATH}/bin/templ
 
 # Expose port
 EXPOSE 3000
