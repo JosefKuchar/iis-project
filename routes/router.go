@@ -32,11 +32,6 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/events", rs.EventRoutes())
 
 	r.Group(func(r chi.Router) {
-		// All logged in users
-		r.Group(func(r chi.Router) {
-			r.Use(UserAuthenticator)
-			r.Mount("/create-event", rs.CreateEventRoutes())
-		})
 		// Moderators and admins
 		r.Group(func(r chi.Router) {
 			r.Use(rs.ModeratorAuthenticator)
