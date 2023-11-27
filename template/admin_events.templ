@@ -166,7 +166,7 @@ templ AdminEventPageForm(data AdminEventPageData) {
 			</div>
 		}
 		if data.UserRole != settings.ROLE_USER {
-            <div class="my-6">
+            <div class="my-6" id="admin_event_users" hx-preserve>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg">Účastníci</h2>
                 </div>
@@ -218,6 +218,7 @@ for _, participant := range data {
                     hx-post={ "/admin/events/" + strconv.Itoa(int(eventId)) + "/" + strconv.Itoa(int(participant.User.ID)) + "/paid" }
                     hx-target="#event_users"
                     hx-trigger="change"
+					hx-swap="morph:innerHTML"
                     id={ strconv.Itoa(int(participant.User.ID)) }
                     name={ strconv.Itoa(int(participant.User.ID)) }
                     if participant.Approved {
@@ -230,6 +231,7 @@ for _, participant := range data {
  				data-tip="Smazat"
                 hx-post={ "/admin/events/" + strconv.Itoa(int(eventId)) + "/" + strconv.Itoa(int(participant.User.ID)) + "/remove" }
  				hx-target="#event_users"
+				hx-swap="morph:innerHTML"
 			>
 				<i class="las la-trash text-xl"></i>
 			</button>
