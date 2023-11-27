@@ -133,7 +133,7 @@ templ AdminEventPageForm(data AdminEventPageData) {
 		}
 		@AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
 		@AdminDatetime(data.Event.End, data.Errors["End"], "end", "Konec *")
-		@AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita", "Osob")
+		@AdminNumberField(data.Event.Capacity, data.Errors["Capacity"], "capacity", "Kapacita (prázdné pro neomezenou)", "Osob")
 		@AdminTextarea(data.Event.Description, data.Errors["Description"], "description", "Popis *")
 		<div class="flex items-center justify-between">
 			<h2 class="text-lg">Kategorie vstupného</h2>

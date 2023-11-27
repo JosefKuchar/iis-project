@@ -18,23 +18,6 @@
 - model: Event
 
 - model: Category
-  rows:
-    - name: Hudba
-      approved: true
-    - name: Koncert
-      parent_id: 1
-      approved: true
-    - name: Festival
-      parent_id: 1
-      approved: true
-    - name: Vzdělání
-      approved: true
-    - name: Přednáška
-      parent_id: 4
-      approved: true
-    - name: "Open air"
-      parent_id: 2
-      approved: true
 
 - model: Location
 
