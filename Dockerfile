@@ -25,4 +25,4 @@ RUN ${GOPATH}/bin/templ
 EXPOSE 3000
 
 # Run the app
-CMD go run cmd/main.go && go run main.go
+CMD ["go", "run", "main.go"]
