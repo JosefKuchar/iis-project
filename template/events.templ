@@ -17,7 +17,6 @@ type EventsPageData struct {
 templ EventsPage(data EventsPageData, appbar AppbarData) {
     @Appbar("Události", appbar) {
         <h1 class="text-3xl text-center m-10">Události</h1>
-        <div hx-get="/user" hx-trigger="load" class="my-5"></div>
         <div class="grid grid-cols-1">
             <form hx-target="#eventList" hx-post="/events/filter">
                 <div class="form-control my-5">
@@ -37,9 +36,6 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                 <div class="form-control my-5">
                     <label class="label label-text">V lokalitě</label>
                     <select name="location" id="location">
-                        for _, location := range data.Locations {
-                            <option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
-                        }
                     </select>
                 </div>
                 <div class="form-control my-5">
@@ -100,8 +96,8 @@ templ Categories(categories []models.Category) {
 templ AverageRating(rating float64, index int) {
 	<div class="rating rating-xs grow-0">
 		<input type="radio"
-            class="rating-hidden hidden" 
-            if int(rating) == 0 { 
+            class="rating-hidden hidden"
+            if int(rating) == 0 {
                 checked="checked"
             }
             name={"rating - " + strconv.Itoa(index)}
