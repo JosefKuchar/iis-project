@@ -37,19 +37,19 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data.New = r.FormValue("new") == "true"
 
 		if data.Location.Name == "" {
-			data.Errors["Name"] = "Name cannot be empty"
+			data.Errors["Name"] = "Název nesmí být prázdný"
 		}
 
 		if data.Location.Street == "" {
-			data.Errors["Street"] = "Street cannot be empty"
+			data.Errors["Street"] = "Ulice nesmí být prázdná"
 		}
 
 		if data.Location.Zip == "" {
-			data.Errors["Zip"] = "Zip cannot be empty"
+			data.Errors["Zip"] = "PSČ nesmí být prázdné"
 		}
 
 		if data.Location.City == "" {
-			data.Errors["City"] = "City cannot be empty"
+			data.Errors["City"] = "Město nesmí být prázdné"
 		}
 
 		return data, nil

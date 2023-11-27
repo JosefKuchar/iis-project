@@ -43,7 +43,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data.New = r.FormValue("new") == "true"
 
 		if data.Category.Name == "" {
-			data.Errors["Name"] = "Name cannot be empty"
+			data.Errors["Name"] = "Název nesmí být prázdný"
 		}
 
 		return data, nil

@@ -31,7 +31,7 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 		data.Comment.Text = r.FormValue("text")
 
 		if data.Comment.Text == "" {
-			data.Errors["Text"] = "Text cannot be empty"
+			data.Errors["Text"] = "Komentář nesmí být prázdný"
 		}
 
 		return data, nil

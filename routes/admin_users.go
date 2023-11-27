@@ -56,11 +56,15 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		}
 
 		if data.User.Email == "" {
-			data.Errors["Email"] = "Email cannot be empty"
+			data.Errors["Email"] = "Email nesmí být prázdný"
 		}
 
 		if data.User.Name == "" {
-			data.Errors["Name"] = "Name cannot be empty"
+			data.Errors["Name"] = "Jméno nesmí být prázdné"
+		}
+
+		if data.User.Password == "" && data.New {
+			data.Errors["Password"] = "Heslo nesmí být prázdné"
 		}
 
 		return data, nil

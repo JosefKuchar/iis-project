@@ -104,10 +104,6 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			})
 		}
 
-		if data.Event.Name == "" {
-			data.Errors["Name"] = "Name cannot be empty"
-		}
-
 		if r.FormValue("owner_id") != "" {
 			owner, err := strconv.Atoi(r.FormValue("owner_id"))
 			if err != nil {
@@ -119,6 +115,39 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		// Get user role
 		_, claims, _ := jwtauth.FromContext(r.Context())
 		data.UserRole = int(claims["RoleID"].(float64))
+
+		// Validation
+		if data.Event.Name == "" {
+			data.Errors["Name"] = "Název nesmí být prázdný"
+		}
+
+		if data.Event.LocationID == 0 {
+			data.Errors["Location"] = "Musíte vybrat lokaci"
+		}
+
+		if data.Event.OwnerID == 0 {
+			data.Errors["Owner"] = "Musíte vybrat vlastníka"
+		}
+
+		if data.Event.Start.IsZero() {
+			data.Errors["Start"] = "Musíte vyplnit začátek"
+		}
+
+		if data.Event.End.IsZero() {
+			data.Errors["End"] = "Musíte vyplnit konec"
+		}
+
+		if data.Event.Start.After(data.Event.End) {
+			data.Errors["Start"] = "Začátek musí být před koncem"
+		}
+
+		if data.Event.Capacity < 0 {
+			data.Errors["Capacity"] = "Kapacita musí být nezáporné číslo"
+		}
+
+		if data.Event.Description == "" {
+			data.Errors["Description"] = "Popis nesmí být prázdný"
+		}
 
 		return data, nil
 	}
