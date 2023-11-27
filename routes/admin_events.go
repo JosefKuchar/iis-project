@@ -71,13 +71,17 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 
 		data.Event.ID = int64(id)
 		data.Event.Name = r.FormValue("name")
+		fmt.Println(r.FormValue("capacity"))
 		if r.FormValue("capacity") != "" {
 			capacity, err := strconv.Atoi(r.FormValue("capacity"))
 			if err != nil {
 				return data, err
 			}
 			data.Event.Capacity = int64(capacity)
+		} else {
+			data.Event.Capacity = 0
 		}
+		fmt.Println(data.Event.Capacity)
 		if r.FormValue("start") != "" {
 			from, err := time.Parse("2006-01-02T15:04", r.FormValue("start"))
 			if err != nil {
@@ -419,7 +423,6 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 		_, err = rs.db.NewUpdate().
 			Model(&data.Event).
 			Where("id = ?", data.Event.ID).
-			OmitZero().
 			Exec(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
