@@ -1,175 +1,200 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>Projekt IIS</title>
-    <style type="text/css">
-      table {
-        border-collapse: collapse;
-      }
-      td,
-      th {
-        border: 1px solid black;
-        padding: 0.3em 0.5em;
-        text-align: left;
-      }
-      dt {
-        font-weight: bold;
-        margin-top: 0.5em;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>Projekt IIS</title>
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+    }
+
+    td,
+    th {
+      border: 1px solid black;
+      padding: 0.3em 0.5em;
+      text-align: left;
+    }
+
+    dt {
+      font-weight: bold;
+      margin-top: 0.5em;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu
      podle použitého editoru -->
 
-    <h1>Akce a události</h1>
-    <!-- Nahradte názvem svého zadání -->
+  <h1>Akce a události</h1>
+  <!-- Nahradte názvem svého zadání -->
 
-    <dl>
-      <dt>Autoři</dt>
-      <dd>
-        Josef Kuchař
-        <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
-        <a href="mailto:xkucha28@stud.fit.vutbr.cz"
-          >xkucha28@stud.fit.vutbr.cz</a
-        >
-        - Administrační rozhraní, přihlášení, registrace
-      </dd>
-      <dd>
-        Matej Sirovatka
-        <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
-        <a href="mailto:xsirov00@stud.fit.vutbr.cz"
-          >xsirov00@stud.fit.vutbr.cz</a
-        >
-        - Přehled událostí, detail událostí
-      </dd>
-      <dd>
-        Šimon Benčík
-        <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
-        <a href="mailto:xbenci01@stud.fit.vutbr.cz"
-          >xbenci01@stud.fit.vutbr.cz</a
-        >
-        - Tvoření nových událostí, detail událostí, nasazení na server
-      </dd>
-      <dt>URL aplikace</dt>
-      <dd>
-        <a href="https://iis.benciks.me/">https://iis.benciks.me/</a>
-      </dd>
-    </dl>
+  <dl>
+    <dt>Autoři</dt>
+    <dd>
+      Josef Kuchař
+      <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+      <a href="mailto:xkucha28@stud.fit.vutbr.cz">xkucha28@stud.fit.vutbr.cz</a>
+      - Administrační rozhraní, přihlášení, registrace
+    </dd>
+    <dd>
+      Matej Sirovatka
+      <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+      <a href="mailto:xsirov00@stud.fit.vutbr.cz">xsirov00@stud.fit.vutbr.cz</a>
+      - Přehled událostí, detail událostí
+    </dd>
+    <dd>
+      Šimon Benčík
+      <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+      <a href="mailto:xbenci01@stud.fit.vutbr.cz">xbenci01@stud.fit.vutbr.cz</a>
+      - Tvoření nových událostí, detail událostí, nasazení na server
+    </dd>
+    <dt>URL aplikace</dt>
+    <dd>
+      <a href="https://iis.benciks.me/">https://iis.benciks.me/</a>
+    </dd>
+  </dl>
 
-    <h2>Uživatelé systému pro testování</h2>
-    <table>
-      <tr>
-        <th>Login</th>
-        <th>Heslo</th>
-        <th>Role</th>
-      </tr>
-      <tr>
-        <td>admin@example.com</td>
-        <td>admin</td>
-        <td>Administrátor</td>
-      </tr>
-      <tr>
-        <td>moderator@example.com</td>
-        <td>moderator</td>
-        <td>Moderátor</td>
-      </tr>
-      <tr>
-        <td>franta@example.com</td>
-        <td>franta</td>
-        <td>Registrovaný uživatel</td>
-      </tr>
-    </table>
+  <h2>Uživatelé systému pro testování</h2>
+  <table>
+    <tr>
+      <th>Login</th>
+      <th>Heslo</th>
+      <th>Role</th>
+    </tr>
+    <tr>
+      <td>admin@example.com</td>
+      <td>admin</td>
+      <td>Administrátor</td>
+    </tr>
+    <tr>
+      <td>moderator@example.com</td>
+      <td>moderator</td>
+      <td>Moderátor</td>
+    </tr>
+    <tr>
+      <td>franta@example.com</td>
+      <td>franta</td>
+      <td>Registrovaný uživatel</td>
+    </tr>
+  </table>
 
-    <h3>Video</h3>
+  <h3>Video</h3>
 
-    <p>
-      <!-- TODO -->
-    </p>
+  <p>
+    <!-- TODO -->
+  </p>
 
-    <h2>Implementace</h2>
-    <p>
-      Backend aplikace je implementován v jazyce
-      <a href="https://go.dev/">Go</a>, routeru
-      <a href="https://github.com/go-chi/chi">Chi</a> s pomocí
-      <a href="https://bun.uptrace.dev/">Bun ORM</a>. Templating engine je
-      <a href="https://templ.guide">templ</a>. Jako databázi jsme zvolili
-      <a href="https://mariadb.com/">MariaDB</a>. Frontend jsme implementovali v
-      <a href="https://htmx.org/">HTMX</a>. Pro stylování jsme použili
-      <a href="https://tailwindcss.com/">Tailwind CSS</a> a
-      <a href="https://daisyui.com/">daisyUI</a>.
-    </p>
-    <p>
+  <h2>Implementace</h2>
+  <p>
+    Backend aplikace je implementován v jazyce
+    <a href="https://go.dev/">Go</a>, routeru
+    <a href="https://github.com/go-chi/chi">Chi</a> s pomocí
+    <a href="https://bun.uptrace.dev/">Bun ORM</a>. Templating engine je
+    <a href="https://templ.guide">templ</a>. Jako databázi jsme zvolili
+    <a href="https://mariadb.com/">MariaDB</a>. Frontend jsme implementovali v
+    <a href="https://htmx.org/">HTMX</a>. Pro stylování jsme použili
+    <a href="https://tailwindcss.com/">Tailwind CSS</a> a
+    <a href="https://daisyui.com/">daisyUI</a>.
+  </p>
+  <p>
+  <ul>
+    <li>
+      /cmd - Skript na náhodnou populaci databáze a soubor fixtures.yaml obsahujíci konzistentní data pro databázi.
+    </li>
+    <li>
+      /css - Styly
+    </li>
+    <li>
+      /models - Definice modelů databáze
+    </li>
+    <li>
+      /routes - Kontroléry aplikace
       <ul>
         <li>
-          /cmd - Skript na náhodnou populaci databáze a soubor fixtures.yaml obsahujíci konzistentní data pro databázi.
+          admin*.go - Kontroléry pro administrátorské rozhraní
         </li>
         <li>
-          /css - Styly
+          create_event - Kontrolér pro vytváření událostí
         </li>
         <li>
-          /models - Definice modelů databáze
+          events.go - Kontroléry pro zobrazení seznamu událostí a filtrovaní událostí
         </li>
         <li>
-          /routes - Kontroléry aplikace
-          <ul>
-            <li>
-              admin*.go - Kontroléry pro administrátorské rozhraní
-            </li>
-            <li>
-              create_event - Kontrolér pro vytváření událostí
-            </li>
-            <li>
-              events.go - Kontroléry pro zobrazení seznamu událostí a filtrovaní událostí
-            </li>
-            <li>
-              login.go, logout.go, register.go - kontroléry pro přihlášení, odhlášení a registraci uživatelů
-            </li>
-            <li>
-              router.go - Finální kompozice kontrolérů
-            </li>
-          </ul>
+          login.go, logout.go, register.go - kontroléry pro přihlášení, odhlášení a registraci uživatelů
         </li>
         <li>
-          /settings - Konfigurace aplikace
-        </li>
-        <li>
-          /static - Statické soubory (obrázky a podobně)
-        </li>
-        <li>
-          /templates - Templ šablony
-        </li>
-        <li>
-          /utils - Pomocné funkce
-        </li>
-        <li>
-          main.go - Vstupní bod aplikace
+          router.go - Finální kompozice kontrolérů
         </li>
       </ul>
-    </p>
+    </li>
+    <li>
+      /settings - Konfigurace aplikace
+    </li>
+    <li>
+      /static - Statické soubory (obrázky a podobně)
+    </li>
+    <li>
+      /templates - Templ šablony
+    </li>
+    <li>
+      /utils - Pomocné funkce
+    </li>
+    <li>
+      main.go - Vstupní bod aplikace
+    </li>
+  </ul>
+  </p>
 
-    <h3>Databáze</h3>
+  <h3>Databáze</h3>
 
-    <h2>Instalace</h2>
+  <h2>Instalace</h2>
 
-    <h3>Postup instalace na server</h3>
+  <h3>Postup instalace na server</h3>
+  <ol>
+    <li>Na serveru je nutné mít nainstalovaný Docker.</li>
+    <li>Z projektové složky deploy_example zkopírujeme obsah: <br>
+      <code>cp -r iis-project/deploy_example ~/server</code>
+      <ul>
+        <li>docker-compose.yml</li>
+        <li>caddy/
+          <ul>
+            <li>Caddyfile</li>
+          </ul>
+        </li>
+        <li>.env.example</li>
+        <li>iis-project</li>
+      </ul>
+    </li>
+    <li>Zkopírujeme obsah projektu do nově vytvořené složky: <br> <code>cp -r iis-project/ ~/server/iis-project</code>
+      <br>
+      (složku můžeme pojmenovat jinak, ale je nutné změnit build path kontejneru serveru)
+    </li>
+    <li>Vytvoříme soubor .env na základě .env.example a vyplníme: <br> <code>cp -r .env.example .env</code></li>
+    <li>V souboru caddy/Caddyfile nastavíme doménu, na které by měla být aplikace nasazena</li>
+    <li>Spustíme Caddy, aplikaci a databázi pomocí příkazu <br> <code>docker compose up -d</code></li>
+  </ol>
 
-    <h3>Softwarové požadavky</h3>
-    <ul>
-      <li>
-        Go >= go1.21.1
-      </li>
-      <li>
-        MariaDB >= 10.11
-      </li>
-      <li>
-        NodeJS >= 16
-      </li>
-    </ul>
-    <h3>Rozbalení, konfigurace, inicializace databáze</h3>
-    Inicializace databáze je provedena pomocí skriptu s názvem <b>db.sql</b> v kořenovém adresáři projektu.
-    <h2>Známé problémy</h2>
-    <p>Žádné problémy nejsou známy.</p>
-  </body>
+  <h3>Softwarové požadavky</h3>
+  <ul>
+    <li>
+      Go >= go1.21.1
+    </li>
+    <li>
+      MariaDB >= 10.11
+    </li>
+    <li>
+      NodeJS >= 16
+    </li>
+    <li>
+      Docker >= 24
+    </li>
+  </ul>
+  <h3>Rozbalení, konfigurace, inicializace databáze</h3>
+  Inicializace databáze je provedena pomocí skriptu s názvem <b>db.sql</b> v kořenovém adresáři projektu.
+  <h2>Známé problémy</h2>
+  <p>Žádné problémy nejsou známy.</p>
+</body>
+
 </html>

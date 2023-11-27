@@ -1,0 +1,7 @@
+{
+  email email@example.com
+}
+
+iis.benciks.me {
+  reverse_proxy server-server-1:3000
+}
