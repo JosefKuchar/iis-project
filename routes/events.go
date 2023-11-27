@@ -109,7 +109,6 @@ func (rs resources) EventRoutes() chi.Router {
 			q = addTextSearch(q, slug)
 		}
 
-		fmt.Println(location)
 		if location != "" {
 			q = q.Where("location.id = ?", location)
 		}
@@ -355,10 +354,20 @@ func (rs resources) EventRoutes() chi.Router {
 		action := chi.URLParam(r, "action")
 
 		if action == "register" {
+
+			var fee models.EntranceFee
+			rs.db.NewSelect().Model(&fee).Where("id = ?", entranceFeeId).Scan(r.Context())
+
+			var approved = false
+			if fee.Price == 0 {
+				approved = true
+			}
+
 			userToEvent := models.UserToEvent{
 				UserID:        int64(userId),
 				EventID:       int64(eventId),
 				EntranceFeeID: int64(entranceFeeId),
+				Approved:      approved,
 			}
 			rs.db.NewInsert().Model(&userToEvent).Exec(r.Context())
 		} else {
