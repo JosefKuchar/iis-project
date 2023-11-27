@@ -17,7 +17,7 @@ COPY . .
 RUN go install github.com/a-h/templ/cmd/templ@latest
 
 # Generate html
-RUN ${GOPATH}/bin/templ
+RUN ${GOPATH}/bin/templ generate
 
 # Install dependencies
 RUN npm install
