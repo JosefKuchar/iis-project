@@ -62,7 +62,6 @@ func (rs resources) Routes() chi.Router {
 var tokenAuth *jwtauth.JWTAuth
 
 func init() {
-	// TODO: change secret
 	// Generate token
 	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 }
