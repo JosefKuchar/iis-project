@@ -30,10 +30,8 @@ func calculateAverageRating(ratings []models.Rating) float64 {
 }
 
 func addTextSearch(q *bun.SelectQuery, text string) *bun.SelectQuery {
-
-	// TODO: maybe add full text for category filtering as well
-	q = q.WhereGroup("OR", func(q2 *bun.SelectQuery) *bun.SelectQuery {
-		return q2.Where("event.name LIKE ?", "%"+text+"%").WhereOr("location.name LIKE ?", "%"+text+"%").WhereOr("event.description LIKE ?", "%"+text+"%")
+	q = q.WhereGroup("AND", func(q2 *bun.SelectQuery) *bun.SelectQuery {
+		return q2.Where("event.name LIKE ?", "%"+text+"%")
 	})
 
 	return q
@@ -108,6 +106,8 @@ func (rs resources) EventRoutes() chi.Router {
 		if slug != "" {
 			q = addTextSearch(q, slug)
 		}
+
+		fmt.Println(q)
 
 		if location != "" {
 			q = q.Where("location.id = ?", location)
