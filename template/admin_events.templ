@@ -20,7 +20,7 @@ templ AdminEventsPage(data AdminEventsPageData, appbar AppbarData) {
 
 templ AdminEventsPageTable(data AdminEventsPageData, appbar AppbarData, standalone bool) {
 	<form id="table" hx-swap="morph">
-		@AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page, data.UserRole != settings.ROLE_USER) {
+		@AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page, true) {
 			<table class="table table-zebra">
 				<tr>
 					<th>ID</th>

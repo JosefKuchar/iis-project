@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 )
 
 func (rs resources) AdminLocationsRoutes() chi.Router {
@@ -201,7 +202,12 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		w.Header().Set("HX-Redirect", "/admin/locations")
+		_, claims, _ := jwtauth.FromContext(r.Context())
+		if int(claims["RoleID"].(float64)) == settings.ROLE_USER {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			w.Header().Set("HX-Redirect", "/admin/locations")
+		}
 	})
 
 	r.Post("/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -302,7 +308,13 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		err = template.AdminLocationPageForm(data).Render(r.Context(), w)
+		appbar, err := getAppbarData(&rs, r)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = template.AdminLocationPageForm(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}

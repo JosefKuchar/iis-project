@@ -165,6 +165,10 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 			prefixes[i] = "/admin/events/" + strconv.Itoa(int(event.ID))
 		}
 		prefixes = append(prefixes, "/admin/events/0")
+		prefixes = append(prefixes, "/admin/categories/new")
+		prefixes = append(prefixes, "/admin/locations/new")
+		prefixes = append(prefixes, "/admin/categories/0/form")
+		prefixes = append(prefixes, "/admin/locations/0/form")
 
 		if len(prefixes) > 0 {
 			// Make exception for own events
