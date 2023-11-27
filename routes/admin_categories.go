@@ -15,11 +15,34 @@ import (
 func (rs resources) AdminCategoriesRoutes() chi.Router {
 	r := chi.NewRouter()
 
-	validateForm := func(data *template.AdminCategoryPageData) {
+	validateForm := func(r *http.Request, data *template.AdminCategoryPageData) {
 		data.Errors = make(map[string]string)
 
 		if data.Category.Name == "" {
 			data.Errors["Name"] = "Název nesmí být prázdný"
+		}
+
+		if data.Category.ParentID == 0 {
+			return
+		}
+
+		var children []models.Category
+		rs.db.NewRaw(
+			`WITH RECURSIVE children as (
+				SELECT c.*, 0 AS depth FROM categories c WHERE c.id = ?
+				UNION ALL
+				SELECT c2.*, ch.depth + 1 FROM categories as c2, children as ch
+				WHERE c2.id = ch.parent_id
+			)
+			SELECT name, id, parent_id FROM children ORDER BY depth DESC
+		`, data.Category.ParentID).Scan(r.Context(), &children)
+
+		// Check if parent is not child of this category
+		for _, child := range children {
+			if child.ID == data.Category.ID {
+				data.Errors["ParentID"] = "Kategorie nemůže být potomkem sama sebe"
+				break
+			}
 		}
 	}
 
@@ -49,7 +72,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data.Category.Approved = r.FormValue("approved") == "on"
 		data.New = r.FormValue("new") == "true"
 
-		validateForm(&data)
+		validateForm(r, &data)
 		return data, nil
 	}
 
@@ -174,7 +197,7 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data := template.AdminCategoryPageData{}
 		data.New = true
 		data.Category.Approved = true
-		validateForm(&data)
+		validateForm(r, &data)
 		appbar, err := getAppbarData(&rs, r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
