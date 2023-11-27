@@ -167,6 +167,11 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			return
 		}
 
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		// Hash password
 		bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(data.User.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -188,6 +193,11 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 

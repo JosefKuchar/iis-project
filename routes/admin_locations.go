@@ -184,7 +184,11 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 			return
 		}
 
-		// TODO: Check errors
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		// Create new location
 		_, err = rs.db.NewInsert().Model(&data.Location).Exec(r.Context())
 		if err != nil {
@@ -199,6 +203,11 @@ func (rs resources) AdminLocationsRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 

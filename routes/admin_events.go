@@ -287,6 +287,11 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		err = template.AdminEventPage(data, appbar).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -367,7 +372,11 @@ func (rs resources) AdminEventsRoutes() chi.Router {
 			return
 		}
 
-		// TODO: Check errors
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		// Create new event and get its ID
 		_, err = rs.db.NewInsert().Model(&data.Event).Returning("id").Exec(r.Context())
 		if err != nil {

@@ -63,7 +63,7 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
 			}
 		} else {
 			@AdminDetailHeader() {
-				Událost 
+				Událost
 				{ data.Event.Name }
 			}
 		}
@@ -183,7 +183,11 @@ templ AdminEventPageForm(data AdminEventPageData) {
                         hx-delete={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
                         hx-confirm="Opravdu chcete smazat událost?"
                     >Smazat</button>
-                    <button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }>Uložit</button>
+                    <button class="btn btn-primary" type="submit" hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) }
+						if len(data.Errors) != 0 {
+							disabled="disabled"
+						}
+					>Uložit</button>
                 }
             </div>
         </div>

@@ -85,7 +85,11 @@ templ AdminLocationPageForm(data AdminLocationPageData) {
             <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new">Vytvořit místo</button>
             <a href="/admin/locations" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }>Uložit</button>
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Uložit</button>
             <button
                 class="btn"
                 hx-delete={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }

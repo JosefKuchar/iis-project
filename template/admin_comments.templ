@@ -107,7 +107,11 @@ templ AdminCommentPageForm(data AdminCommentPageData) {
     >
         @AdminTextarea(data.Comment.Text, data.Errors["Text"], "text", "Text *")
         <div class="flex gap-1">
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }>Uložit</button>
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Uložit</button>
             <button
                 class="btn"
                 hx-delete={ "/admin/comments/" + strconv.Itoa(int(data.Comment.ID)) }

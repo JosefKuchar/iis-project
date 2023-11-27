@@ -109,6 +109,11 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 			return
 		}
 
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		_, err = rs.db.NewUpdate().Model(&data.Comment).Column("text").Where("id = ?", data.Comment.ID).Exec(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)

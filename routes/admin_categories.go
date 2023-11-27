@@ -191,8 +191,11 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 			return
 		}
 
-		fmt.Println("asdfa")
-		// TODO: Check errors
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		_, err = rs.db.NewInsert().Model(&data.Category).Exec(r.Context())
 		if err != nil {
 			fmt.Println(err.Error())
@@ -207,6 +210,11 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 
