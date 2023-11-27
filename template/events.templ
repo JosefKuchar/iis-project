@@ -36,9 +36,6 @@ templ EventsPage(data EventsPageData, appbar AppbarData) {
                 <div class="form-control my-5">
                     <label class="label label-text">V lokalitě</label>
                     <select name="location" id="location">
-                        for _, location := range data.Locations {
-                            <option value={ strconv.Itoa(int(location.ID)) }>{ location.Name }</option>
-                        }
                     </select>
                 </div>
                 <div class="form-control my-5">
