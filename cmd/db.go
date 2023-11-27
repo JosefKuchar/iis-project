@@ -133,6 +133,7 @@ func main() {
 	// UserToEvent
 	db.NewRaw("ALTER TABLE `user_to_event` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE").Exec(ctx)
 	db.NewRaw("ALTER TABLE `user_to_event` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `user_to_event` ADD FOREIGN KEY (`entrance_fee_id`) REFERENCES `entrance_fees`(`id`) ON DELETE CASCADE").Exec(ctx)
 
 	// CategoryToEvent
 	db.NewRaw("ALTER TABLE `category_to_event` ADD FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE").Exec(ctx)
@@ -146,6 +147,7 @@ func main() {
 
 	// Event
 	db.NewRaw("ALTER TABLE `events` ADD FOREIGN KEY (`location_id`) REFERENCES `locations`(`id`) ON DELETE CASCADE").Exec(ctx)
+	db.NewRaw("ALTER TABLE `events` ADD FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON DELETE CASCADE").Exec(ctx)
 
 	// EntranceFee
 	db.NewRaw("ALTER TABLE `entrance_fees` ADD FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE").Exec(ctx)
