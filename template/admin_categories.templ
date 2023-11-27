@@ -93,7 +93,9 @@ templ AdminCategoryPage(data AdminCategoryPageData, appbar AppbarData) {
                     },
                     allowClear: true,
                     placeholder: 'Žádná'
-                });
+                }).on('select2:select', function (e) {
+                    htmx.trigger('#category-detail-form', 'keyup')
+                })
             });
         </script>
     }

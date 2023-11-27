@@ -211,16 +211,18 @@ templ AdminCheckbox(value bool, name string, title string) {
 }
 
 templ AdminSelect(validation string, name string, title string) {
-    <div class="form-control" id={ name + "_form_control"} hx-preserve>
+    <div class="form-control" id={ name + "_form_control"}>
         <label class="label">
             <span class="label-text">{ title }</span>
         </label>
-        <select
-            name={ name }
-            id={ name }
-        >
-            { children... }
-        </select>
+        <span hx-preserve id={ name + "_wrapper" } class="form-control">
+            <select
+                name={ name }
+                id={ name }
+            >
+                { children... }
+            </select>
+        </span>
         <label class="label">
         <div class="text-error">{ validation }&nbsp;</div>
         </label>
@@ -228,17 +230,19 @@ templ AdminSelect(validation string, name string, title string) {
 }
 
 templ AdminSelectMulti(validation string, name string, title string) {
-    <div class="form-control" id={ name + "_form_control"} hx-preserve>
+    <div class="form-control" id={ name + "_form_control"}>
         <label class="label">
             <span class="label-text">{ title }</span>
         </label>
-        <select
-            name={ name + "[]" }
-            id={ name }
-            multiple="multiple"
-        >
-            { children... }
-        </select>
+        <span hx-preserve id={ name + "_wrapper" } class="form-control">
+            <select
+                name={ name + "[]" }
+                id={ name }
+                multiple="multiple"
+            >
+                { children... }
+            </select>
+        </span>
         <label class="label">
         <div class="text-error">{ validation }&nbsp;</div>
         </label>
