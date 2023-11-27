@@ -21,11 +21,8 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 # Generate html
 RUN ~/go/bin/templ
 
-# Seed the database
-RUN go run cmd/db.go
-
 # Expose port
 EXPOSE 3000
 
 # Run the app
-CMD ["go", "run", "main.go"]
+CMD go run cmd/main.go && go run main.go

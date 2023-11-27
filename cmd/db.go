@@ -9,13 +9,19 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dbfixture"
 	"github.com/uptrace/bun/dialect/mysqldialect"
 )
 
 func main() {
-	sqldb, err := sql.Open("mysql", "root:@/iis")
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+	mysqldn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+	sqldb, err := sql.Open("mysql", mysqldn)
 	if err != nil {
 		panic(err)
 	}

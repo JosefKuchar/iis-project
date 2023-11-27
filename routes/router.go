@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
@@ -69,7 +71,13 @@ func init() {
 
 func Router() chi.Router {
 	// Connect to database
-	sqldb, err := sql.Open("mysql", "root:@/iis")
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+	mysqldn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+
+	sqldb, err := sql.Open("mysql", mysqldn)
 	if err != nil {
 		panic(err)
 	}
