@@ -55,6 +55,14 @@ func (rs resources) AdminCategoriesRoutes() chi.Router {
 				return data, err
 			}
 			data.Category.ParentID = int64(parentID)
+
+			// Get parent name
+			var parent models.Category
+			err = rs.db.NewSelect().Model(&parent).Where("id = ?", data.Category.ParentID).Scan(r.Context())
+			if err != nil {
+				return data, err
+			}
+			data.Category.Parent = &parent
 		}
 
 		idString := chi.URLParam(r, "id")

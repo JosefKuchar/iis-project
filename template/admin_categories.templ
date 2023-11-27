@@ -108,7 +108,7 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
     >
         @AdminNewField(data.New)
         @AdminTextField(data.Category.Name, data.Errors["Name"], "name", "Název *")
-        @AdminSelect(data.Errors["Parent"], "parent_id", "Rodičovská kategorie") {
+        @AdminSelect(data.Errors["ParentID"], "parent_id", "Rodičovská kategorie") {
             if !data.New && data.Category.ParentID > 0 {
                 <option value={ strconv.Itoa(int(data.Category.ParentID)) }>{ data.Category.Parent.Name }</option>
             }
