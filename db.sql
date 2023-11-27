@@ -30,7 +30,7 @@ CREATE TABLE `categories` (
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +39,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Hudba',NULL,1),(2,'Zábava',NULL,1);
+INSERT INTO `categories` VALUES (1,'Hudba',NULL,1),(2,'Zábava',NULL,1),(3,'Rap',1,1),(4,'Český rap',3,0);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,7 +66,7 @@ CREATE TABLE `category_to_event` (
 
 LOCK TABLES `category_to_event` WRITE;
 /*!40000 ALTER TABLE `category_to_event` DISABLE KEYS */;
-INSERT INTO `category_to_event` VALUES (1,1),(2,1);
+INSERT INTO `category_to_event` VALUES (1,1),(2,1),(2,2);
 /*!40000 ALTER TABLE `category_to_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -96,7 +96,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (1,1,3,'Bylo to *****');
+INSERT INTO `comments` VALUES (1,1,3,'Bylo to super');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -115,7 +115,7 @@ CREATE TABLE `entrance_fees` (
   PRIMARY KEY (`id`),
   KEY `event_id` (`event_id`),
   CONSTRAINT `entrance_fees_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,7 +124,7 @@ CREATE TABLE `entrance_fees` (
 
 LOCK TABLES `entrance_fees` WRITE;
 /*!40000 ALTER TABLE `entrance_fees` DISABLE KEYS */;
-INSERT INTO `entrance_fees` VALUES (1,1,0,'Basic'),(2,1,100,'VIP');
+INSERT INTO `entrance_fees` VALUES (1,1,0,'Basic'),(2,1,100,'VIP'),(3,2,0,'Vstup');
 /*!40000 ALTER TABLE `entrance_fees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,7 +150,7 @@ CREATE TABLE `events` (
   KEY `owner_id` (`owner_id`),
   CONSTRAINT `events_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE CASCADE,
   CONSTRAINT `events_ibfk_2` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,7 +159,7 @@ CREATE TABLE `events` (
 
 LOCK TABLES `events` WRITE;
 /*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (1,'Studentská párty',1,'Vítejte na nezapomenutelné studentské párty plné vzrušení, energie a nekonečné zábavy! Připravte se na noc plnou neuvěřitelných zážitků, která rozproudí krev v žilách a zanechá vám vzpomínky na celý studijní rok.\n\nTato studentská párty slibuje nekonečnou radost a nezapomenutelnou atmosféru. Nachystáme pro vás vše, co potřebujete k tomu, abyste si mohli užít noc plnou taneční hudby, oslnivých světel a spousty smíchu. Vstupte do světa, kde se setkáváte s novými lidmi, kde se uvolníte od studijních povinností a kde se můžete nechat unášet rytmem hudby a vášní pro život.\n\nNaše párty bude plná různorodých hudebních žánrů, od nejnovějších hitů po klasické pecky, takže každý si přijde na své. Chceme, aby naše párty byla místem, kde se spojíte se svými spolužáky, vytvoříte nová přátelství a prostě si užijete skvělou atmosféru. Připravte se na taneční soutěže, zábavné hry a možnost vyhrát skvělé ceny!\n\nNení třeba se obávat o něco - naše bezpečnostní opatření jsou na prvním místě. Zajistíme, abyste si mohli užít párty v bezpečném prostředí, kde se můžete naplno bavit bez starostí.\n\nTakže si vezměte své nejlepší taneční boty, připravte se na nejlepší studentskou párty roku a přijďte zažít noc, na kterou budete ještě dlouho vzpomínat! Těšíme se na vás na této explozi radosti a zábavy.','2023-10-30 20:00:00','2023-11-23 00:00:00',50,1,1);
+INSERT INTO `events` VALUES (1,'Studentská párty',1,'Vítejte na nezapomenutelné studentské párty plné vzrušení, energie a nekonečné zábavy! Připravte se na noc plnou neuvěřitelných zážitků, která rozproudí krev v žilách a zanechá vám vzpomínky na celý studijní rok.\n\nTato studentská párty slibuje nekonečnou radost a nezapomenutelnou atmosféru. Nachystáme pro vás vše, co potřebujete k tomu, abyste si mohli užít noc plnou taneční hudby, oslnivých světel a spousty smíchu. Vstupte do světa, kde se setkáváte s novými lidmi, kde se uvolníte od studijních povinností a kde se můžete nechat unášet rytmem hudby a vášní pro život.\n\nNaše párty bude plná různorodých hudebních žánrů, od nejnovějších hitů po klasické pecky, takže každý si přijde na své. Chceme, aby naše párty byla místem, kde se spojíte se svými spolužáky, vytvoříte nová přátelství a prostě si užijete skvělou atmosféru. Připravte se na taneční soutěže, zábavné hry a možnost vyhrát skvělé ceny!\n\nNení třeba se obávat o něco - naše bezpečnostní opatření jsou na prvním místě. Zajistíme, abyste si mohli užít párty v bezpečném prostředí, kde se můžete naplno bavit bez starostí.\n\nTakže si vezměte své nejlepší taneční boty, připravte se na nejlepší studentskou párty roku a přijďte zažít noc, na kterou budete ještě dlouho vzpomínat! Těšíme se na vás na této explozi radosti a zábavy.','2023-10-30 20:00:00','2023-11-23 00:00:00',50,1,1),(2,'Pub quiz',3,'Připojte se k nám na večer plný inteligence, zábavy a soutěže! Náš pub quiz je nejen skvělým způsobem, jak si vyzkoušet své znalosti, ale také příležitostí k relaxaci a smíchu s přáteli. Přichystali jsme pro vás pestrý mix otázek z různých oblastí - od vědy až po populární kulturu. Vytvořte si tým a soutěžte o skvělé ceny, zatímco si užíváte neformální atmosféru naší oblíbené hospody. Ať už jste guru ve znalostech nebo jen hledáte příjemný večer, naše pub quiz je pro vás skvělou volbou. Přijďte, zúčastněte se, a možná právě váš tým odnese vítězství a chvíli slávy!','2023-12-28 19:00:00','2023-12-28 20:00:00',0,1,1);
 /*!40000 ALTER TABLE `events` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -178,7 +178,7 @@ CREATE TABLE `locations` (
   `city` varchar(255) NOT NULL,
   `approved` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -187,7 +187,7 @@ CREATE TABLE `locations` (
 
 LOCK TABLES `locations` WRITE;
 /*!40000 ALTER TABLE `locations` DISABLE KEYS */;
-INSERT INTO `locations` VALUES (1,'Soníčko','Dašická 80','537 01','Chrudim 1',1);
+INSERT INTO `locations` VALUES (1,'Soníčko','Dašická 80','537 01','Chrudim 1',1),(2,'Kabinet múz','Sukova 49/4','602 00','Brno-město',1),(3,'Klub Alterna','48, Kounicova 506','602 00','Brno-Královo Pole',0);
 /*!40000 ALTER TABLE `locations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -272,7 +272,7 @@ CREATE TABLE `user_to_event` (
 
 LOCK TABLES `user_to_event` WRITE;
 /*!40000 ALTER TABLE `user_to_event` DISABLE KEYS */;
-INSERT INTO `user_to_event` VALUES (3,1,2,1);
+INSERT INTO `user_to_event` VALUES (3,1,2,1),(3,2,3,1);
 /*!40000 ALTER TABLE `user_to_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -318,4 +318,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-27 18:47:17
+-- Dump completed on 2023-11-27 19:25:18
