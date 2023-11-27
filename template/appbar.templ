@@ -93,14 +93,25 @@ templ AppbarStandalone(data AppbarData, swap bool) {
                         </a>
                     </li>
                 }
+                if data.User.RoleID == settings.ROLE_USER {
+                     <li>
+                        <a href="/admin/locations/new">
+                            <i class="las la-map"></i>
+                            Navrhnout nové místo
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/categories/new">
+                            <i class="las la-tags"></i>
+                            Navrhnout novou kategorii
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
         <div class="navbar-end">
             <ul class="menu gap-2 menu-horizontal items-center">
             if data.User.ID > 0 {
-                <a class="btn btn-sm btn-neutral" href="/create-event">
-                    <i class="las la-plus text-lg font-bold"></i>
-                </a>
                 <li>
                     <a href={templ.URL("/admin/users/" + strconv.Itoa(int(data.User.ID)))}>
                         <i class="las la-user"></i>

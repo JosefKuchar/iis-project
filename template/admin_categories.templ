@@ -2,6 +2,7 @@ package template
 
 import "JosefKuchar/iis-project/models"
 import "strconv"
+import "JosefKuchar/iis-project/settings"
 
 type AdminCategoriesPageData struct {
 	Categories []models.Category
@@ -83,7 +84,7 @@ templ AdminCategoryPage(data AdminCategoryPageData, appbar AppbarData) {
                 Kategorie { data.Category.Name }
             }
         }
-        @AdminCategoryPageForm(data)
+        @AdminCategoryPageForm(data, appbar)
         <script>
             $(document).ready(function() {
                 $('#parent_id').select2({
@@ -101,7 +102,7 @@ templ AdminCategoryPage(data AdminCategoryPageData, appbar AppbarData) {
     }
 }
 
-templ AdminCategoryPageForm(data AdminCategoryPageData) {
+templ AdminCategoryPageForm(data AdminCategoryPageData, appbar AppbarData) {
     <form
         hx-trigger="keyup delay:300ms, change from:#approved"
         hx-swap="morph"
@@ -115,14 +116,26 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
                 <option value={ strconv.Itoa(int(data.Category.ParentID)) }>{ data.Category.Parent.Name }</option>
             }
         }
-        @AdminCheckbox(data.Category.Approved, "approved", "Schváleno")
+        if appbar.User.RoleID != settings.ROLE_USER {
+            @AdminCheckbox(data.Category.Approved, "approved", "Schváleno")
+        }
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new"
                 if len(data.Errors) != 0 {
                     disabled="disabled"
                 }
-            >Vytvořit kategorii</button>
-            <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+            >
+                if appbar.User.RoleID != settings.ROLE_USER {
+                    Vytvořit kategorii
+                } else {
+                    Navrhnout kategorii
+                }
+            </button>
+            if appbar.User.RoleID != settings.ROLE_USER {
+                <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+            } else {
+                <a href="/" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
+            }
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }
                 if len(data.Errors) != 0 {

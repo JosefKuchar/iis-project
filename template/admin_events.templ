@@ -20,7 +20,7 @@ templ AdminEventsPage(data AdminEventsPageData, appbar AppbarData) {
 
 templ AdminEventsPageTable(data AdminEventsPageData, appbar AppbarData, standalone bool) {
 	<form id="table" hx-swap="morph">
-		@AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page, data.UserRole != settings.ROLE_USER) {
+		@AdminTableDecorator("Události", "/admin/events", "Nová událost", data.Query, data.TotalCount, data.Page, true) {
 			<table class="table table-zebra">
 				<tr>
 					<th>ID</th>
@@ -124,9 +124,11 @@ templ AdminEventPageForm(data AdminEventPageData) {
 				<option value={ strconv.Itoa(int(data.Event.Location.ID)) } selected>{ data.Event.Location.Name }</option>
 			}
 		}
-        @AdminSelect(data.Errors["Owner"], "owner_id", "Organizátor *") {
-			if data.Event.Owner != nil {
-				<option value={ strconv.Itoa(int(data.Event.Owner.ID)) } selected>{ data.Event.Owner.Name }</option>
+		if data.UserRole != settings.ROLE_USER {
+			@AdminSelect(data.Errors["Owner"], "owner_id", "Organizátor *") {
+				if data.Event.Owner != nil {
+					<option value={ strconv.Itoa(int(data.Event.Owner.ID)) } selected>{ data.Event.Owner.Name }</option>
+				}
 			}
 		}
 		@AdminDatetime(data.Event.Start, data.Errors["Start"], "start", "Začátek *")
@@ -165,7 +167,7 @@ templ AdminEventPageForm(data AdminEventPageData) {
 				</button>
 			</div>
 		}
-		if data.UserRole != settings.ROLE_USER {
+		if !data.New {
             <div class="my-6" id="admin_event_users" hx-preserve>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg">Účastníci</h2>
@@ -176,7 +178,11 @@ templ AdminEventPageForm(data AdminEventPageData) {
             </div>
 		}
         <div class="flex items-center justify-between mt-10">
-		    @AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
+			if data.UserRole != settings.ROLE_USER {
+		 		@AdminCheckbox(data.Event.Approved, "approved", "Schváleno")
+			} else {
+				<div></div>
+			}
             <div>
                 if data.New {
                     <a href="/admin/events" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>

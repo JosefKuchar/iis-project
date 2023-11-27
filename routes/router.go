@@ -32,11 +32,6 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/events", rs.EventRoutes())
 
 	r.Group(func(r chi.Router) {
-		// All logged in users
-		r.Group(func(r chi.Router) {
-			r.Use(UserAuthenticator)
-			r.Mount("/create-event", rs.CreateEventRoutes())
-		})
 		// Moderators and admins
 		r.Group(func(r chi.Router) {
 			r.Use(rs.ModeratorAuthenticator)
@@ -145,6 +140,7 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 
 		// Make exception for admin events page
 		if r.URL.Path == "/admin/events" ||
+			r.URL.Path == "/admin/events/new" ||
 			r.URL.Path == "/admin/categories/select2" ||
 			r.URL.Path == "/admin/locations/select2" {
 			next.ServeHTTP(w, r)
@@ -163,6 +159,11 @@ func (rs resources) ModeratorAuthenticator(next http.Handler) http.Handler {
 		for i, event := range events {
 			prefixes[i] = "/admin/events/" + strconv.Itoa(int(event.ID))
 		}
+		prefixes = append(prefixes, "/admin/events/0")
+		prefixes = append(prefixes, "/admin/categories/new")
+		prefixes = append(prefixes, "/admin/locations/new")
+		prefixes = append(prefixes, "/admin/categories/0/form")
+		prefixes = append(prefixes, "/admin/locations/0/form")
 
 		if len(prefixes) > 0 {
 			// Make exception for own events

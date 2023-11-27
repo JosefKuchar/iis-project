@@ -1,6 +1,7 @@
 package template
 
 import "JosefKuchar/iis-project/models"
+import "JosefKuchar/iis-project/settings"
 import "strconv"
 
 type AdminLocationsPageData struct {
@@ -64,11 +65,11 @@ templ AdminLocationPage(data AdminLocationPageData, appbar AppbarData) {
                 Místo { data.Location.Name }
             }
         }
-        @AdminLocationPageForm(data)
+        @AdminLocationPageForm(data, appbar)
     }
 }
 
-templ AdminLocationPageForm(data AdminLocationPageData) {
+templ AdminLocationPageForm(data AdminLocationPageData, appbar AppbarData) {
     <form
         hx-trigger="keyup delay:300ms, change from:#approved"
         hx-swap="morph"
@@ -80,13 +81,21 @@ templ AdminLocationPageForm(data AdminLocationPageData) {
         @AdminTextField(data.Location.Street, data.Errors["Street"], "street", "Ulice *")
         @AdminTextField(data.Location.Zip, data.Errors["Zip"], "zip", "PSČ *")
         @AdminTextField(data.Location.City, data.Errors["City"], "city", "Město *")
-        @AdminCheckbox(data.Location.Approved, "approved", "Schváleno")
+        if appbar.User.RoleID != settings.ROLE_USER {
+            @AdminCheckbox(data.Location.Approved, "approved", "Schváleno")
+        }
         if data.New {
             <button class="btn btn-primary" type="submit" hx-post="/admin/locations/new"
                 if len(data.Errors) != 0 {
                     disabled="disabled"
                 }
-            >Vytvořit místo</button>
+            >
+                if appbar.User.RoleID != settings.ROLE_USER {
+                    Vytvořit místo
+                } else {
+                    Navrhnout místo
+                }
+            </button>
             <a href="/admin/locations" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
             <button class="btn btn-primary" type="submit" hx-post={ "/admin/locations/" + strconv.Itoa(int(data.Location.ID)) }
