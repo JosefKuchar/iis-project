@@ -76,6 +76,8 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
                         dataType: 'json'
                     },
                     placeholder: 'Žádné'
+                }).on('select2:select', function (e) {
+                    htmx.trigger('#event-detail-form', 'keyup')
                 });
                 $('#owner_id').select2({
                     ajax: {
@@ -83,6 +85,8 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
                         dataType: 'json'
                     },
                     placeholder: 'Žádné'
+                }).on('select2:select', function (e) {
+                    htmx.trigger('#event-detail-form', 'keyup')
                 });
                 $('#categories').select2({
                     ajax: {
@@ -103,7 +107,7 @@ templ AdminEventPage(data AdminEventPageData, appbar AppbarData) {
 
 templ AdminEventPageForm(data AdminEventPageData) {
 	<form
- 		hx-trigger="keyup delay:300ms, change from:#approved"
+ 		hx-trigger="keyup delay:300ms, change"
  		hx-swap="morph"
  		hx-post={ "/admin/events/" + strconv.Itoa(int(data.Event.ID)) + "/form" }
  		id="event-detail-form"
