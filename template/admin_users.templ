@@ -87,7 +87,7 @@ templ AdminUserPageForm(data AdminUserPageData) {
     >
         @AdminNewField(data.New)
         @AdminTextField(data.User.Name, data.Errors["Name"], "name", "Jméno *")
-        @AdminTextField(data.User.Email, data.Errors["email"], "email", "Email *")
+        @AdminTextField(data.User.Email, data.Errors["Email"], "email", "Email *")
         if data.New {
             @AdminPasswordField(data.User.Password, data.Errors["Password"], "password", "Heslo *")
         } else {
@@ -108,10 +108,18 @@ templ AdminUserPageForm(data AdminUserPageData) {
             }
         }
         if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/users/new">Vytvořit uživatele</button>
+            <button class="btn btn-primary" type="submit" hx-post="/admin/users/new"
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Vytvořit uživatele</button>
             <a href="/admin/users" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }>Uložit</button>
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/users/" + strconv.Itoa(int(data.User.ID)) }
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Uložit</button>
             if !data.Own {
                 <button
                     class="btn"

@@ -13,9 +13,16 @@ import (
 func (rs resources) AdminCommentsRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	validateForm := func(data *template.AdminCommentPageData) {
+		data.Errors = make(map[string]string)
+
+		if data.Comment.Text == "" {
+			data.Errors["Text"] = "Komentář nesmí být prázdný"
+		}
+	}
+
 	parseForm := func(r *http.Request) (template.AdminCommentPageData, error) {
 		data := template.AdminCommentPageData{}
-		data.Errors = make(map[string]string)
 
 		idString := chi.URLParam(r, "id")
 		if idString == "" {
@@ -30,10 +37,7 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 		data.Comment.ID = int64(id)
 		data.Comment.Text = r.FormValue("text")
 
-		if data.Comment.Text == "" {
-			data.Errors["Text"] = "Text cannot be empty"
-		}
-
+		validateForm(&data)
 		return data, nil
 	}
 
@@ -106,6 +110,11 @@ func (rs resources) AdminCommentsRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 

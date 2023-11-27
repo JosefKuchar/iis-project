@@ -30,7 +30,6 @@ func (rs resources) Routes() chi.Router {
 	r.Mount("/register", rs.RegisterRoutes())
 	r.Mount("/logout", rs.LogoutRoutes())
 	r.Mount("/events", rs.EventRoutes())
-	r.Mount("/user", rs.UserRoutes())
 
 	r.Group(func(r chi.Router) {
 		// All logged in users
@@ -64,7 +63,6 @@ func (rs resources) Routes() chi.Router {
 var tokenAuth *jwtauth.JWTAuth
 
 func init() {
-	// TODO: change secret
 	// Generate token
 	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 }

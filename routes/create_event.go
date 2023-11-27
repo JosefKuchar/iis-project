@@ -4,10 +4,11 @@ import (
 	"JosefKuchar/iis-project/models"
 	"JosefKuchar/iis-project/template"
 	"fmt"
-	"github.com/go-chi/jwtauth/v5"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/go-chi/jwtauth/v5"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -103,8 +104,6 @@ func (rs resources) CreateEventRoutes() chi.Router {
 		if err != nil {
 			panic(err)
 		}
-
-		// TODO: Add creation of new location
 
 		locationIDInt, err := strconv.ParseInt(locationID, 10, 64)
 		if err != nil {

@@ -17,6 +17,22 @@ import (
 func (rs resources) AdminUsersRoutes() chi.Router {
 	r := chi.NewRouter()
 
+	validateForm := func(data *template.AdminUserPageData) {
+		data.Errors = make(map[string]string)
+
+		if data.User.Email == "" {
+			data.Errors["Email"] = "Email nesmí být prázdný"
+		}
+
+		if data.User.Name == "" {
+			data.Errors["Name"] = "Jméno nesmí být prázdné"
+		}
+
+		if data.User.Password == "" && data.New {
+			data.Errors["Password"] = "Heslo nesmí být prázdné"
+		}
+	}
+
 	parseForm := func(r *http.Request) (template.AdminUserPageData, error) {
 		data := template.AdminUserPageData{}
 		data.Errors = make(map[string]string)
@@ -55,14 +71,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			data.User.RoleID = int64(roleID)
 		}
 
-		if data.User.Email == "" {
-			data.Errors["Email"] = "Email cannot be empty"
-		}
-
-		if data.User.Name == "" {
-			data.Errors["Name"] = "Name cannot be empty"
-		}
-
+		validateForm(&data)
 		return data, nil
 	}
 
@@ -138,6 +147,7 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 	r.Get("/new", func(w http.ResponseWriter, r *http.Request) {
 		data := template.AdminUserPageData{}
 		data.New = true
+		validateForm(&data)
 		err := rs.db.NewSelect().Model(&data.Roles).Scan(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), 500)
@@ -163,6 +173,11 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 			return
 		}
 
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
+			return
+		}
+
 		// Hash password
 		bcryptPassword, err := bcrypt.GenerateFromPassword([]byte(data.User.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -184,6 +199,11 @@ func (rs resources) AdminUsersRoutes() chi.Router {
 		data, err := parseForm(r)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		if len(data.Errors) > 0 {
+			http.Error(w, "Invalid form", 400)
 			return
 		}
 

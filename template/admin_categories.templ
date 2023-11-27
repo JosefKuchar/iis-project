@@ -93,7 +93,9 @@ templ AdminCategoryPage(data AdminCategoryPageData, appbar AppbarData) {
                     },
                     allowClear: true,
                     placeholder: 'Žádná'
-                });
+                }).on('select2:select', function (e) {
+                    htmx.trigger('#category-detail-form', 'keyup')
+                })
             });
         </script>
     }
@@ -108,17 +110,25 @@ templ AdminCategoryPageForm(data AdminCategoryPageData) {
     >
         @AdminNewField(data.New)
         @AdminTextField(data.Category.Name, data.Errors["Name"], "name", "Název *")
-        @AdminSelect(data.Errors["Parent"], "parent_id", "Rodičovská kategorie") {
+        @AdminSelect(data.Errors["ParentID"], "parent_id", "Rodičovská kategorie") {
             if !data.New && data.Category.ParentID > 0 {
                 <option value={ strconv.Itoa(int(data.Category.ParentID)) }>{ data.Category.Parent.Name }</option>
             }
         }
         @AdminCheckbox(data.Category.Approved, "approved", "Schváleno")
         if data.New {
-            <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new">Vytvořit kategorii</button>
+            <button class="btn btn-primary" type="submit" hx-post="/admin/categories/new"
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Vytvořit kategorii</button>
             <a href="/admin/categories" hx-push-url="true" hx-swap="innerHTML" class="btn">Zrušit</a>
         } else {
-            <button class="btn btn-primary" type="submit" hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }>Uložit</button>
+            <button class="btn btn-primary" type="submit" hx-post={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }
+                if len(data.Errors) != 0 {
+                    disabled="disabled"
+                }
+            >Uložit</button>
             <button
                 class="btn"
                 hx-delete={ "/admin/categories/" + strconv.Itoa(int(data.Category.ID)) }
